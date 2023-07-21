@@ -11,6 +11,7 @@ const apiMethods = {
     /* user */
     loginUser: (formData:object) => api.post('/login', formData),
     signupUser: (formData:object) => api.post('/signup', formData),
+    forgotPasswordUser:(formData:object)=>api.post('/forgot_password',formData),
     
     /* admin */
     loginAdmin: (formData:object) => api.post('/admin/login', formData),

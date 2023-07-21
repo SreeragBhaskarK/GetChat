@@ -20,15 +20,38 @@ function App() {
     <Suspense >
       <Routes>
         {/* Users */}
-        <Route path='/' element={<HomePage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/signup' element={<SignupPage />} />
         <Route path='/forgot_password' element={<ForgotPasswordPage />} />
+
+
+        {/* Side Nav  */}
+        <Route path='/' element={<HomePage />} />
+        <Route path='/search' />
+        <Route path='/explore' />
+        <Route path='/videos' />
+        <Route path='/messages' />
+        <Route path='/notifications' />
+        <Route path='/create' />
+        <Route path='/profile' />
+
+        {/* Side Nav End */}
+        {/* User End */}
+
         {/* Admin */}
         <Route path='/admin/login' element={<LoginPageAdmin />} />
-        <Route path='/admin' element={<DashboardPageAdmin />} />
-        <Route path='/admin/audience' element={<AudiencePageAdmin />} />
 
+        {/* Side Nav  */}
+        <Route path='/admin' element={<DashboardPageAdmin />} />
+        <Route path='/admin/posts' />
+        <Route path='/admin/analystics' />
+        <Route path='/admin/audience' element={<AudiencePageAdmin />} />
+        <Route path='/admin/messages' />
+        <Route path='/admin/notifications' />
+        <Route path='/admin/advertising' />
+        {/* Side Nav End */}
+
+        {/* Admin End */}
 
         <Route path='*' element='error' />
       </Routes>
