@@ -5,8 +5,12 @@ class CheckUserUseCase {
     constructor(userRepository: UserRepository) {
         this.userRepository = userRepository
     }
-    execute(phoneOrusernameOremail: string, password: string) {
-        return this.userRepository.findUser(phoneOrusernameOremail)
+    execute(phoneOrusernameOremail: string) {
+        try {
+            return this.userRepository.findUser(phoneOrusernameOremail)
+        } catch (err) {
+            throw err
+        }
     }
 }
 
