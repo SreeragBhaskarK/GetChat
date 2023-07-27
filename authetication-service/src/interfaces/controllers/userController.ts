@@ -6,10 +6,10 @@ import mongoose from "mongoose";
 import { tokenGenerate } from "../../utils/tokenGenerate";
 import { bcryptCheck } from "../../utils/bcryptCheck";
 import { forgotPasswordMail, forgotPasswordOtp } from "../../utils/send";
+import Verification from "../../useCases/userUseCase/verifyUser";
 const userRepository = new UserRepository();
 class UserController {
     static async postLogin(req: Request, res: Response) {
-        console.log(req.body);
         const { phoneOrusernameOremail, password } = req.body
 
         const checkUserUseCase = new CheckUserUseCase(userRepository)
@@ -18,6 +18,7 @@ class UserController {
             let result = await bcryptCheck(userData?.password, password)
 
             if (result && userData) {
+                userData.password = undefined
 
                 const userId: mongoose.Types.ObjectId = userData?._id
                 let token = await tokenGenerate(userId)
@@ -38,7 +39,7 @@ class UserController {
     }
 
     static async postSignup(req: Request, res: Response) {
-        console.log(req.body);
+
 
         const { mobileOrEmail, fullName, username, password } = req.body
         const createUser = new CreateUser(userRepository)
@@ -71,23 +72,23 @@ class UserController {
 
     static async postForgotPassword(req: Request, res: Response) {
         const { phoneOrusernameOremail } = req.body
-        console.log(req.body);
-        
+
+
         const checkUserUseCase = new CheckUserUseCase(userRepository)
         try {
             let userData = await checkUserUseCase.execute(phoneOrusernameOremail)
-            if(userData?.phone || userData?.email){
-                if(userData.email){
+            if (userData?.phone || userData?.email) {
+                if (userData.email) {
                     await forgotPasswordMail(userData.email)
-                    res.status(400).json({ message:'sended', sucess: true,type:'mail' })
-                }else if(userData.phone){
+                    res.status(400).json({ message: 'sended', sucess: true, type: 'mail' })
+                } else if (userData.phone) {
                     await forgotPasswordOtp(userData.phone)
-                    res.status(400).json({ message:'sended', sucess: true,type:'phone' })
+                    res.status(400).json({ message: 'sended', sucess: true, type: 'phone' })
                 }
 
 
-            }else{
-                res.status(400).json({ message:'user not found', sucess: false })
+            } else {
+                res.status(400).json({ message: 'user not found', sucess: false })
             }
 
         } catch (err: any) {
@@ -95,14 +96,36 @@ class UserController {
         }
     }
 
-    static async getVerify(req:Request,res:Response){
-        try{
-            const {token,email}= req.query
-            
-            res.status(200).send('<h1>successful</h1>')
+    static async getVerify(req: Request, res: Response) {
+        try {
+            const { token, email } = req.query
+            const verifications = new Verification(userRepository)
+            let userData = await verifications.execute(email as string, token as string)
+            if (userData) {
+                res.status(200).send('<h1>successful</h1>')
+            } else {
+                res.status(404).send('<h1>failed</h1>')
+            }
         }
-        catch(err){
+        catch (err) {
             res.status(404).send('<h1>failed</h1>')
+        }
+    }
+
+    static async postOtpSend(req: Request, res: Response) {
+        try {
+            const { mobileOrEmail } = req.body
+            const checkUserUseCase = new CheckUserUseCase(userRepository)
+            const userData = await checkUserUseCase.execute(mobileOrEmail)
+            if (userData?.status === 'verification processing') {
+                
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+
+        } catch (err: any) {
+            res.status(400).json({ success: false, message: err.message })
         }
     }
 }

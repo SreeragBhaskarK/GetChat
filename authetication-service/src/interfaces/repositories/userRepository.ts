@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 import userModel from "../../frameworks/mongoose/models/userModel"
 import jwt from "jsonwebtoken";
+import verifyModel from "../../frameworks/mongoose/models/verifyModel";
 class UserRepository {
 
     async findUser(phoneOrusernameOremail: string) {
         try {
-            console.log(phoneOrusernameOremail);
-
+           
+        
+            
             let userData
             // Check if the inputValue is a valid email address
             if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(phoneOrusernameOremail)) {
@@ -26,6 +28,8 @@ class UserRepository {
                 return userData
             }
 
+           
+
         } catch (err: any) {
             throw err
         }
@@ -40,15 +44,34 @@ class UserRepository {
             })
             // Check if mobileOrEmail is a valid email address
             if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mobileOrEmail)) {
+                let check  = await userModel.findOne({email:mobileOrEmail})
+                console.log(check);
+                
+                if(check){
+                    throw new Error ('already signup account')
+                }
                 userData.email = mobileOrEmail;
+                
             } else {
-                // If it's not an email, assume it's a mobile number
+                let check  = await userModel.findOne({phone:mobileOrEmail})
+                if(check){
+                    throw new Error ('already signup account')
+                    
+                }
                 userData.phone = mobileOrEmail;
             }
 
            userData.save();
             return true
         } catch (err) {
+            throw err
+        }
+    }
+
+    async verifyToken (email:string,token:string){
+        try{
+            return await verifyModel.findOne({email,token})
+        }catch(err){
             throw err
         }
     }

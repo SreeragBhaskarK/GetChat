@@ -1,4 +1,5 @@
 import adminModel from "../../frameworks/mongoose/models/adminModel"
+import userModel from "../../frameworks/mongoose/models/userModel"
 
 class AdminRepository {
 
@@ -9,5 +10,15 @@ class AdminRepository {
             throw err
         }
     }
+
+    async getUsers() {
+        try {
+            return await userModel.find()
+        } catch (err) {
+            throw err
+        }
+    }
 }
+
+
 export default AdminRepository

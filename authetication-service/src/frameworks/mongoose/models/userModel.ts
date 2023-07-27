@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -14,14 +14,20 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    password: String,
+    password: {
+        type:String
+    },
+    status:{
+        type:String,
+        default:'verification processing'
+    }
 
 }, { timestamps: true })
 
 userSchema.pre('save', async function (next) {
     const salt = 10
     if (this.password) {
-        this.password = await bcrypt.hash(this.password, salt)
+        this.password = await bcrypt.hashSync(this.password, salt)
     }
     next()
 })

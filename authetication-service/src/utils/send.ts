@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import verifyModel from '../frameworks/mongoose/models/verifyModel'
 
 
 const generateVerificationToken = () => {
@@ -10,8 +11,33 @@ export const forgotPasswordMail = async (email: string) => {
     const verificationToken = generateVerificationToken();
     const verificationLink = `http://localhost:3000/api/auth/verify?token=${verificationToken}&&email=${email}`
     try {
-       await sendMail(email, verificationLink)
-       return true
+        const result = await sendMail(email, verificationLink)
+        
+        if (result) {
+          
+            const verifyData = await verifyModel.findOne({ email })
+         
+            
+            if (verifyData) {
+                await verifyModel.updateOne({ email }, {
+                    $set: {
+                        token: verificationToken
+                    }
+                })
+                return true
+            } else {
+                let verify = new verifyModel({
+                    email: email,
+                    token: verificationToken
+                })
+                await verify.save()
+                return true
+            }
+
+        }else{
+            return false
+        }
+
     } catch (err) {
         throw err
     }
@@ -23,8 +49,7 @@ export const forgotPasswordOtp = (phone: string) => {
 
 
 const sendMail = async (email: string, verificationLink: string) => {
-console.log(email,verificationLink);
-const {SEND_MAIL,SEND_MAIL_PASSWORD} = process.env
+    const { SEND_MAIL, SEND_MAIL_PASSWORD } = process.env
 
 
     try {

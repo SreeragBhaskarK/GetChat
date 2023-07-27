@@ -1,8 +1,8 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 export const bcryptCheck=(authPassword:string|undefined,password:string)=>{
     if(authPassword)
-    return bcrypt.compare(password,authPassword)
+    return bcrypt.compareSync(password,authPassword)
     else
     return false
 }

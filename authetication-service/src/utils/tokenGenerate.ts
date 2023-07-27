@@ -11,6 +11,6 @@ export const tokenGenerate=(authId:mongoose.Types.ObjectId)=>{
         })
     }
     catch (err) {
-
+        throw err
     }
 }
