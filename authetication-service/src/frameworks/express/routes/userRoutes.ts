@@ -6,13 +6,13 @@ const router = Router()
 router.post('/login',UserController.postLogin)
 router.post('/signup',UserController.postSignup)
 router.delete('/logout',authMiddleware,UserController.deleteLogout)
-router.post
+router.post('/forgot-password',UserController.postForgotPassword)
 
-router.post('/forgot_password',UserController.postForgotPassword)
-router.post('/otp-send',UserController.postOtpSend)
+router.post('/signup-verification',UserController.postSignupVerification)
+router.post('/otp-verification',UserController.postOtpVerification)
 
 /* email */
-router.get('/verify',UserController.getVerify)
+router.post('/email-verification',UserController.postEmailVerification)
 /* otp */
 
 export default router

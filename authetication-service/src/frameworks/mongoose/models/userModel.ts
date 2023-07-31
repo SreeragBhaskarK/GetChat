@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcryptjs'
-const userSchema = new mongoose.Schema({
+import { User } from "../../../entities/userEntity";
+const userSchema = new mongoose.Schema<User>({
     email: {
         type: String,
-        unique: true
     },
     username: {
         type: String,
@@ -11,15 +11,14 @@ const userSchema = new mongoose.Schema({
     },
     full_name: String,
     phone: {
-        type: String,
-        unique: true
+        type: String
     },
     password: {
-        type:String
+        type: String
     },
-    status:{
-        type:String,
-        default:'verification processing'
+    status: {
+        type: String,
+        default: 'verification processing'
     }
 
 }, { timestamps: true })
@@ -33,4 +32,4 @@ userSchema.pre('save', async function (next) {
 })
 
 
-export default mongoose.model('users', userSchema)
+export default mongoose.model<User>('users', userSchema)

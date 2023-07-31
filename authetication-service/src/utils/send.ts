@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer'
 import verifyModel from '../frameworks/mongoose/models/verifyModel'
-
+import twilio from 'twilio';
 
 const generateVerificationToken = () => {
     return Math.random().toString(36).substr(2) + Date.now().toString(36);
@@ -8,51 +8,35 @@ const generateVerificationToken = () => {
 
 
 export const forgotPasswordMail = async (email: string) => {
-    const verificationToken = generateVerificationToken();
-    const verificationLink = `http://localhost:3000/api/auth/verify?token=${verificationToken}&&email=${email}`
+
     try {
-        const result = await sendMail(email, verificationLink)
-        
-        if (result) {
-          
-            const verifyData = await verifyModel.findOne({ email })
-         
-            
-            if (verifyData) {
-                await verifyModel.updateOne({ email }, {
-                    $set: {
-                        token: verificationToken
-                    }
-                })
-                return true
-            } else {
-                let verify = new verifyModel({
-                    email: email,
-                    token: verificationToken
-                })
-                await verify.save()
-                return true
-            }
-
-        }else{
-            return false
-        }
-
+        await sendMail(email)
+        return true
     } catch (err) {
         throw err
     }
 }
 
-export const forgotPasswordOtp = (phone: string) => {
+export const forgotPasswordOtp = async (phone: string) => {
+
+    try {
+        await sendOtp(phone)
+        return true
+    }
+    catch (err) {
+        throw err
+    }
 
 }
 
 
-const sendMail = async (email: string, verificationLink: string) => {
-    const { SEND_MAIL, SEND_MAIL_PASSWORD } = process.env
-
+export const sendMail = async (email: string) => {
 
     try {
+        const { SEND_MAIL, SEND_MAIL_PASSWORD } = process.env
+        if (!SEND_MAIL || !SEND_MAIL_PASSWORD) throw new Error("Mail services error")
+        const verificationToken = await generateVerificationToken();
+        const verificationLink = `http://localhost:3000/api/v1/auth/verify?token=${verificationToken}&&email=${email}`
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
@@ -72,14 +56,49 @@ const sendMail = async (email: string, verificationLink: string) => {
         // Send the email
         await transporter.sendMail(mailOptions);
 
+
+
+        const verifyData = await verifyModel.findOne({ email })
+
+
+        if (verifyData) {
+            await verifyModel.updateOne({ email }, {
+                $set: {
+                    token: verificationToken
+                }
+            })
+           
+        } else {
+            let verify = new verifyModel({
+                email: email,
+                token: verificationToken
+            })
+            await verify.save()
+           
+        }
         return true
+
     } catch (err) {
         throw err
     }
 
 }
 
-const sendOtp = () => {
+export const sendOtp = async (phone: string) => {
+    const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICES } = process.env
+    try {
+        if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_SERVICES) throw new Error('otp service credentials are missing.')
+      /*   const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        const result = await client.verify.v2.services(TWILIO_SERVICES)
+            .verifications
+            .create({ to: '+91' + phone, channel: 'sms' })
+        console.log(result);
+ */
+        return true
+    }
+    catch (err) {
+        throw err
+    }
 
 }
 

@@ -8,7 +8,7 @@ class CreateUser {
     }
     async execute(mobileOrEmail: string, fullName: string, username: string, password: string) {
         try {
-            return this.userRepository.insertUser(mobileOrEmail, fullName, username, password)
+            return await this.userRepository.insertUser(mobileOrEmail, fullName, username, password)
         } catch (err) {
             throw err
         }

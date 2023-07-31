@@ -1,3 +1,4 @@
+import { User } from "../../entities/userEntity"
 import adminModel from "../../frameworks/mongoose/models/adminModel"
 import userModel from "../../frameworks/mongoose/models/userModel"
 
