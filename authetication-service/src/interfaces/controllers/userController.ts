@@ -164,6 +164,9 @@ class UserController {
                         } else {
                             res.status(400).json({ success: false, message: 'OTP verification failed.' })
                         }
+                    }).catch((err)=>{
+                        res.status(400).json({ success: false, message: err.message })
+                        
                     })
                 }
             } else {

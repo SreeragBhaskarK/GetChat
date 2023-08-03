@@ -1,7 +1,7 @@
 import { User } from "../../entities/userEntity";
 import userModel from "../../frameworks/mongoose/models/userModel"
 import verifyModel from "../../frameworks/mongoose/models/verifyModel";
-import { produceUser } from "../messageBrokers/userProducer";
+
 class UserRepository {
 
     async findUser(phoneOrusernameOremail: string) {

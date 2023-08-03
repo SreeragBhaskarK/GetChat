@@ -46,24 +46,7 @@ class AdminController {
         }
     }
 
-    static async getAudience(req: Request, res: Response) {
-
-        try {
-            const getUser = new GetUsers(adminRepository)
-            const result = await getUser.execute()
-
-            if (result) {
-                res.status(200).json({ success: true, message: 'success', data: result })
-            } else {
-
-                res.status(400).json({ success: false, message: 'failed' })
-            }
-        }
-        catch (err: any) {
-            res.status(400).json({ success: false, message: err.message })
-
-        }
-    }
+ 
 }
 
 export default AdminController
