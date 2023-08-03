@@ -2,28 +2,29 @@ version: '3.9'
 services:
   zookeeper:
     container_name: zookeeper
-    image: wurstmeister/zookeeper
+    image: bitnami/zookeeper:latest
     ports:
       - 2181:2181
+    volumes:
+      - ./data:/bitnami/zookeeper/data # Persist Zookeeper data
+      - ./datalog:/bitnami/zookeeper/datalog # Persist Zookeeper transaction logs
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes # Enable anonymous login (no authentication)
 
   kafka:
     container_name: kafka
-    image: wurstmeister/kafka
+    image: bitnami/kafka:latest
     ports:
-      - 9092:9092
+      - "9092:9092" # Kafka port
     volumes:
-      - ./data/kafka:/var/run/docker.sock
+      - ./data:/bitnami/kafka/data # Persist Kafka data
+      - ./logs:/bitnami/kafka/logs # Persist Kafka logs
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 # Replace 'localhost' with your server's IP or hostname
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-
-  mongo:
-    container_name: mongo
-    image: mongo
-    ports:
-      - 27017:27017
-    volumes:
-      - ./data/mongo:/data/db
+      - ALLOW_PLAINTEXT_LISTENER=yes # Enable plaintext listener for development purposes
+    depends_on:
+      - zookeeper
 
   auth_service:
     container_name: auth_service
@@ -32,11 +33,16 @@ services:
       - 3000:3000
     volumes:
       - ./authetication-service:/app
-    environment:
-      - PORT=3000
-      - MONGO_URL=mongodb+srv://GetChat:8D9OIKTxsmbJaCaC@cluster0.15mcn5f.mongodb.net/?retryWrites=true&w=majority
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - KAFKA_TOPIC=topic1
     depends_on:
-      - mongo
       - kafka
+
+  admin_service:
+    container_name: admin_service
+    build: ./admin-service
+    ports:
+      - 4000:4000
+    volumes:
+      - ./admin-service:/app
+    depends_on:
+      - kafka
+
