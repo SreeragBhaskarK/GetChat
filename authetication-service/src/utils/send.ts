@@ -36,7 +36,7 @@ export const sendMail = async (email: string) => {
         const { SEND_MAIL, SEND_MAIL_PASSWORD } = process.env
         if (!SEND_MAIL || !SEND_MAIL_PASSWORD) throw new Error("Mail services error")
         const verificationToken = await generateVerificationToken();
-        const verificationLink = `http://localhost:3000/api/v1/auth/verify?token=${verificationToken}&&email=${email}`
+        const verificationLink = `http://localhost:5173/verification?token=${verificationToken}&&email=${email}`
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {

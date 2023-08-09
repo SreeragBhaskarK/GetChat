@@ -9,5 +9,6 @@ export interface User extends Document {
     phone?:string
     status:string
     createdAt:any
-    updatedAt:any
+    updatedAt:any,
+    verification_status:string
 }

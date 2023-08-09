@@ -6,11 +6,13 @@ class StatusChange{
         this.userRepository = userRepository
     }
 
-    async execute(status:string,username:string){
+    async execute(status:string,phone:string){
         try{
-            return this.userRepository.statusChange(status,username)
+            return this.userRepository.statusChange(status,phone)
         }catch(err){
             throw err
         }
     }
 }
+
+export default StatusChange

@@ -1,13 +1,18 @@
 import UserRepository from "../../interfaces/repositories/userRepository";
 
-class VerificationEmail{
+class VerificationEmail {
     private userRepository
-    constructor (userRepository:UserRepository){
+    constructor(userRepository: UserRepository) {
         this.userRepository = userRepository
     }
 
-   async execute(email:string,token:string,type:string){
-        return await this.userRepository.verifyToken(email,token,type)
+    async execute(email: string, token: string, type: string) {
+        try {
+
+            return await this.userRepository.verifyToken(email, token, type)
+        } catch (error) {
+            throw error
+        }
     }
 }
 

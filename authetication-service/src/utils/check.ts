@@ -20,7 +20,8 @@ export const otpCheck = (phone: string, otp: string) => {
                     resolve(false)
                 }
             }).catch((err: any) => {
-                console.log(err,'kkjk');
+              console.log('///////');
+              
                 reject(err) 
             })
         })

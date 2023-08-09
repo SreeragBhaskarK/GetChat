@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema<User>({
     },
     status: {
         type: String,
+        default:'inactive'
+    },
+    verification_status:{
+        type: String,
         default: 'verification processing'
     }
 

@@ -10,6 +10,7 @@ import { forgotPasswordMail, forgotPasswordOtp, sendMail, sendOtp } from "../../
 import { User } from "../../entities/userEntity";
 import { otpCheck } from "../../utils/check";
 import VerificationEmail from "../../useCases/userUseCase/verifyEmail";
+import StatusChange from "../../useCases/userUseCase/statusChange";
 const userRepository = new UserRepository();
 class UserController {
     static async postLogin(req: Request, res: Response) {
@@ -44,25 +45,25 @@ class UserController {
     static async postSignup(req: Request, res: Response) {
 
 
-        const { mobileOrEmail, fullName, username, password } = req.body
+        const { phoneOrEmail, fullName, username, password } = req.body
 
         try {
-            if (!mobileOrEmail || !fullName || !username || !password) throw new Error('incomplete details')
+            if (!phoneOrEmail || !fullName || !username || !password) throw new Error('incomplete details')
             const createUser = new CreateUser(userRepository)
-            let userData = await createUser.execute(mobileOrEmail, fullName, username, password)
+            let userData = await createUser.execute(phoneOrEmail, fullName, username, password)
             console.log(userData);
 
             if (userData) {
                 if(userData.email){
                    
-                    const result = await sendMail(mobileOrEmail)
+                    const result = await sendMail(phoneOrEmail)
                     if(result){
                         res.status(200).json({success:true,message:'Mail sent successfully.'})
                     }else{
                          res.status(400).json({success:false,message:'Mail sent failed.'})
                     }
-                }else{
-                    const result = await sendOtp(mobileOrEmail)
+                }else {
+                    const result = await sendOtp(phoneOrEmail)
                     if(result){
                         res.status(200).json({success:true,message:'OTP sent successfully.'})
                     }else{
@@ -123,12 +124,15 @@ class UserController {
 
     static async postEmailVerification(req: Request, res: Response) {
         try {
+            console.log('//////email',req.body);
+            
             const { token, email, type } = req.body
             if (!token || !email || !type) throw new Error('invalid url')
             const verificationEmail = new VerificationEmail(userRepository)
             let userData = await verificationEmail.execute(email as string, token as string, type as string)
             if (userData) {
-                res.status(200).json({ success: true, message: "Email verification successful." })
+                userData.password = undefined
+                res.status(200).json({ success: true, message: "Email verification successful.",data:userData })
             } else {
                 res.status(404).json({ success: false, message: "Email verification failed." })
             }
@@ -146,7 +150,7 @@ class UserController {
             
             const checkUserUseCase = new CheckUserUseCase(userRepository)
             const userData: User | undefined = await checkUserUseCase.execute(mobileOrEmail)
-            if (userData?.status === 'verification processing') {
+            if (userData?.verification_status === 'verification processing') {
                 if (userData.email) {
                     if (!token) throw new Error('signup error token')
                     const verificationEmail = new VerificationEmail(userRepository)
@@ -181,16 +185,23 @@ class UserController {
 
     static async postOtpVerification(req: Request, res: Response) {
         const { phone, otp } = req.body
+        console.log(req.body);
+        
         try {
             if (!phone || !otp) throw new Error('not found phone&otp')
-            otpCheck(phone, otp).then((result) => {
+            otpCheck(phone, otp).then(async(result) => {
                 console.log(result, 'res');
 
                 if (result) {
-                    res.status(200).json({ success: true, message: 'OTP verification successful.' })
+                    const statusChange = new StatusChange(userRepository)
+                   const userData =  await statusChange.execute('active',phone)
+                    
+                    res.status(200).json({ success: true, message: 'OTP verification successful.',data:userData })
                 } else {
                     res.status(400).json({ success: false, message: 'OTP verification failed.' })
                 }
+            }).catch((err)=>{
+                res.status(400).json({ success: false, message: err.message })
             })
 
         }
