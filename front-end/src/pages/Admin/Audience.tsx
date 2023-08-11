@@ -1,24 +1,31 @@
 import { useEffect, useState } from 'react'
 import api from '../../services/api'
 import { NavTopBar, NavSideBar, Footer } from '../../widgets/layout/admin';
-
+import { DeleteModal, EditAudienceAdmin } from '../../Components'
 
 export const Audience = () => {
   interface Audience {
-    _id: string;
+    user_id: string;
     username: string;
     email: string;
     phone: string;
     // Add other properties if necessary
   }
 
-
+  const [editProfile, setEditProfile] = useState(false)
+  const [deleteModal, setDeleteModal] = useState<boolean>(false)
   const [audiences, setAudiences] = useState<Audience[]>([])
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [audienceDetail, setAudienceDetail] = useState({
+    userId:'',
+    postId:''
+  })
   useEffect(() => {
 
 
     api.getAudienceAdmin().then((response) => {
       if (response.data.success) {
+        console.log(response, '/////////');
 
         setAudiences(response.data.data)
       }
@@ -26,6 +33,13 @@ export const Audience = () => {
       console.log(err, 'eeeeeeeeeeeeeeee')
     })
   }, [])
+
+  if(deleteConfirm && audienceDetail.userId && audienceDetail.postId){
+    setDeleteModal(true)
+    api.deleteAudienceAdmin(audienceDetail).then((response)=>{
+
+    })
+  }
 
   return (
     <>
@@ -63,7 +77,7 @@ export const Audience = () => {
                                 {index + 1}
                               </td>
                               <td className="px-6">
-                                #{audience?._id}
+                                #{audience?.user_id}
                               </td>
 
                               <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
@@ -73,7 +87,7 @@ export const Audience = () => {
                                   </div>
                                   <div className="flex flex-col justify-center">
                                     <h6 className="mb-0 text-sm leading-normal">{audience?.username}</h6>
-                                    <p className="mb-0 text-xs leading-tight text-slate-400">john@creative-tim.com</p>
+
                                   </div>
                                 </div>
                               </td>
@@ -88,7 +102,13 @@ export const Audience = () => {
                                 <span className="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Online</span>
                               </td>
                               <td className="px-6 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <a href="javascript:;" className="text-xs font-semibold leading-tight text-slate-400"> Edit </a>
+                                <div className='flex justify-center'>
+
+                                  <a onClick={() => setEditProfile(!editProfile)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Edit </a>
+                                  <a onClick={() => setDeleteModal(!deleteModal)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
+                                </div>
+                                <DeleteModal deleteItem='Post' deleteModal={deleteModal} setDelete={setDeleteConfirm}  setDeleteModal={setDeleteModal} />
+
                               </td>
                             </tr>)
                         })}
@@ -104,6 +124,7 @@ export const Audience = () => {
         </div>
         <Footer />
       </main >
+      < EditAudienceAdmin editProfile={editProfile} setEditProfile={setEditProfile} />
     </>
   )
 }

@@ -1,29 +1,41 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from '../../services/api'
+import {  SuccessModal } from "../../Components"
 
 export const Signup = () => {
     const navigate = useNavigate()
+    const [success, setSuccess] = useState(false)
+    const [otp, setOtp] = useState(false)
 
     const [formData, setFormData] = useState({
-        mobileOrEmail: '',
+        phoneOrEmail: '',
         fullName: '',
         username: '',
         password: ''
     })
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        if (formData.phoneOrEmail && formData.fullName && formData.username && formData.password) {
 
-        api.signupUser(formData).then((response) => {
-            if (response.data.success) {
-                navigate('/login')
-            }
-        })
-            .catch((err: Error) => {
-                console.log(err);
 
+            api.signupUser(formData).then((response) => {
+                console.log(response);
+
+                if (response.data.success) {
+
+                    if(response.data.message ==='OTP sent successfully.'){
+                         navigate('/otp-verification',{state:{phone:formData.phoneOrEmail}})
+                    }else{
+                        setSuccess(true)
+                    }
+                }
             })
+                .catch((err: Error) => {
+                    console.log(err);
 
+                })
+        }
     }
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, name } = e.target as HTMLInputElement
@@ -35,7 +47,7 @@ export const Signup = () => {
     return (
         <div>
 
-            <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
+           <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
                         className="mx-auto h-10 w-auto"
@@ -50,17 +62,17 @@ export const Signup = () => {
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="mobileOrEmail" className="block text-sm font-medium leading-6 text-gray-900">
+                            <label htmlFor="phoneOrEmail" className="block text-sm font-medium leading-6 text-gray-900">
                                 Mobile Number or Email
                             </label>
                             <div className="mt-2">
                                 <input
-                                    id="mobileOrEmail"
-                                    name="mobileOrEmail"
+                                    id="phoneOrEmail"
+                                    name="phoneOrEmail"
                                     type="text"
                                     autoComplete="email phone"
                                     required
-                                    value={formData.mobileOrEmail}
+                                    value={formData.phoneOrEmail}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
@@ -138,6 +150,7 @@ export const Signup = () => {
                     </p>
                 </div>
             </div>
+            <SuccessModal success={success} setSuccess={setSuccess}/>
         </div>
     )
 }

@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 interface userState {
-    adminData:object
-    isLoggedInAdmin:boolean
+    adminData: object
+    isLoggedInAdmin: boolean
 }
 const initialState: userState = {
-   adminData:{},
-   isLoggedInAdmin:false
+    adminData: {},
+    isLoggedInAdmin: false
 }
 
 const adminSlice = createSlice({
@@ -15,11 +15,14 @@ const adminSlice = createSlice({
         addAdminData(state, actions) {
             state.adminData = actions.payload
         },
-        loginCheckAdmin(state,actions){
+        loginCheckAdmin(state, actions) {
             state.isLoggedInAdmin = actions.payload
+            if (actions.payload === false) {
+                state.adminData = {}
+            }
         }
     }
 })
 
-export const { addAdminData,loginCheckAdmin } = adminSlice.actions
+export const { addAdminData, loginCheckAdmin } = adminSlice.actions
 export default adminSlice.reducer

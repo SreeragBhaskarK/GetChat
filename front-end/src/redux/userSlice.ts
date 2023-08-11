@@ -17,6 +17,9 @@ const userSlice = createSlice({
         },
         loginCheck(state,actions){
             state.isLoggedIn = actions.payload
+            if(!actions.payload){
+                state.userData={}
+            }
         }
     }
 })

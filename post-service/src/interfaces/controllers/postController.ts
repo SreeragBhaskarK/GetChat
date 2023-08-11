@@ -2,6 +2,7 @@ import { Response,Request } from "express"
 import PostRepository from "../repositories/postRepository"
 import GetPosts from "../../usecases/getPosts"
 import { sequelize } from "../../config/connection"
+/* import setImage from '../../utils/setImage' */
 const postRepository = new PostRepository(sequelize)
 class PostController{
     static getPosts=async (req:Request,res:Response)=>{
@@ -20,8 +21,11 @@ class PostController{
     }
 
     static postPosts = async (req:Request,res:Response)=>{
-        const {userId}=req.body
+       /*  const {userId}=req.body */
         console.log(req.file,'////////');
+      /*   const image = await setImage(req.file) */
+        /* console.log(image,req.body); */
+        
         
         try {
             

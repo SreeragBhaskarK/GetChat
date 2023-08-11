@@ -10,6 +10,11 @@ export default {
         '2': '2',
       },
     },
+    extend: {
+      padding: {
+        'full': '100%',
+      },
+    },
   },
   plugins: [],
 }

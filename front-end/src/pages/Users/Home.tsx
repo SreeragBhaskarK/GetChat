@@ -1,3 +1,4 @@
+import { PostCards } from "../../widgets/cards"
 import { NavRightSide, NavSideBar } from "../../widgets/layout/user"
 export const Home = () => {
     return (
@@ -44,6 +45,18 @@ export const Home = () => {
                         </div>
 
                     </div>
+                </div>
+                <div className="mx-auto flex flex-col justify-center max-w-lg pb-12">
+                    <div className="text-center text-2xl font-bold my-12 text-black">
+                        Posts
+
+                    </div>
+                    <PostCards/>
+                    <PostCards/>
+                    <PostCards/>
+                    <PostCards/>
+                    <PostCards/>
+
                 </div>
             </main >
             <NavRightSide />

@@ -15,4 +15,6 @@ router.delete('/audience', Audiences.deleteAudience)
 /* audience updating data */
 router.patch('/audience', Audiences.updateAudience)
 
+router.patch('/audience/block/:userId',Audiences.blockAndUnblockAudience)
+
 export default router

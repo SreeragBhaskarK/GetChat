@@ -1,7 +1,9 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
+import { Uploader } from "../../../Components"
 
 export const NavSideBar = () => {
-
+const [uploader, setUploader] = useState(false)
     return (
         <>
             <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
@@ -147,7 +149,7 @@ export const NavSideBar = () => {
                             </Link>
                         </li>
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/create">
+                            <div className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" onClick={()=>setUploader(!uploader)}>
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Audience</title>
@@ -164,7 +166,7 @@ export const NavSideBar = () => {
                                     </svg>
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Create</span>
-                            </Link>
+                            </div>
                         </li>
     
                         <li className="mt-0.5 w-full">
@@ -193,8 +195,7 @@ export const NavSideBar = () => {
 
 
             </aside>
-
-
+            <Uploader upload={uploader} setUpload={setUploader} />
         </>
     )
 }

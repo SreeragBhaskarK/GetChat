@@ -1,22 +1,34 @@
-import kafka from 'kafka-node'
+import { kafka } from "../../../config/kafkaClient";
+import { handleMessage } from "../handleMessage";
 
-const client = new kafka.KafkaClient({ kafkaHost: process.env.KAFKA_HOST })
-const consumer = new kafka.Consumer(
-    client,
-    [{ topic: 'user_topic', partition: 0 }],
-    { autoCommit: false }
-)
 
-export const consumeUser = (messageHandler: (message: string) => void): void => {
-    consumer.on('message', (message: any) => {
-        messageHandler(message.value)
-    })
 
-    consumer.on('error', (error: Error) => {
-        console.error('Error in User Consumer:', error)
-    })
+const consumer = kafka.consumer({
+    groupId: 'test-group'
+})
 
-    consumer.on('offsetOutOfRange',(error:Error)=>{
-        console.error('Offset out of range error in User Consumer:', error);
-    })
+const consumeUser = async () => {
+    try {
+        await consumer.connect()
+        console.log('consumer connected');
+        
+        await consumer.subscribe({ topic: 'add-admin', fromBeginning: true })
+        await consumer.run({
+            eachMessage: async ({ message }:any) => {
+                
+                const parsedMessage = JSON.parse(message.value);
+                const messageType = parsedMessage.type; // Extract the 'type' property
+                handleMessage(parsedMessage.data,messageType)
+                console.log("Received message type:", messageType);
+                console.log("Parsed message:", parsedMessage);
+            }
+        })
+    } catch (err) {
+        console.log('//////////errror///////',err);
+        
+    }
+
 }
+
+consumeUser()
+

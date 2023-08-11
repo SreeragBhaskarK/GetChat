@@ -6,4 +6,5 @@ export interface User{
     full_name:string
     status?:string
     password:string
+    verification_status?:string
 }

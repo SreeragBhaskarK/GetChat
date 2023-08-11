@@ -23,6 +23,10 @@ const userModel = (sequelize:Sequelize) =>{
         },
         status:{
             type:DataTypes.STRING,
+            defaultValue: 'inactive',
+        },
+        verification_status:{
+            type:DataTypes.STRING,
             defaultValue: 'verification processing',
         },
         password:{
