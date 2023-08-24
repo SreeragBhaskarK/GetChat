@@ -1,49 +1,106 @@
 import React, { useState } from 'react';
-import { ImageCrop } from './ImageCrop';
-import ReactCrop, { Crop } from 'react-image-crop';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
+
+
+
+import { useSelector, useDispatch } from 'react-redux';
+import api from '../services/api';
+import { addPost } from '../redux/userSlice';
+
 
 export const Uploader = ({ upload, setUpload }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    interface CustomCrop {
-        unit?: string;
-        width?: number;
-        height?: number;
-        aspect?: number;
-        x?: number;
-        y?: number
-    }
-    const [crop, setCrop] = useState<CustomCrop | null>(null); // Use CustomCrop type // Crop object, you can define Crop type as per your needs
-
+    const [formDataPost, setformData] = useState({
+        caption: ''
+    })
+    const userData = useSelector((state: any) => state.user.userData)
+    const dispatch = useDispatch()
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files && event.target.files[0];
         if (file) {
             setSelectedFile(file);
         }
+
+        const { name, value } = event.target
+        setformData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value
+        }))
     };
 
     const handleImageUpload = async () => {
-       /*  if (!selectedFile || !crop) return; */
-       console.log('////////uploader');
-       
-        const userId = useSelector((state: any) => state.user.userData._id)
-        const formData = new FormData();
-        formData.append('img', selectedFile);
-        formData.append('userId', userId);
-        axios.post('http://localhost:3002/api/v1/post/posts',formData,{
-            headers: {
-                "Content-Type": "multipart/form-data",
+        /*  if (!selectedFile || !crop) return; */
+        console.log('////////');
+
+
+        console.log(selectedFile);
+
+        /*    const userId = useSelector((state: any) => state.user.userData._id) */
+
+        /*   formData.append('userId', userId); */
+        if (selectedFile.type.startsWith('image/') || selectedFile.type.startsWith('video/')) {
+
+
+            let postName = selectedFile.name.replace(/[^a-zA-Z0-9\s]/g, '')
+            const formData = {
+                originalname: postName.replace(/\s/g, ''),
+                mimetype: selectedFile.type,
+                type: 'post'
             }
-        }).then((response)=>{
-            console.log(response,'/////image');
-            
-        }).catch((err)=>{   
-            console.log(err);
-            
-        })
-        // You might need to adjust the endpoint URL
-        
+            console.log('////////uploader', formData);
+            api.postUpload(formData).then(async (response) => {
+                console.log(response, '/////image', userData);
+                if (response.data.success) {
+                    const preSignedUrl = response.data.data;
+
+                    const result = await fetch(preSignedUrl, {
+                        method: 'PUT',
+                        body: selectedFile,
+                        headers: {
+                            'Content-Type': selectedFile.type, // Adjust the content type as needed
+                        },
+                    });
+                    console.log(result);
+
+                    if (result.status == 200) {
+                        console.log('//////cors');
+                        const parsedUrl = new URL(result.url);
+                        console.log(parsedUrl, 'parsedUrl');
+                        const postUrl = parsedUrl.origin + parsedUrl.pathname
+                        console.log(postUrl, 'posturl');
+
+                        const formData = {
+                            url: postUrl,
+                            username: userData.username,
+                            caption: formDataPost.caption
+                        }
+
+                        api.postUrl(formData).then((response) => {
+                            console.log(response);
+
+                            if (response.data.success) {
+
+                                setUpload(false)
+                                dispatch(addPost(response.data.data))
+
+                            }
+                        }).catch((err) => {
+                            setUpload(false)
+                            console.log(err, 'errrrorr');
+
+                        })
+                    }
+
+                    console.log('Image uploaded successfully', result);
+                }
+
+            }).catch((err) => {
+                console.log('//////', err);
+
+            })
+            // You might need to adjust the endpoint URL
+        } else {
+            return
+        }
     };
 
     return (
@@ -61,7 +118,7 @@ export const Uploader = ({ upload, setUpload }) => {
                                     onClick={() => setUpload(!upload)}
                                     className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                                 >
-                                     <svg
+                                    <svg
                                         className="w-3 h-3"
                                         aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -81,11 +138,10 @@ export const Uploader = ({ upload, setUpload }) => {
                             </div>
                             <div className="p-6 space-y-6">
                                 <div>
-                                    <input type="file" accept="image/*" onChange={handleFileChange} />
-                                    {selectedFile && (
-                                        <ImageCrop imageFile={selectedFile} crop={crop} setCrop={setCrop} />
-                                    )}
-                                    <button onClick={handleImageUpload}>Upload Image</button>
+                                    <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
+                                    <input type="text" name='caption' value={formDataPost.caption} placeholder='caption' onChange={handleFileChange} />
+
+                                    <button className='bg-blue-400' onClick={handleImageUpload}>submit</button>
                                 </div>
                             </div>
                         </div>

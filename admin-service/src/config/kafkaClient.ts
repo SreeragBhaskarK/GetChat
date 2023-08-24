@@ -1,6 +1,6 @@
 const { Kafka } = require('kafkajs')
 
 export const kafka = new Kafka({
-  clientId: 'my-app',
+  clientId: 'admin',
   brokers: ['kafka:9092',],
 })

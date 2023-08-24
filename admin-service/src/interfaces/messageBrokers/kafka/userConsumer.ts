@@ -4,10 +4,10 @@ import { handleMessage } from "../handleMessage";
 
 
 const consumer = kafka.consumer({
-    groupId: 'test-group'
+    groupId: 'admin-service'
 })
 
-const consumeUser = async () => {
+export const consumeUser = async () => {
     try {
         await consumer.connect()
         console.log('consumer connected');
@@ -30,5 +30,5 @@ const consumeUser = async () => {
 
 }
 
-consumeUser()
+
 

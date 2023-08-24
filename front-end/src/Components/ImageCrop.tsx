@@ -1,63 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import ReactCrop, { Crop } from 'react-image-crop';
+import React, { useState } from 'react';
+import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-interface CustomCrop {
-  unit?: string;
-  width?: number;
-  height?: number;
-  aspect?: number;
-  x?: number;
-  y?: number;
-}
-interface ImageCropProps {
-  imageFile: File;
-  crop: CustomCrop ;
-  setCrop: React.Dispatch<React.SetStateAction<CustomCrop>>;
+
+interface ImageCropperProps {
+  image: File;
 }
 
-export const ImageCrop: React.FC<ImageCropProps> = ({ imageFile, crop, setCrop }) => {
-  const [image, setImage] = useState<string | ArrayBuffer | null>(null);
+export const imageCrop=({ image }: ImageCropperProps)=> {
+  const [crop, setCrop] = useState<any>({ unit: '%', width: 30, aspect: 16 / 9 });
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
-  const handleImageLoaded = (img: HTMLImageElement) => {
-    const cropAspect = 4 / 3; // You can set your desired aspect ratio here
-    const imageAspect = img.width / img.height;
-    const aspect = cropAspect / imageAspect;
+  const handleCropComplete = (croppedAreaPixels: ReactCrop.Crop) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(image);
 
-    setCrop((prevCrop) => ({ ...prevCrop, aspect })); // Use functional update for object properties
+    const canvas = document.createElement('canvas');
+    canvas.width = croppedAreaPixels.width || 0;
+    canvas.height = croppedAreaPixels.height || 0;
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(
+        img,
+        croppedAreaPixels.x || 0,
+        croppedAreaPixels.y || 0,
+        croppedAreaPixels.width || 0,
+        croppedAreaPixels.height || 0,
+        0,
+        0,
+        croppedAreaPixels.width || 0,
+        croppedAreaPixels.height || 0
+      );
+
+      const croppedDataURL = canvas.toDataURL('image/jpeg');
+      setCroppedImage(croppedDataURL);
+    }
   };
-
-  const handleCropChange = (newCrop: Crop) => {
-    setCrop(newCrop);
-  };
-
-  const handleCropComplete = (croppedArea: Crop, croppedAreaPixels: Crop) => {
-    // You can save the croppedAreaPixels for sending to the server if needed
-  };
-
-  const handleFileRead = (e: ProgressEvent<FileReader>) => {
-    const content = e.target?.result;
-    setImage(content);
-  };
-
-  useEffect(() => {
-    const reader = new FileReader();
-    reader.onload = handleFileRead;
-    reader.readAsDataURL(imageFile);
-  }, [imageFile]);
 
   return (
     <div>
-      {image && (
-        <ReactCrop
-          src={image.toString()}
-          crop={crop as ReactCrop.Crop}
-          onImageLoaded={handleImageLoaded}
-          onChange={handleCropChange}
-          onComplete={handleCropComplete}
-        />
-      )}
+      <ReactCrop  crop={crop} onChange={setCrop} onComplete={handleCropComplete} />
+      {croppedImage && <img src={croppedImage} alt="Cropped" />}
     </div>
   );
-};
+}
 
-export default ImageCrop;
+export default imageCrop;

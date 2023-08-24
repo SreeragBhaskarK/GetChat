@@ -1,14 +1,13 @@
-import userRepository from "../../interfaces/repositories/userRepository";
+import UserAuthRepository from "../../interfaces/repositories/userAuthRepository"
 
 class CreateUser {
-    private userRepository: userRepository
-    constructor(userRepository: userRepository) {
-        this.userRepository = userRepository
-
+    private userAuthRepository: UserAuthRepository
+    constructor(userAuthRepository: UserAuthRepository) {
+        this.userAuthRepository = userAuthRepository
     }
     async execute(mobileOrEmail: string, fullName: string, username: string, password: string) {
         try {
-            return await this.userRepository.insertUser(mobileOrEmail, fullName, username, password)
+            return await this.userAuthRepository.insertUser(mobileOrEmail, fullName, username, password)
         } catch (err) {
             throw err
         }

@@ -8,7 +8,11 @@ export interface User extends Document {
     full_name:string
     phone?:string
     status:string
+    posts:[]
     createdAt:any
-    updatedAt:any,
+    updatedAt:any
     verification_status:string
+    gender?:string
+    bio?:string
+    profile_pic?:string
 }

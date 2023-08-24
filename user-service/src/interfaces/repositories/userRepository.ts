@@ -1,138 +1,95 @@
-import { User } from "../../entities/userEntity";
-import userModel from "../../frameworks/mongoose/models/userModel"
-import verifyModel from "../../frameworks/mongoose/models/verifyModel";
-import {  userProducer } from "../messageBrokers/userProducer";
+import mongoose from "mongoose"
 
-class UserRepository {
-
-    async findUser(phoneOrusernameOremail: string) {
-        try {
-
-            let userData
-            // Check if the inputValue is a valid email address
-            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(phoneOrusernameOremail)) {
-                userData = await userModel.find({ email: phoneOrusernameOremail });
-                if (!userData.length) throw new Error('user no found')
-                if (userData[0].verification_status === 'verification processing') throw new Error('not verified account')
-                console.log(userData, '///////');
-
-                return userData.pop()
-            }
-
-            // Check if the inputValue is a valid phone number (you might need a more sophisticated validation)
-            else if (/^\d{10}$/.test(phoneOrusernameOremail)) {
-                console.log(phoneOrusernameOremail);
-
-                userData = await userModel.find({ phone: phoneOrusernameOremail });
-                console.log(userData);
-
-                if (!userData.length) throw new Error('user no found')
-                if (userData[0].verification_status === 'verification processing') throw new Error('not verified account')
-                return userData.pop()
-            }
-
-            // If the above conditions fail, assume it's a username
-            else {
-                userData = await userModel.find({ username: phoneOrusernameOremail });
-                if (!userData.length) throw new Error('user no found')
-                if (userData[0].verification_status === 'verification processing') throw new Error('not verified account')
-                return userData.pop()
-            }
-
-
-
-        } catch (err: any) {
-            throw err
-        }
+const ObjectId =  mongoose.Types.ObjectId
+class UserRepository{
+    
+    constructor(private userModel:any,private messageModel:any){
+        this.userModel = userModel
+        this.messageModel = messageModel
     }
-
-    async insertUser(mobileOrEmail: string, fullName: string, username: string, password: string) {
-        console.log(mobileOrEmail);
-
+    async getUser (username:string){
         try {
-            let userData = new userModel({
-                full_name: fullName,
-                username: username,
-                password: password
-            })
-            // Check if mobileOrEmail is a valid email address
-            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mobileOrEmail)) {
-                let check: User[] = await userModel.find({ $or: [{ email: mobileOrEmail }, { username: username }] })
-                console.log(check, '////////');
-
-                if (check.length) {
-                    if (check[0].verification_status == 'verification processing') {
-                        await userModel.deleteOne({ _id: check[0]._id })
-                    } else {
-
-                        throw new Error(`already signup account ${check[0].email ?? check[0].username}`)
-                    }
-                }
-                userData.email = mobileOrEmail;
-
-            } else if (/^\d{10}$/.test(mobileOrEmail)) {
-                let check = await userModel.find({ $or: [{ phone: mobileOrEmail }, { username: username }] })
-                console.log(check, '//////phone');
-                if (check.length) {
-                    if (check[0].verification_status == 'verification processing') {
-                        await userModel.deleteOne({ _id: check[0]._id })
-                    } else {
-                        throw new Error(`already signup account ${check[0].phone ?? check[0].username}`)
-                    }
-                }
-                userData.phone = mobileOrEmail;
-            }
-
-            userData.save();
-            console.log(userData);
-            userProducer(userData,'add-admin')
+            const userData = await this.userModel.findOne({username})
             return userData
         } catch (err) {
             throw err
+            
+        }
+    }
+    async updateUser (username:string,bio:string,gender:string,profilePic:string){
+        try {
+            console.log(username,bio,gender);
+            if(profilePic) return await this.userModel.findOneAndUpdate({username},{$set:{bio,gender,profile_pic:profilePic}},{new:true})
+          return await this.userModel.findOneAndUpdate({username},{$set:{bio,gender}},{new:true})
+            
+        } catch (err) {
+            throw err
+            
+        }
+    }
+    async searchUser (key:string){
+        try {
+            
+           return await this.userModel.find({username:{$regex:key,$options:'i'}}).limit(5)
+            
+        } catch (err) {
+            throw err
+            
         }
     }
 
-    async verifyToken(email: string, token: string, type: string) {
+    async followUser(followId:string,userId:string){
         try {
-            const result = await verifyModel.find({ email, token })
-            console.log(result);
+            return true
+            
+        } catch (err) {
+            throw err
+            
+        }
+    }
+    async unFollowUser(unfollowId:string,userId:string){
+        try {
+            return true
+            
+        } catch (err) {
+            throw err
+            
+        }
+    }
 
-            if (result.length) {
-                await verifyModel.deleteOne({ email })
-                if (type == 'signup') {
-
-                    const updatedDocument = await userModel.findOneAndUpdate(
-                        { email },
-                        { $set: { status: 'active', verification_status: 'verified' } },
-                        { new: true } // This option returns the updated document
-                    );
-
-                    return updatedDocument
+    async getMessages(userId:string){
+        try {
+            const result = await this.messageModel.aggregate([{
+                $match:{
+                    $or:[{senderId:new ObjectId(userId)},{recipientId:new ObjectId(userId)}]
                 }
-            } else {
-                return false
-            }
+            },{
+                $lookup:{
+                    from:'users',
+                    localField:'senderId',
+                    foreignField:'_id',
+                    as:'sender'
+                }
+            },{
+                $lookup:{
+                    from:'users',
+                    localField:'recipientId',
+                    foreignField:'_id',
+                    as:'recipient'
+                }
+            },{
+                $sort:{createdAt:-1}
+            },{
+                $limit:10
+            }])
+
+            return result
+            
         } catch (err) {
             throw err
+            
         }
     }
-
-    async statusChange(status: string, phone: string) {
-        try {
-            const updatedDocument = await userModel.findOneAndUpdate(
-                { phone },
-                { $set: { status, verification_status: 'verified' } },
-                { new: true } // This option returns the updated document
-            );
-            console.log('/////');
-            return updatedDocument
-        } catch (err) {
-            throw err
-        }
-    }
-
-
-
 }
 
 export default UserRepository

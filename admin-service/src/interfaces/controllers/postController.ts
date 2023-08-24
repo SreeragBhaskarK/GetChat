@@ -51,8 +51,10 @@ class postController {
 
     static deletePost = async (req:Request,res:Response) => {
         try{
+            const {id}= req.body
+            if(!id)throw new Error('not found id')
             const deletePost = new DeletePost(postRepository)
-            const result = await deletePost.execute()
+            const result = await deletePost.execute(id)
             if(result){
                 res.status(200).json({success:true,message:'success',data:result})
             }else{

@@ -2,14 +2,15 @@ import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
-export const DeleteModal = ({deleteItem, deleteModal, setDeleteModal,setDelete }) => {
+export const DeleteModal = ({deleteItem, deleteModal, setDeleteModal,setDeleteConfirm,deleteConfirm  }) => {
     const [open, setOpen] = useState(true)
 
     const cancelButtonRef = useRef(null)
+   
 
     return (
         <>
-            {deleteModal && <Transition.Root show={open} as={Fragment}>
+            { <Transition.Root show={open} as={Fragment}>
                 <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
                     <Transition.Child
                         as={Fragment}
@@ -56,7 +57,7 @@ export const DeleteModal = ({deleteItem, deleteModal, setDeleteModal,setDelete }
                                         <button
                                             type="button"
                                             className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                                            onClick={()=>setDelete(true)}
+                                            onClick={()=>setDeleteConfirm(!deleteConfirm)}
                                         >
                                             Delete
                                         </button>

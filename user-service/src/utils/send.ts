@@ -10,7 +10,7 @@ const generateVerificationToken = () => {
 export const forgotPasswordMail = async (email: string) => {
 
     try {
-        await sendMail(email)
+        await sendMail(email,'forgot')
         return true
     } catch (err) {
         throw err
@@ -30,13 +30,13 @@ export const forgotPasswordOtp = async (phone: string) => {
 }
 
 
-export const sendMail = async (email: string) => {
+export const sendMail = async (email: string,type:string) => {
 
     try {
         const { SEND_MAIL, SEND_MAIL_PASSWORD } = process.env
         if (!SEND_MAIL || !SEND_MAIL_PASSWORD) throw new Error("Mail services error")
         const verificationToken = await generateVerificationToken();
-        const verificationLink = `http://localhost:5173/verification?token=${verificationToken}&&email=${email}`
+        const verificationLink = `http://localhost:5173/verification?token=${verificationToken}&&email=${email}&&type=${type}`
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {

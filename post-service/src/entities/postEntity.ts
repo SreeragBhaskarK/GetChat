@@ -1,4 +1,11 @@
 export interface Post{
-    user_id:string
-    posts:any[]
+    id?:string
+    username:string
+    post_url:string
+    caption:string
+    hashtags?:[]
+    likes?:string
+    comments?:[]
+    likedBy?:[]
+
 }

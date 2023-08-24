@@ -16,11 +16,36 @@ import axios from 'axios';
     logoutUser:()=>api.delete('/user/logout'),
     verification:(formData)=>api.post('/user/email-verification',formData),
     otpVerification:(formData)=>api.post('/user/otp-verification',formData),
+    getProfile: (username) => api.post('/user/profile', username),
+    updateProfile: (formData) => api.patch('/user/profile', formData),
+    userSearch:(key)=>api.get(`/user/search-user?search=${key}`),
+    followUser:(formData)=>api.post('/user/follow',formData),
+    unfollowUser:(formData)=>api.post('/user/unfollow',formData),
+    getMessage:(formData)=>api.post('/user/get-message',formData),  
+    
     /* admin */
     logoutAdmin:()=>api.delete('/admin/logout'),
     loginAdmin: (formData:object) => api.post('/admin/login', formData),
     getAudienceAdmin:()=>api.get('/admin/audience'),
-    deleteAudienceAdmin:(formData)=>api.delete('/admin/audience',formData)
+    deleteAudienceAdmin:(formData)=>api.delete('/admin/audience',formData),
+    editAudienceAdmin:(formData)=>api.patch('/admin/audience',formData),
+    getPostsAdmin:()=>api.get('/admin/posts'),
+    deletePostsAdmin:(formData)=>api.delete('/admin/posts',formData),
+
+    /* posts */
+
+    postUpload:(formData:object)=> api.post('/post/posts',formData),
+    postUrl:(url:object)=>api.post('/post/post-url',url),
+    postLike:(formData)=>api.post('/post/like',formData),
+    postUnlike:(formData)=>api.post('/post/unlike',formData),
+    postReport:(formData)=>api.post('/post/report',formData),
+    getPosts:(formData)=>api.post('/post/post',formData),
+    postDelete:(formData)=>api.delete('/post/delete-post',formData),
+    getPost:(page,username)=>api.get(`/post/post?page=${page}&&username=${username}`),
+    addComment:(formData)=>api.post('/post/comment',formData),
+    deleteComment:(formData)=>api.delete('/post/delete-comment',formData),
+    editPost:(formData)=>api.post('/post/edit-post',formData)
+   
 };
 
 export default apiMethods;

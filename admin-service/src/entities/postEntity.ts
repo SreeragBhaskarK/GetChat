@@ -1,4 +1,5 @@
 export interface Post {
-    user_id:string,
-    posts:any[]
+    type:string,
+    post:any[],
+    status?:string   
 }

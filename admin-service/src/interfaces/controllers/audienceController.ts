@@ -44,10 +44,10 @@ class AudienceController {
 
     static updateAudience = async (req:Request,res:Response) => {
         try{
-            const {mobileOrEmail,username,fullName,password,userId}=req.body
-            if(!mobileOrEmail||!username||!fullName||!password||!userId)throw new Error("update incomplete filling")
+            const {phoneOrEmail,username,fullName}=req.body
+            if(!phoneOrEmail||!username||!fullName)throw new Error("update incomplete filling")
             const updateAudience = new UpdateAudience(audienceRepository)
-            const result = await updateAudience.execute(mobileOrEmail,username,fullName,password,userId)
+            const result = await updateAudience.execute(phoneOrEmail,username,fullName)
             if(result){
                 res.status(200).json({success:true,message:"success"})
             }else{

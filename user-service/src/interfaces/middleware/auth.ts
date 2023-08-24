@@ -14,8 +14,13 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
                     res.status(401).json({ success: false, message: 'Permission denied' })
                 } else {
 
-                    req.userId = decodedToken
-                    next()
+                    if ('user' === decodedToken.user) {
+                        req.userId = decodedToken.authId;
+                        // Store user role in the request object
+                        next();
+                    } else {
+                        res.status(403).json({ success: false, message: 'Access forbidden' });
+                    }
                 }
             })
         } else {

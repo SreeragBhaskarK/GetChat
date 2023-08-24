@@ -1,3 +1,4 @@
+import { adminProducer } from "../../interfaces/messageBrokers/kafka/postProducer"
 import AudienceRepository from "../../interfaces/repositories/audienceRepository"
 
 class UpdateAudience{
@@ -6,9 +7,13 @@ class UpdateAudience{
         this.audienceRepository =audienceRepostory
     }
 
-    async execute(mobileOrEmail:string,username:string,fullName:string,password:string,userId:string){
+    async execute(phoneOrEmail:string,username:string,fullName:string){
         try{
-            return this.audienceRepository.updateAudience(mobileOrEmail,username,fullName,password,userId)
+            const result = await this.audienceRepository.updateAudience(phoneOrEmail,username,fullName)
+            if(result){
+               await adminProducer({phoneOrEmail,username,fullName},'addPostInUser','updateUser')
+            }
+            return true
         }
         catch(err){
             throw err

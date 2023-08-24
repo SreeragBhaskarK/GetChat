@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 interface userState {
-    userData:object
+    userData:any
     isLoggedIn:boolean
 }
+
 const initialState: userState = {
-   userData:{},
+   userData:{} ,
    isLoggedIn:false
 }
 
@@ -20,9 +21,20 @@ const userSlice = createSlice({
             if(!actions.payload){
                 state.userData={}
             }
+        },
+        addPost(state,actions){
+            state.userData.posts.push(actions.payload)
+        },
+        updatePost(state,actions){
+            state.userData.posts = state.userData.posts.map(post => {
+                if (post.id === actions.payload.id) {
+                    return actions.payload;
+                }
+                return post;
+            });
         }
     }
 })
 
-export const { addUserData,loginCheck } = userSlice.actions
+export const { addUserData,loginCheck,addPost,updatePost } = userSlice.actions
 export default userSlice.reducer

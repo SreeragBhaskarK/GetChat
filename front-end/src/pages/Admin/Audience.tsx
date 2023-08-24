@@ -14,11 +14,12 @@ export const Audience = () => {
 
   const [editProfile, setEditProfile] = useState(false)
   const [deleteModal, setDeleteModal] = useState<boolean>(false)
+  const [deleteIndex, setDeleteIndex] = useState()
   const [audiences, setAudiences] = useState<Audience[]>([])
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [audienceDetail, setAudienceDetail] = useState({
-    userId:'',
-    postId:''
+    userId: '',
+    postId: ''
   })
   useEffect(() => {
 
@@ -34,12 +35,31 @@ export const Audience = () => {
     })
   }, [])
 
-  if(deleteConfirm && audienceDetail.userId && audienceDetail.postId){
-    setDeleteModal(true)
-    api.deleteAudienceAdmin(audienceDetail).then((response)=>{
+  
 
-    })
+  const handleDelete = (index,username) => {
+    setDeleteModal(!deleteModal)
+    setDeleteIndex(index)
+    if(deleteConfirm){
+      api.deleteAudienceAdmin({username}).then((response) => {
+        console.log(response);
+        
+        if(response.data.success){
+
+        }
+
+      }).catch((err)=>{
+        console.log(err);
+        
+      })
+    }
   }
+
+  const handleEdit = (index)=>{
+    setEditProfile(!editProfile)
+    setDeleteIndex(index)
+  }
+
 
   return (
     <>
@@ -72,7 +92,7 @@ export const Audience = () => {
                         {audiences && audiences.map((audience, index) => {
 
                           return (
-                            <tr>
+                            <tr key={index}>
                               <td className="px-6">
                                 {index + 1}
                               </td>
@@ -104,10 +124,11 @@ export const Audience = () => {
                               <td className="px-6 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                 <div className='flex justify-center'>
 
-                                  <a onClick={() => setEditProfile(!editProfile)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Edit </a>
-                                  <a onClick={() => setDeleteModal(!deleteModal)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
+                                  <a onClick={() => handleEdit(index) } className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Edit </a>
+                                  <a onClick={() => handleDelete(index,audience?.username)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
                                 </div>
-                                <DeleteModal deleteItem='Post' deleteModal={deleteModal} setDelete={setDeleteConfirm}  setDeleteModal={setDeleteModal} />
+                                {deleteModal && deleteIndex == index && <DeleteModal deleteItem='Post' deleteModal={deleteModal} setDeleteConfirm={setDeleteConfirm} deleteConfirm={deleteConfirm} setDeleteModal={setDeleteModal} />}
+                                {editProfile && deleteIndex == index && < EditAudienceAdmin editProfile={editProfile} userData={audience} setEditProfile={setEditProfile} />}
 
                               </td>
                             </tr>)
@@ -124,7 +145,6 @@ export const Audience = () => {
         </div>
         <Footer />
       </main >
-      < EditAudienceAdmin editProfile={editProfile} setEditProfile={setEditProfile} />
     </>
   )
 }

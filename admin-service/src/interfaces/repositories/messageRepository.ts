@@ -1,10 +1,13 @@
 import { Sequelize } from "sequelize";
 import userModel from "../../frameworks/sequelize/models/userModel";
+import postModel from "../../frameworks/sequelize/models/postModel";
 
 class MessageRepository{
     private UserModal
+    private PostModel
     constructor (sequelize:Sequelize){
         this.UserModal= userModel(sequelize)
+        this.PostModel = postModel(sequelize)
     }
     async insertUser (userData:any){
         try{
@@ -21,6 +24,20 @@ class MessageRepository{
         }catch(err){
             return false
         }
+    }
+
+    async insertPost (postData:any){
+        try {
+            return await this.PostModel.create({
+                type:postData[1],
+                post:postData[0],
+                status:'pending'
+            })
+            
+        } catch (err) {
+            throw err
+        }
+
     }
 }
 

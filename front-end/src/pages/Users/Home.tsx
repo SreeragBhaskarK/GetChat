@@ -1,6 +1,65 @@
+import { useSelector } from "react-redux"
+import api from "../../services/api"
 import { PostCards } from "../../widgets/cards"
 import { NavRightSide, NavSideBar } from "../../widgets/layout/user"
+import { useEffect, useState } from 'react'
 export const Home = () => {
+    const [posts, setPosts] = useState([])
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+
+    const userData = useSelector((state: any) => state.user.userData)
+    let page = 0
+    useEffect(() => {
+        console.log(userData, '////////');
+        loadPost()
+
+    }, [userData])
+    const loadPost = async () => {
+        try {
+           
+            if(page===0)return page=1 
+            if (!hasMore || loading) return;
+            setLoading(true);
+            const formData = {
+                page,
+                username: userData.username
+            }
+            const response = await api.getPosts(formData)
+
+            if (response.data.success) {
+                const newPosts = response.data.data;
+                if (newPosts.length === 0) {
+                    setHasMore(false);
+                } else {
+                    setPosts((prePost) => [...prePost, ...newPosts]);
+                    page += 1
+                    console.log(page, '//////////////');
+
+                }
+            }
+        }
+        catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+        finally {
+            setLoading(false);
+        };
+
+    }
+    const handleScroll = () => {
+        const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 20) {
+            loadPost();
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [hasMore]);
     return (
         <>
             <NavSideBar />
@@ -51,12 +110,12 @@ export const Home = () => {
                         Posts
 
                     </div>
-                    <PostCards/>
-                    <PostCards/>
-                    <PostCards/>
-                    <PostCards/>
-                    <PostCards/>
-
+                    {posts.map((post, index) => {
+                        return (
+                            <PostCards key={index} username={userData.username} post={post} />
+                        )
+                    })}
+                    {loading && <div className="loader">Loading...</div>}
                 </div>
             </main >
             <NavRightSide />

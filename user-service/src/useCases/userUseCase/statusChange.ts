@@ -1,14 +1,14 @@
-import UserRepository from "../../interfaces/repositories/userRepository";
+import UserAuthRepository from "../../interfaces/repositories/userAuthRepository"
 
 class StatusChange{
-    private userRepository
-    constructor(userRepository:UserRepository){
-        this.userRepository = userRepository
+    private userAuthRepository: UserAuthRepository
+    constructor(userAuthRepository: UserAuthRepository) {
+        this.userAuthRepository = userAuthRepository
     }
 
     async execute(status:string,phone:string){
         try{
-            return this.userRepository.statusChange(status,phone)
+            return this.userAuthRepository.statusChange(status,phone)
         }catch(err){
             throw err
         }

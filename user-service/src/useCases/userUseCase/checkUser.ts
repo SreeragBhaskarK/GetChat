@@ -1,13 +1,13 @@
-import UserRepository from "../../interfaces/repositories/userRepository"
+import UserAuthRepository from "../../interfaces/repositories/userAuthRepository"
 
 class CheckUserUseCase {
-    private userRepository: UserRepository
-    constructor(userRepository: UserRepository) {
-        this.userRepository = userRepository
+    private userAuthRepository: UserAuthRepository
+    constructor(userAuthRepository: UserAuthRepository) {
+        this.userAuthRepository = userAuthRepository
     }
     execute(phoneOrusernameOremail: string) {
         try {
-            return this.userRepository.findUser(phoneOrusernameOremail)
+            return this.userAuthRepository.findUser(phoneOrusernameOremail)
         } catch (err) {
             throw err
         }

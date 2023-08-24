@@ -4,17 +4,17 @@ import { auth } from "../../../interfaces/middelwares/auth";
 
 const router = Router()
 /* audience getting data */
-router.get('/audience', Audiences.getAudience)
+router.get('/audience',auth, Audiences.getAudience)
 
 /* audience adding data */
-router.post('/audience', Audiences.addAudience)
+router.post('/audience',auth, Audiences.addAudience)
 
 /* audience deleting data */
-router.delete('/audience', Audiences.deleteAudience)
+router.delete('/audience',auth, Audiences.deleteAudience)
 
 /* audience updating data */
-router.patch('/audience', Audiences.updateAudience)
+router.patch('/audience',auth, Audiences.updateAudience)
 
-router.patch('/audience/block/:userId',Audiences.blockAndUnblockAudience)
+router.patch('/audience/block/:userId',auth,Audiences.blockAndUnblockAudience)
 
 export default router

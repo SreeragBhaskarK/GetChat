@@ -5,5 +5,7 @@ export * from './ImageCrop'
 export * from './EditAudienceAdmin'
 export * from './DeleteModal'
 export * from './SuccessModal'
+export * from './ChatBox'
+export * from './Search'
 
 

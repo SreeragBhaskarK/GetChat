@@ -6,6 +6,10 @@ export const handleMessage = async (data: JSON, type: string) => {
     try {
         if (type === 'insertUser') {
             await messageRepository.insertUser(data)
+        }else if(type ==='postReportAdmin'){
+            console.log(data);
+            
+            await messageRepository.insertPost(data)
         }
     } catch (error) {
         console.log(error);

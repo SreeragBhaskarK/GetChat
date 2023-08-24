@@ -11,7 +11,6 @@ export const sequelize = new Sequelize({
 
 async function connect() {
     try {
-
         await sequelize.authenticate();
         console.log('GetChat Post Serive DB Ready');
     } catch (error) {

@@ -1,15 +1,15 @@
-import UserRepository from "../../interfaces/repositories/userRepository";
+import UserAuthRepository from "../../interfaces/repositories/userAuthRepository"
 
 class VerificationEmail {
-    private userRepository
-    constructor(userRepository: UserRepository) {
-        this.userRepository = userRepository
+    private userAuthRepository: UserAuthRepository
+    constructor(userAuthRepository: UserAuthRepository) {
+        this.userAuthRepository = userAuthRepository
     }
 
     async execute(email: string, token: string, type: string) {
         try {
 
-            return await this.userRepository.verifyToken(email, token, type)
+            return await this.userAuthRepository.verifyToken(email, token, type)
         } catch (error) {
             throw error
         }

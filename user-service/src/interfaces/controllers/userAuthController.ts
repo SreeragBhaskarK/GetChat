@@ -1,6 +1,6 @@
 import CheckUserUseCase from "../../useCases/userUseCase/checkUser"
 import { Response, Request } from "express";
-import UserRepository from "../repositories/userRepository";
+import UserAuthRepository from "../repositories/userAuthRepository";
 import CreateUser from "../../useCases/userUseCase/createUser";
 import mongoose from "mongoose";
 import { tokenGenerate } from "../../utils/tokenGenerate";
@@ -11,13 +11,13 @@ import { User } from "../../entities/userEntity";
 import { otpCheck } from "../../utils/check";
 import VerificationEmail from "../../useCases/userUseCase/verifyEmail";
 import StatusChange from "../../useCases/userUseCase/statusChange";
-const userRepository = new UserRepository();
-class UserController {
+const userAuthRepository = new UserAuthRepository();
+class UserAuthController {
     static async postLogin(req: Request, res: Response) {
         const { phoneOrusernameOremail, password } = req.body
         try {
             if (!phoneOrusernameOremail || !password) throw new Error('incomplete details')
-            const checkUserUseCase = new CheckUserUseCase(userRepository)
+            const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             let userData: User | undefined = await checkUserUseCase.execute(phoneOrusernameOremail)
             let result = await bcryptCheck(userData?.password, password)
 
@@ -49,14 +49,14 @@ class UserController {
 
         try {
             if (!phoneOrEmail || !fullName || !username || !password) throw new Error('incomplete details')
-            const createUser = new CreateUser(userRepository)
+            const createUser = new CreateUser(userAuthRepository)
             let userData = await createUser.execute(phoneOrEmail, fullName, username, password)
             console.log(userData);
 
             if (userData) {
                 if(userData.email){
                    
-                    const result = await sendMail(phoneOrEmail)
+                    const result = await sendMail(phoneOrEmail,'signup')
                     if(result){
                         res.status(200).json({success:true,message:'Mail sent successfully.'})
                     }else{
@@ -100,7 +100,7 @@ class UserController {
         
         try {
             if (!phoneOrusernameOremail) throw new Error('User has no phone or email.')
-            const checkUserUseCase = new CheckUserUseCase(userRepository)
+            const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             let userData: User | undefined = await checkUserUseCase.execute(phoneOrusernameOremail)
             console.log(userData, 'kdfjkdjfk');
 
@@ -129,7 +129,7 @@ class UserController {
             
             const { token, email, type } = req.body
             if (!token || !email || !type) throw new Error('invalid url')
-            const verificationEmail = new VerificationEmail(userRepository)
+            const verificationEmail = new VerificationEmail(userAuthRepository)
             let userData = await verificationEmail.execute(email as string, token as string, type as string)
             if (userData) {
                 userData.password = undefined
@@ -149,12 +149,12 @@ class UserController {
             console.log('//////////////',req.body);
             if (!mobileOrEmail) throw new Error('signup error')
             
-            const checkUserUseCase = new CheckUserUseCase(userRepository)
+            const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             const userData: User | undefined = await checkUserUseCase.execute(mobileOrEmail)
             if (userData?.verification_status === 'verification processing') {
                 if (userData.email) {
                     if (!token) throw new Error('signup error token')
-                    const verificationEmail = new VerificationEmail(userRepository)
+                    const verificationEmail = new VerificationEmail(userAuthRepository)
                     const result = await verificationEmail.execute(userData.email, token, 'signup')
                     if (result) {
                         res.status(200).json({ success: true, message: 'Email verification successful.' })
@@ -194,7 +194,7 @@ class UserController {
                 console.log(result, 'res');
 
                 if (result) {
-                    const statusChange = new StatusChange(userRepository)
+                    const statusChange = new StatusChange(userAuthRepository)
                    const userData =  await statusChange.execute('active',phone)
                     
                     res.status(200).json({ success: true, message: 'OTP verification successful.',data:userData })
@@ -212,4 +212,4 @@ class UserController {
     }
 }
 
-export default UserController
+export default UserAuthController

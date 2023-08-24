@@ -1,40 +1,46 @@
 import { Sequelize } from "sequelize"
 import postModel from "../../frameworks/sequelize/models/postModel"
 
-class PostRepository{
+class PostRepository {
     private postModel
-    constructor(sequelize:Sequelize){
-        this.postModel=postModel(sequelize)
+    constructor(sequelize: Sequelize) {
+        this.postModel = postModel(sequelize)
     }
-   async getPost(){
-        try{
+    async getPost() {
+        try {
             return await this.postModel.findAll()
-        }catch(err){
+        } catch (err) {
             throw err
         }
     }
 
-    updatePost(){
-        try{
+    updatePost() {
+        try {
             return true
-        }catch(err){
+        } catch (err) {
             throw err
         }
     }
 
-    deletePost(){
-        try{
-            return true
-        }catch(err){
+    async deletePost(id: string) {
+        try {
+            const result:any = await this.postModel.update({status:'solved'},{ where: { 'post.id': id } })
+            if(result >0){
+                return true
+            }else{
+                return false
+            }
+            
+        } catch (err) {
             throw err
         }
     }
 
-    addPost(){
-        try{
+    addPost() {
+        try {
             return true
         }
-        catch(err){
+        catch (err) {
             throw err
         }
     }

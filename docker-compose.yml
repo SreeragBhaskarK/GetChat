@@ -47,7 +47,7 @@ services:
     container_name: post_service
     build: ./post-service
     ports:
-      - 3002:3002
+      - 3001:3001
     volumes:
       - ./post-service:/app
     depends_on:
@@ -62,6 +62,7 @@ services:
     depends_on:
       - user_service
       - admin_service
+      - post_service
     volumes:
     - ./proxy/nginx.conf:/etc/nginx/nginx.conf 
 

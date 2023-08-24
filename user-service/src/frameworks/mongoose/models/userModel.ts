@@ -23,6 +23,22 @@ const userSchema = new mongoose.Schema<User>({
     verification_status:{
         type: String,
         default: 'verification processing'
+    },
+    gender:{
+        type:String,
+        default:''
+    },
+    bio:{
+        type:String,
+        default:''
+    },
+    posts:{
+        type:[],
+        default:[]
+    },
+    profile_pic:{
+        type:String,
+        default:''
     }
 
 }, { timestamps: true })

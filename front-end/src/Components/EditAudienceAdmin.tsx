@@ -1,10 +1,40 @@
 
+import {useState} from 'react'
+import api from '../services/api'
 
-
-export const EditAudienceAdmin = ({ editProfile, setEditProfile }) => {
+export const EditAudienceAdmin = ({ editProfile, setEditProfile,userData }) => {
+    const [formData, setFormData] = useState({
+        phoneOrEmail:'',
+        fullName:'',
+        username:userData.username
+    })
+   const [onChange, setOnChange] = useState(false)
+   if(!onChange){
+    formData.phoneOrEmail =userData.email ??userData.phone
+    formData.fullName =userData.full_name
+   }
+    const handleChange=(e)=>{
+        console.log(e);
+        setOnChange(true)
+        const {name,value}=e.target
+        setFormData((prevFormData)=>({
+            ...prevFormData,
+            [name]:value
+        }))
+    }
+    const handleSubmit=(e)=>{
+        e.preventDefault()
+       
+        api.editAudienceAdmin(formData).then((response)=>{
+            if(response.data.success){
+                setEditProfile(!editProfile)
+            }
+        })
+        
+    }
     return (
         <>
-            {editProfile && <div className="fixed top-0 left-0 right-0 z-50 m-auto w-fit p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div className="fixed top-0 left-0 right-0 z-50 m-auto w-fit p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
                 <div className="relative w-full max-w-2xl max-h-full">
                     <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                         <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
@@ -36,18 +66,18 @@ export const EditAudienceAdmin = ({ editProfile, setEditProfile }) => {
                         </div>
                         <div className="p-6 space-y-6">
                             <div>
-                                <form className="space-y-6" action="#">
+                                <form className="space-y-6" onSubmit={handleSubmit}>
                                     <div>
                                         <label htmlFor="phoneOrEmail" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone/Email</label>
-                                        <input type="text" name="phoneOrEmail" id="phoneOrEmail" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com/91********" required />
+                                        <input type="text" onChange={handleChange} value={formData.phoneOrEmail}  name="phoneOrEmail" id="phoneOrEmail" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com/91********" required />
                                     </div>
                                     <div>
                                         <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                                        <input type="text" name="username" id="username" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="username" required />
+                                        <input type="text" onChange={handleChange}  value={formData.username} name="username" id="username" disabled className="bg-gray-50 border border-gray-300  text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="username" required />
                                     </div>
                                     <div>
                                         <label htmlFor="fullName" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Full Name</label>
-                                        <input type="text" name="fullName" id="fullName" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="full name" required />
+                                        <input type="text" onChange={handleChange} name="fullName" value={formData.fullName} id="fullName" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="full name" required />
                                     </div>
                                  
                                   
@@ -59,7 +89,7 @@ export const EditAudienceAdmin = ({ editProfile, setEditProfile }) => {
                     </div>
                 </div>
             </div>
-            }
+            
         </>
     )
 }

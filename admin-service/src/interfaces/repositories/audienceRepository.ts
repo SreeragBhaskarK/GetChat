@@ -58,26 +58,24 @@ class AudienceRepository {
         }
     }
 
-    async updateAudience(mobileOrEmail: string, username: string, fullName: string, password: string, userId: string) {
+    async updateAudience(phoneOrEmail: string, username: string, fullName: string) {
         try {
-            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mobileOrEmail)) {
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(phoneOrEmail)) {
                 const result = await this.userModel.update({
-                    email: mobileOrEmail,
+                    email: phoneOrEmail,
                     username,
-                    full_name: fullName,
-                    password,
-                }, { where: { user_id: userId } })
+                    full_name: fullName
+                }, { where: { username: username } })
 
                 if (result[0] === 0) return false
                 return true
 
-            } else if (/^\d{10}$/.test(mobileOrEmail)) {
+            } else if (/^\d{10}$/.test(phoneOrEmail)) {
                 const result = await this.userModel.update({
-                    phone: mobileOrEmail,
+                    phone: phoneOrEmail,
                     username,
-                    full_name: fullName,
-                    password,
-                }, { where: { user_id: userId } })
+                    full_name: fullName
+                }, { where: { username: username } })
 
                 if (result[0] === 0) return false
                 return true

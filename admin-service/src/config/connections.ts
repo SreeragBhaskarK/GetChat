@@ -8,7 +8,7 @@ export const sequelize = new Sequelize( AWS_RDS_DB!,AWS_RDS_USER!,AWS_RDS_PASSWO
 async function test() {
 
     try {
-        await sequelize.sync()
+        await sequelize.authenticate();
         console.log('GetChat Admin Serive DB Ready');
     } catch (error) {
         console.error('Unable to connect to the database:', error);

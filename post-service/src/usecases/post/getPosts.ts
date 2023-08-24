@@ -6,9 +6,9 @@ class GetPosts{
         this.postRepository = postRepository
     }
 
-    async execute(){
+    async execute(page:number,username:string){
         try{
-            return this.postRepository.getPosts()
+            return this.postRepository.getPosts(page,username)
         }
         catch(err){
             throw err
