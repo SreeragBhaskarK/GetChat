@@ -5,8 +5,14 @@ const router = Router()
 router.post('/profile',UserController.getUser)
 router.patch('/profile',UserController.updateUserData)
 router.get('/search-user',UserController.searchUser)
-router.post('/follow',UserController.followUser)
-router.post('/unfollow',UserController.unFollowUser)
+router.patch('/follow',UserController.followUser)
+router.patch('/unfollow',UserController.unFollowUser)
 router.post('/get-message',UserController.getMessages)
+
+router.get('/find-user-chat/:userId',UserController.getChatUser)
+router.post('/chat-create',UserController.createChat)
+router.get('/find-chat/:firstId/:secondId')
+router.post('/change-seen',UserController.changeSeen)
+router.post('/get-follows',UserController.getFollows)
 
 export default router

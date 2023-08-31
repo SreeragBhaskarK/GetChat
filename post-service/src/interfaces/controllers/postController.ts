@@ -13,8 +13,11 @@ import AddComment from "../../usecases/comment/addComment"
 import EditPost from "../../usecases/post/editPost"
 import DeletePost from "../../usecases/post/deletePost"
 import DeleteComment from "../../usecases/comment/deleteComment"
+import CommentRepository from "../repositories/commentRepository"
+import GetComment from "../../usecases/comment/getComment"
 /* import setImage from '../../utils/setImage' */
 const postRepository = new PostRepository(sequelize)
+const commentRepository = new CommentRepository(sequelize)
 class PostController {
     static getPosts = async (req: Request, res: Response) => {
         try {
@@ -157,7 +160,7 @@ class PostController {
             console.log(req.body);
              
             if (!id ||!comment||!username) throw new Error('not found')
-            const addComment = new AddComment(postRepository)
+            const addComment = new AddComment(commentRepository)
 
             const result = await addComment.execute(id,comment,username )
             if (result) {
@@ -193,8 +196,8 @@ class PostController {
     }
     static async deletePost(req:Request,res:Response){
         try {
-            let { id }  = req.body
-            console.log(req.body);
+            const { id }  = req.query as {id:string}
+            console.log(req.body,'😁😁😁');
              
             if (!id ) throw new Error('not found')
             const deletePost = new DeletePost(postRepository)
@@ -228,8 +231,29 @@ class PostController {
 
         } catch (err: any) {
             res.status(404).json({ success: false, message: err.message })
-
+            
         }
+    }
+    
+    static async getComment(req:Request,res:Response){
+        try {
+            const {post_id} = req.query as {post_id:string}
+            console.log(post_id,'//////');
+            
+            const getComment = new GetComment(commentRepository)
+            const result = await getComment.execute(post_id)
+            if(result){
+                res.status(200).json({success:true,message:'successfully',data:result})
+            }else{
+                res.status(404).json({success:false,message:'failed'})
+            }
+            
+        } catch (err:any) {
+            
+            res.status(404).json({ success: false, message: err.message })
+            
+        }
+
     }
 
 }

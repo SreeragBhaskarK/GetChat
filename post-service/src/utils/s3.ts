@@ -18,10 +18,12 @@ export const putObject=async (fileName:string,contentType:string,type:string)=>{
 
 export const deleteObject =async (url:string) => {
     try {
+        const {AWS_BASE_URL} = process.env
+        if(!AWS_BASE_URL) throw new Error('missing aws base url')
         if(!url)throw new Error('url not found')
         console.log(url,'🚀🚀🚀🚀');
         
-        const key = url.replace('https://getchat-posts.s3.us-east-1.amazonaws.com/','')
+        const key = url.replace(AWS_BASE_URL,'')
         console.log('👨‍💻👨‍💻👨‍💻',key);
         
         const command = new DeleteObjectCommand({

@@ -11,6 +11,7 @@ import { User } from "../../entities/userEntity";
 import { otpCheck } from "../../utils/check";
 import VerificationEmail from "../../useCases/userUseCase/verifyEmail";
 import StatusChange from "../../useCases/userUseCase/statusChange";
+import passport from "passport";
 const userAuthRepository = new UserAuthRepository();
 class UserAuthController {
     static async postLogin(req: Request, res: Response) {
@@ -20,7 +21,7 @@ class UserAuthController {
             const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             let userData: User | undefined = await checkUserUseCase.execute(phoneOrusernameOremail)
             let result = await bcryptCheck(userData?.password, password)
-
+            if(userData?.google_auth)throw new Error('already login in google auth')
             if (result && userData) {
                 userData.password = undefined
 
@@ -54,23 +55,23 @@ class UserAuthController {
             console.log(userData);
 
             if (userData) {
-                if(userData.email){
-                   
-                    const result = await sendMail(phoneOrEmail,'signup')
-                    if(result){
-                        res.status(200).json({success:true,message:'Mail sent successfully.'})
-                    }else{
-                         res.status(400).json({success:false,message:'Mail sent failed.'})
+                if (userData.email) {
+
+                    const result = await sendMail(phoneOrEmail, 'signup')
+                    if (result) {
+                        res.status(200).json({ success: true, message: 'Mail sent successfully.' })
+                    } else {
+                        res.status(400).json({ success: false, message: 'Mail sent failed.' })
                     }
-                }else {
+                } else {
                     const result = await sendOtp(phoneOrEmail)
-                    if(result){
-                        res.status(200).json({success:true,message:'OTP sent successfully.'})
-                    }else{
-                         res.status(400).json({success:false,message:'OTP sent failed.'})
+                    if (result) {
+                        res.status(200).json({ success: true, message: 'OTP sent successfully.' })
+                    } else {
+                        res.status(400).json({ success: false, message: 'OTP sent failed.' })
                     }
                 }
-             
+
             } else {
                 res.status(400).json({ message: 'failed', success: false })
             }
@@ -96,8 +97,8 @@ class UserAuthController {
     static async postForgotPassword(req: Request, res: Response) {
         const { phoneOrusernameOremail } = req.body
 
-        console.log(phoneOrusernameOremail,'///////');
-        
+        console.log(phoneOrusernameOremail, '///////');
+
         try {
             if (!phoneOrusernameOremail) throw new Error('User has no phone or email.')
             const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
@@ -125,15 +126,15 @@ class UserAuthController {
 
     static async postEmailVerification(req: Request, res: Response) {
         try {
-            console.log('//////email',req.body);
-            
+            console.log('//////email', req.body);
+
             const { token, email, type } = req.body
             if (!token || !email || !type) throw new Error('invalid url')
             const verificationEmail = new VerificationEmail(userAuthRepository)
             let userData = await verificationEmail.execute(email as string, token as string, type as string)
             if (userData) {
                 userData.password = undefined
-                res.status(200).json({ success: true, message: "Email verification successful.",data:userData })
+                res.status(200).json({ success: true, message: "Email verification successful.", data: userData })
             } else {
                 res.status(404).json({ success: false, message: "Email verification failed." })
             }
@@ -146,9 +147,9 @@ class UserAuthController {
     static async postSignupVerification(req: Request, res: Response) {
         try {
             const { mobileOrEmail, token, otp } = req.body
-            console.log('//////////////',req.body);
+            console.log('//////////////', req.body);
             if (!mobileOrEmail) throw new Error('signup error')
-            
+
             const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             const userData: User | undefined = await checkUserUseCase.execute(mobileOrEmail)
             if (userData?.verification_status === 'verification processing') {
@@ -169,9 +170,9 @@ class UserAuthController {
                         } else {
                             res.status(400).json({ success: false, message: 'OTP verification failed.' })
                         }
-                    }).catch((err)=>{
+                    }).catch((err) => {
                         res.status(400).json({ success: false, message: err.message })
-                        
+
                     })
                 }
             } else {
@@ -187,27 +188,72 @@ class UserAuthController {
     static async postOtpVerification(req: Request, res: Response) {
         const { phone, otp } = req.body
         console.log(req.body);
-        
+
         try {
             if (!phone || !otp) throw new Error('not found phone&otp')
-            otpCheck(phone, otp).then(async(result) => {
+            otpCheck(phone, otp).then(async (result) => {
                 console.log(result, 'res');
 
                 if (result) {
                     const statusChange = new StatusChange(userAuthRepository)
-                   const userData =  await statusChange.execute('active',phone)
-                    
-                    res.status(200).json({ success: true, message: 'OTP verification successful.',data:userData })
+                    const userData = await statusChange.execute('active', phone)
+
+                    res.status(200).json({ success: true, message: 'OTP verification successful.', data: userData })
                 } else {
                     res.status(400).json({ success: false, message: 'OTP verification failed.' })
                 }
-            }).catch((err)=>{
+            }).catch((err) => {
                 res.status(400).json({ success: false, message: err.message })
             })
 
         }
         catch (err: any) {
             res.status(400).json({ success: false, message: err.message })
+        }
+    }
+
+    static async getGoogleCallBack(req: Request, res: Response) {
+        try {
+            const userData: any = req.user
+            console.log('////////////callback', userData);
+            if (userData) {
+                const userId: mongoose.Types.ObjectId = userData?._id
+                let token = await tokenGenerate(userId)
+                const maxAge = 7 * 24 * 60 * 60 * 1000
+                res.cookie('user', token, {
+                    httpOnly: true,
+                    maxAge: maxAge
+                })
+              /*   res.redirect('http://localhost:5173/') */
+                res.status(200).json({ message: 'success', success: true, data: userData, token: token })
+            } else {
+
+                res.status(400).json({ message: 'incorrect auth in google', success: false })
+
+            }
+
+
+        } catch (err: any) {
+            console.log(err);
+
+            res.status(400).json({ success: false, message: err.message })
+
+        }
+    }
+    static async getGoogle(req: Request, res: Response) {
+        try {
+            /* const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' +
+                'response_type=code&' +
+                `client_id=${process.env.GOOGLE_AUTH_CLIENT_ID}&` +
+                'redirect_uri=http://localhost:3000/api/v1/user/auth/google/callback&' +
+                'scope=profile%20email';
+
+                res.status(200).json({success:true,message:'successfully',data:authUrl}) */
+        } catch (err: any) {
+            console.log(err);
+
+            res.status(400).json({ success: false, message: err.message })
+
         }
     }
 }

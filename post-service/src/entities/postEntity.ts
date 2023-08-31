@@ -5,7 +5,6 @@ export interface Post{
     caption:string
     hashtags?:[]
     likes?:string
-    comments?:[]
     likedBy?:[]
 
 }

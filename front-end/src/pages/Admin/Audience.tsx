@@ -16,7 +16,6 @@ export const Audience = () => {
   const [deleteModal, setDeleteModal] = useState<boolean>(false)
   const [deleteIndex, setDeleteIndex] = useState()
   const [audiences, setAudiences] = useState<Audience[]>([])
-  const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [audienceDetail, setAudienceDetail] = useState({
     userId: '',
     postId: ''
@@ -37,22 +36,9 @@ export const Audience = () => {
 
   
 
-  const handleDelete = (index,username) => {
+  const handleDelete = (index) => {
     setDeleteModal(!deleteModal)
     setDeleteIndex(index)
-    if(deleteConfirm){
-      api.deleteAudienceAdmin({username}).then((response) => {
-        console.log(response);
-        
-        if(response.data.success){
-
-        }
-
-      }).catch((err)=>{
-        console.log(err);
-        
-      })
-    }
   }
 
   const handleEdit = (index)=>{
@@ -92,7 +78,7 @@ export const Audience = () => {
                         {audiences && audiences.map((audience, index) => {
 
                           return (
-                            <tr key={index}>
+                            <tr  key={index}>
                               <td className="px-6">
                                 {index + 1}
                               </td>
@@ -103,7 +89,7 @@ export const Audience = () => {
                               <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                 <div className="flex px-2 py-1">
                                   <div>
-                                    <img src="../assets/img/team-2.jpg" className="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-soft-in-out h-9 w-9 rounded-xl" alt="user1" />
+                                    <img src={audience?.profile_pic} className="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-soft-in-out h-9 w-9 rounded-xl" alt="user1" />
                                   </div>
                                   <div className="flex flex-col justify-center">
                                     <h6 className="mb-0 text-sm leading-normal">{audience?.username}</h6>
@@ -119,15 +105,15 @@ export const Audience = () => {
 
                               </td>
                               <td className="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <span className="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Online</span>
+                                <span className={audience?.status =='inactive'?'bg-gradient-to-tl  from-yellow-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white':"bg-gradient-to-tl  from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white"}>{audience?.status =='inactive'?'processing':'active' }</span>
                               </td>
                               <td className="px-6 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                 <div className='flex justify-center'>
 
                                   <a onClick={() => handleEdit(index) } className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Edit </a>
-                                  <a onClick={() => handleDelete(index,audience?.username)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
+                                  <a onClick={() => handleDelete(index)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
                                 </div>
-                                {deleteModal && deleteIndex == index && <DeleteModal deleteItem='Post' deleteModal={deleteModal} setDeleteConfirm={setDeleteConfirm} deleteConfirm={deleteConfirm} setDeleteModal={setDeleteModal} />}
+                                {deleteModal && deleteIndex == index && <DeleteModal setItems={setAudiences} items={audiences} deleteItem={audience} deleteModal={deleteModal}  setDeleteModal={setDeleteModal} type={'user'} />}
                                 {editProfile && deleteIndex == index && < EditAudienceAdmin editProfile={editProfile} userData={audience} setEditProfile={setEditProfile} />}
 
                               </td>

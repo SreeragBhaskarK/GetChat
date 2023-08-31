@@ -5,9 +5,9 @@ class FollowUser{
         this.userRepository = userRepository
     }
 
-    async execute(followId:string,userId:string){
+    async execute(followUserName:string,user:string){
         try {
-            return this.userRepository.followUser(followId,userId)
+            return this.userRepository.followUser(followUserName,user)
             
         } catch (err) {
             throw err

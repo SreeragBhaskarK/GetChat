@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { BsBookmark } from 'react-icons/bs'
 import { FiMoreHorizontal, FiSend } from 'react-icons/fi'
@@ -8,6 +8,7 @@ import api from '../../services/api'
 import { useDispatch } from 'react-redux'
 import { updatePost } from '../../redux/userSlice'
 import { PostMoreMenu } from '.'
+import { Link } from 'react-router-dom'
 
 
 export const PostDetail = ({ post, username, likedBy }) => {
@@ -16,15 +17,16 @@ export const PostDetail = ({ post, username, likedBy }) => {
     const [isLiked, setIsLiked] = useState(likedBy);
     const dispatch = useDispatch()
     const [more, setMore] = useState(false)
-    const [selectedType, setSelectedType] = useState<string>('');
     const [postData, setPostData] = useState(post)
+    const [user, setUser] = useState(false)
     const [formData, setFormData] = useState({
-        comment:'',
-        username:post.username,
-        id:post.id
+        comment: '',
+        username: username,
+        id: post.id
     })
 
     const [commentFlow, setCommentFlow] = useState(false)
+    const [comments, setComments] = useState([])
     const handleLike = async () => {
         if (!isLiked) {
             try {
@@ -52,7 +54,19 @@ export const PostDetail = ({ post, username, likedBy }) => {
             }
         }
     };
-
+    useEffect(() => {
+        setUser(username == post.username)
+        api.getComment(post.id).then((response)=>{
+            console.log(response);
+            
+            if(response.data.success){
+                setComments(response.data.data)
+            }
+        }).catch((err)=>{
+            console.log(err);
+            
+        })
+    }, [])
     const handleUnlike = async () => {
         if (isLiked) {
             try {
@@ -76,29 +90,20 @@ export const PostDetail = ({ post, username, likedBy }) => {
         }
     };
 
-    const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedType(event.target.value);
-    };
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
-        api.postReport({ type: selectedType, id: post.id }).then((response) => {
-            if (response.data.success) {
-                setMore(false)
-            }
-        })
-        // Handle submitting the report with the selectedType
-        console.log('Selected Type:', selectedType);
-    };
 
-    const handleComment = (event)=>{
+
+    const handleComment = (event) => {
         event.preventDefault()
-        api.addComment(formData).then((response)=>{
+        api.addComment(formData).then((response) => {
             console.log(response);
-            setPostData(response.data.data)
-        }).catch((err)=>{
+            if(response.data.success){
+                setComments([response.data.data,...comments])
+                formData.comment =''
+            }
+        }).catch((err) => {
             console.log(err);
-            
+
         })
     }
     return (
@@ -107,7 +112,7 @@ export const PostDetail = ({ post, username, likedBy }) => {
                 <div className='flex flex-row items-center gap-4'>
                     <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'
                         className='h-10 w-10 rounded-full object-cover' />
-                    <span>{post.username}</span>
+                    <Link to={`/${post.username}`}><span>{post.username}</span></Link>
                 </div>
                 <div>
                     <button onClick={() => setMore(!more)}><FiMoreHorizontal className='w-6 h-6' /></button>
@@ -148,17 +153,15 @@ export const PostDetail = ({ post, username, likedBy }) => {
             <div className='border'>
             </div>
 
-            <div className='m-5'>
+            <div className='m-5 h-[600px] overflow-y-scroll overflow-x-hidden'>
                 {
-                    postData.comments.map(({comment,username}) => {
+                    comments.map(({ text, username }) => {
                         return (
-
-
-                            <div className='flex w-full mt-3 flex-row items-center gap-4'>
+                            <div className={'flex w-full mt-3 flex-row items-center gap-4 '}>
                                 <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'
                                     className='h-10 w-10 rounded-full object-cover' />
                                 <h2>{username}</h2>
-                                <p onClick={()=>setCommentFlow(!commentFlow)} className={ commentFlow?'break-words max-w-[330px] overflow-hidden cursor-pointer':'max-w-[330px] overflow-hidden cursor-pointer  text-ellipsis'}>{comment}</p>
+                                <p onClick={() => setCommentFlow(!commentFlow)} className={commentFlow ? 'break-words max-w-[330px] overflow-hidden cursor-pointer' : 'max-w-[330px] overflow-hidden cursor-pointer  text-ellipsis'}>{text}</p>
                             </div>
 
                         )
@@ -180,7 +183,7 @@ export const PostDetail = ({ post, username, likedBy }) => {
                 <div className='mb-4 mx-4'>
                     <div className='flex flex-row gap-4 items-center mb-2'>
                         <img className='w-6 h-6 rounded-full' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s' />
-                        <p>Like by <strong>{postData.likedBy[0]} </strong>and <strong>other {postData.likes} </strong> </p>
+                        <p>Like by <strong>{postData?.likedBy[0]} </strong>and <strong>other {postData?.likes} </strong> </p>
                     </div>
                     <p>
                         {post.caption}
@@ -190,14 +193,14 @@ export const PostDetail = ({ post, username, likedBy }) => {
                 </div>
             </div>
             <div className='w-full flex mb-2'>
-                <form onSubmit={handleComment}>
-                <input className='w-full' value={formData.comment} name='comment' onChange={(e)=>setFormData((preFormData)=>({...preFormData,[e.target.name]:e.target.value}))} type="text" placeholder='Add a commit...' />
-                <button type='submit' className='text-blue-400'>Post</button>
+                <form className='flex w-full' onSubmit={handleComment}>
+                    <input className='w-full' value={formData.comment} name='comment' onChange={(e) => setFormData((preFormData) => ({ ...preFormData, [e.target.name]: e.target.value }))} type="text" placeholder='Add a commit...' />
+                    <button type='submit' className='text-blue-400'>Post</button>
                 </form>
             </div>
-            {more && <PostMoreMenu post={postData} setMore={setMore} />}
+            {more && <PostMoreMenu post={postData} setMore={setMore} user={user} />}
         </div>
-    )   
+    )
 }
 
 export default PostDetail

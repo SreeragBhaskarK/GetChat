@@ -18,22 +18,10 @@ const Posts = () => {
     }, [])
 
     const [deleteModal, setDeleteModal] = useState<boolean>(false)
-    const [deleteConfirm, setDeleteConfirm] = useState<boolean>(false)
     const [deleteIndex, setDeleteIndex] = useState()
-    const handleDelete = (post, index) => {
+    const handleDelete = (index) => {
         setDeleteIndex(index)
         setDeleteModal(!deleteModal)
-        console.log(deleteConfirm, '//////');
-
-        if (deleteConfirm) {
-            const formData = { id: post.post.id }
-            api.deletePostsAdmin(formData).then((response) => {
-                if (response.data.success) {
-
-                }
-            })
-
-        }
     }
 
     return (
@@ -51,7 +39,8 @@ const Posts = () => {
                                         <table className="items-center justify-center w-full mb-0 align-top border-gray-200 text-slate-500">
                                             <thead className="align-bottom">
                                                 <tr>
-                                                    <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Posts</th>
+                                                    <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Post</th>
+                                                    <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Post Id</th>
                                                     <th className="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Likes</th>
                                                     <th className="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Reports Data</th>
                                                     <th className="px-6 py-3 pl-2 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Reports Username</th>
@@ -76,6 +65,9 @@ const Posts = () => {
                                                                         <h6 className="mb-0 text-sm leading-normal">{post.post.caption}</h6>
                                                                     </div>
                                                                 </div>
+                                                            </td>
+                                                            <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                                                <p className="mb-0 text-sm font-semibold leading-normal">#{post.post.id}</p>
                                                             </td>
                                                             <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                                                 <p className="mb-0 text-sm font-semibold leading-normal">{post.post.likes}</p>
@@ -103,10 +95,10 @@ const Posts = () => {
                                                             <td className="p-2 align-middle bg-transparent border-b   whitespace-nowrap shadow-transparent">
                                                                 <div className='flex justify-center'>
                                                                     {post.status == 'pending' ?
-                                                                        (<a onClick={() => handleDelete(post, index)} className="text-xs mx-2 font-semibold leading-tight text-red-400"> Delete </a>):(<a  className="text-xs mx-2 font-semibold leading-tight text-green-400"> solved </a>)
+                                                                        (<a onClick={() => handleDelete(index)} className="text-xs mx-2 cursor-pointer font-semibold leading-tight text-red-400"> Delete </a>):(<a  className="text-xs mx-2 font-semibold leading-tight text-green-400"> solved </a>)
                                                                     }
                                                                 </div>
-                                                                {deleteModal && deleteIndex == index && (<DeleteModal deleteItem='Post' deleteModal={deleteModal} setDeleteConfirm={setDeleteConfirm} deleteConfirm={deleteConfirm} setDeleteModal={setDeleteModal}  />)}
+                                                                {deleteModal && deleteIndex == index && (<DeleteModal setItems={setPosts} items={index}  deleteItem={post.post} deleteModal={deleteModal} setDeleteModal={setDeleteModal} type='post'  />)}
                                                             </td>
                                                           {/*   <td className="p-2 align-middle bg-transparent border-b  whitespace-nowrap shadow-transparent">
                                                                 <button type="button" className="inline-block px-8 py-2 mb-0 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg shadow-none cursor-pointer leading-pro ease-soft-in text-xs hover:scale-102 active:shadow-soft-xs tracking-tight-soft border-fuchsia-500 text-fuchsia-500 hover:border-fuchsia-500 hover:bg-transparent hover:text-fuchsia-500 hover:opacity-75 hover:shadow-none active:bg-fuchsia-500 active:text-white active:hover:bg-transparent active:hover:text-fuchsia-500">View Post</button>

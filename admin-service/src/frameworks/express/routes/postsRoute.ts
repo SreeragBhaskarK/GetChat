@@ -9,7 +9,7 @@ router.get('/posts',auth,postController.getPost)
 router.post('/posts',auth,postController.addPost)
 
 /* posts deleting data */
-router.delete('/posts',auth,postController.deletePost)
+router.delete('/posts/:id',auth,postController.deletePost)
 
 /* posts updating data */
 router.patch('/posts',auth,postController.updatePost)

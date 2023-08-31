@@ -1,5 +1,4 @@
-import { adminProducer } from "../../interfaces/messageBrokers/kafka/postProducer";
-import { consumeUser } from "../../interfaces/messageBrokers/kafka/userConsumer";
+
 import PostRepository from "../../interfaces/repositories/postRepository";
 
 class DeletePost {
@@ -10,10 +9,10 @@ class DeletePost {
 
     async execute(id: string) {
         try {
-            const result = await this.postRepository.deletePost(id)
+           return await this.postRepository.deletePost(id)
 
-            await adminProducer({ id: id }, 'add-post', 'deletePost')
-            return result
+            
+
         }
         catch (err) {
             throw err

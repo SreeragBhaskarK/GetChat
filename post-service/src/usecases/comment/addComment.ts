@@ -1,13 +1,15 @@
-import PostRepository from "../interfaces/repositories/postRepository"
+import CommentRepository from "../../interfaces/repositories/commentRepository"
+
+
 
 class AddComment {
-    constructor(private postRepository:PostRepository){
-        this.postRepository = postRepository
+    constructor(private commentRepository:CommentRepository){
+        this.commentRepository = commentRepository
     }
 
     async execute(id:string,comment:string,username:string){
         try {
-            return this.postRepository.addComments(id,comment,username)
+            return this.commentRepository.addComments(id,comment,username)
         } catch (err) {
             throw err
         }

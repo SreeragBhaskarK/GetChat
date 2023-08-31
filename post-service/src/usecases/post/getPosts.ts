@@ -1,4 +1,4 @@
-import PostRepository from "../interfaces/repositories/postRepository";
+import PostRepository from "../../interfaces/repositories/postRepository";
 
 class GetPosts{
     private postRepository

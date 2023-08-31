@@ -14,6 +14,10 @@ const messageSchema = new mongoose.Schema<Message>({
         type:String,
         required:true
     },
+    chatId:{
+        type:ObjectId,
+        required:true
+    },
     seen: { 
         type: Boolean, default: false 
     }

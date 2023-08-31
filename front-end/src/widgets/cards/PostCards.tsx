@@ -7,12 +7,19 @@ import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom'
 import api from '../../services/api'
 import { ViewPost } from '../../Components'
+import { PostMoreMenu } from '.'
 
 
 export const PostCards = ({ post, username }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [postClick, setPostClick] = useState<boolean>(false)
     const [postData, setpostData] = useState(post)
+    const [more, setMore] = useState(false)
+    const [user, setUser] = useState(false)
+    useEffect(() => {
+        setUser(username==post.username)
+    }, [])
+    
     const handleLike = async () => {
         if (!isLiked) {
             try {
@@ -82,7 +89,7 @@ export const PostCards = ({ post, username }) => {
                         to={'/' + postData.username}>{postData.username}</Link></span>
                 </div>
                 <div>
-                    <FiMoreHorizontal className='w-6 h-6' />
+                <button onClick={() => setMore(!more)}><FiMoreHorizontal className='w-6 h-6' /></button>
                 </div>
             </div>
             <div>
@@ -100,15 +107,16 @@ export const PostCards = ({ post, username }) => {
             <div className='mb-4 mx-4'>
                 <div className='flex flex-row gap-4 items-center mb-2'>
                     <img className='w-6 h-6 rounded-full' src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s' />
-                    <p>Like by <strong>{postData.likedBy[0]}</strong>and <strong>other {postData.likes} </strong> </p>
+                    <p>Like by <strong>{postData.likedBy[0]} </strong>and <strong>other {postData.likes} </strong> </p>
                 </div>
                 <p>
                     {postData.caption}
                 </p>
-                <span className='text-slate-500 text-sm'>Show all the 164 comments</span>
+                {/* <span className='text-slate-500 text-sm'>Show all the 164 comments</span> */}
                 <p className='mt-2 text-slate-600 text-xs uppercase'>{formatDistanceToNow(new Date(postData.createdAt), { addSuffix: true })}</p>
             </div>
             {postClick && (<ViewPost post={postData} postClick={postClick} username={username} setPostClick={setPostClick} likedBy={isLiked} />)}
+            {more && <PostMoreMenu post={postData} setMore={setMore} user={user} />}
         </div>
     )
 }

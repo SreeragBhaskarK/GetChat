@@ -5,9 +5,9 @@ class SearchUser{
         this.userRepository =userRepository
     }
 
-    async execute(key:string){
+    async execute(key:string,username:string){
         try {
-            return await this.userRepository.searchUser(key)
+            return await this.userRepository.searchUser(key,username)
             
         } catch (err) {
             throw err

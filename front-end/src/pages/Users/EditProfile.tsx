@@ -17,7 +17,7 @@ export const EditProfile = () => {
     gender: userData.gender,
     bio: userData.bio,
     username: userData.username,
-    profilePic:''
+    profilePic: ''
   })
 
   const handleChange = (e) => {
@@ -31,47 +31,63 @@ export const EditProfile = () => {
   }
   const handleSubmit = (e) => {
     e.preventDefault()
-    let proPicName = profilePic.name.replace(/[^a-zA-Z0-9\s]/g, '')
+   
+    if (profilePic) {
+      let proPicName = profilePic.name.replace(/[^a-zA-Z0-9\s]/g, '')
 
 
-    console.log(profilePic, '/////////');
-   const proPic = {
-      originalname: proPicName.replace(/\s/g, ''),
-      mimetype: profilePic.type,
-      type:'profile'
-    }
-    api.postUpload(proPic).then(async(response) => {
-      console.log(response, '//////////');
+      console.log(profilePic, '/////////');
+      const proPic = {
+        originalname: proPicName.replace(/\s/g, ''),
+        mimetype: profilePic.type,
+        type: 'profile'
+      }
+      api.postUpload(proPic).then(async (response) => {
+        console.log(response, '//////////');
 
-      if (response.data.success) {
-        const preSignedUrl = response.data.data;
+        if (response.data.success) {
+          const preSignedUrl = response.data.data;
 
-        const result = await fetch(preSignedUrl, {
+          const result = await fetch(preSignedUrl, {
             method: 'PUT',
             body: profilePic,
             headers: {
-                'Content-Type': profilePic.type, // Adjust the content type as needed
+              'Content-Type': profilePic.type, // Adjust the content type as needed
             },
-        });
-        console.log(result);
+          });
+          console.log(result);
 
-        if (result.status == 200) {
-          const parsedUrl = new URL(result.url);
-          const postUrl = parsedUrl.origin+parsedUrl.pathname
-          console.log(postUrl,'posturl');
-          formData.profilePic=postUrl
-          api.updateProfile(formData).then((response)=>{
-            if(response.data.success){
-              dispatch(addUserData(response.data.data))
-              navigate('/profile')
-            }
-          })
+          if (result.status == 200) {
+            const parsedUrl = new URL(result.url);
+            const postUrl = parsedUrl.origin + parsedUrl.pathname
+            console.log(postUrl, 'posturl');
+            formData.profilePic = postUrl
+            api.updateProfile(formData).then((response) => {
+              if (response.data.success) {
+                dispatch(addUserData(response.data.data))
+                navigate(`/${userData.username}`)
+              }
+            })
+          }
         }
-      }
-    }).catch((err) => {
-      console.log(err);
+      }).catch((err) => {
+        console.log(err);
 
-    })
+      })
+    } else {
+      api.updateProfile(formData).then((response) => {
+        console.log(response,'/up');
+        
+        if (response.data.success) {
+          dispatch(addUserData(response.data.data))
+          navigate(`/${userData.username}`)
+        }
+      }).catch((err)=>{
+        console.log(err);
+        
+      })
+    }
+
 
 
   }
@@ -98,7 +114,7 @@ export const EditProfile = () => {
                           Profile Picture
                         </label>
                         <div className='flex flex-row items-center gap-4'>
-                          <img src={profilePic ? URL.createObjectURL(profilePic) : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                          <img src={profilePic ? URL.createObjectURL(profilePic) : userData.profile_pic??'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
                             className='h-10 w-10 rounded-full object-cover' />
                           <label htmlFor="profilePicture" className="cursor-pointer text-cyan-500">
                             Change Profile Photo
@@ -146,7 +162,7 @@ export const EditProfile = () => {
                         </label>
                         <select
                           id="name"
-                          onChange={handleChange} name='gender'
+                          onChange={handleChange} name='gender' value={formData.gender}
                           className="w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500">
                           <option selected={formData.gender == 'male'} value='male'>male</option>
                           <option selected={formData.gender == 'female'} value='female'>female</option>

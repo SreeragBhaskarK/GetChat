@@ -1,35 +1,69 @@
 import React, { useEffect, useState } from 'react'
+import api from '../services/api';
 
 
 export const ChatBox = ({ userData, socket, senderId }) => {
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([])
+    const [listen, setListen] = useState(false)
     const sendMessage = (e) => {
         e.preventDefault()
         if (message.trim() !== '') {
-            console.log(message,userData.recipient[0]._id,senderId,'/////////');
+
 
             socket.emit('message', {
-                recipientId: userData.recipient[0]._id,
+                recipientId: userData.memberDetails[0]._id === senderId
+                    ? userData.memberDetails[1]._id
+                    : userData.memberDetails[0]._id,
                 senderId: senderId,
-                message: message,
+                content: message,
+                chatId: userData._id
             });
+            setMessages([...messages, {
+                chatId: userData._id, content: message, recipientId: userData.memberDetails[0]._id === senderId
+                    ? userData.memberDetails[1]._id
+                    : userData.memberDetails[0]._id, senderId
+            }])
             setMessage('')
+
         }
     }
 
     useEffect(() => {
-        socket.on('message', (data) => {
+
+
+        api.getMessage({ chatId: userData?._id }).then((response) => {
+            console.log(response);
+            if (response.data.success) {
+                setMessages(response.data.data)
+                setListen(true)
+            }
+
+        }).catch((err) => {
+            console.log(err);
+
+        })
+
+
+
+    }, [userData])
+
+    useEffect(() => {
+        socket.on('privateMessage', (data) => {
             /* setMessages((prevMessages) => [...prevMessages, message]) */
-            console.log(message, '////////////');
-            if (data.senderId === userData) {
-                setMessages([...messages, data.message])
+            console.log(data, '//////messaging//////');
+            if (data != '') {
+                console.log(messages);
+                setMessages( [...messages, data]);
+                setListen(false)
+
             }
             return () => {
                 socket.disconnect(); // Disconnect when unmounting
             };
         })
-    }, [userData])
+    }, [listen])
+
 
     return (
         <>
@@ -37,19 +71,43 @@ export const ChatBox = ({ userData, socket, senderId }) => {
                 <div className="w-full">
                     <div className="relative flex items-center p-3 border-b border-gray-300">
                         <img className="object-cover w-10 h-10 rounded-full"
-                            src="https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg" alt="username" />
-                        <span className="block ml-2 font-bold text-gray-600">{userData?.recipient[0]._id==senderId ? userData?.sender[0].username:userData?.recipient[0].username}</span>
+                            src={userData?.memberDetails[0]._id === senderId
+                                ? userData?.memberDetails[1].profile_pic
+                                : userData?.memberDetails[0].profile_pic} alt="username" />
+                        <span className="block ml-2 font-bold text-gray-600">{userData?.memberDetails[0]._id === senderId
+                            ? userData?.memberDetails[1].username
+                            : userData?.memberDetails[0].username}</span>
                         <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                         </span>
                     </div>
                     <div className="relative w-full p-6 overflow-y-auto h-[40rem]">
                         <ul className="space-y-2">
-                            <li className={userData?.senderId==senderId ?"flex justify-end":"flex justify-start"}>
-                                <div className="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
-                                    <span className="block">{userData?.content}</span>
-                                </div>
-                            </li>
+                            {messages.map((messageContent,index) => {
+                                console.log(index);
+                                
+                                if(messageContent?.senderId !== senderId &&messageContent.seen==false){
+                                    api.changeSeen({messageId:messageContent._id}).then((response)=>{
+                                        console.log(response);
+                                        if(response.data.success){
+                                            let prevMessage= messages
+                                            prevMessage[index]=response.data.data
+                                            setMessages(prevMessage)
+                                        }
+                                        
+                                    }).catch((err)=>{
+                                        console.log(err);
+                                        
+                                    })
+                                }
+                                return (<li className={messageContent?.senderId === senderId ? "flex justify-end" : "flex justify-start"}>
+                                    <div className="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
+                                        <span className="block">{messageContent?.content}</span>
+                                    </div>
+                                </li>)
+                            }
+                            )}
                         </ul>
+                            {messages[messages.length-1]?.senderId === senderId&&messages[messages.length-1]?.seen==true&&<span className="block mt-2 text-sm float-right">seen</span>}
                     </div>
 
                     <form onSubmit={sendMessage}>

@@ -15,4 +15,8 @@ export interface User extends Document {
     gender?:string
     bio?:string
     profile_pic?:string
+    googleId?:string
+    google_auth?:boolean
+    following?:[]
+    followers?:[]
 }

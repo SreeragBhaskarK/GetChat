@@ -60,7 +60,7 @@ class AudienceController {
 
     static deleteAudience = async (req:Request,res:Response) => {
         try{
-            const {userId} =req.body
+            const {userId} =req.params
             if(!userId)throw new Error("user id missing")
             const deleteAudience = new DeleteAudience(audienceRepository)
             const result = await deleteAudience.execute(userId)

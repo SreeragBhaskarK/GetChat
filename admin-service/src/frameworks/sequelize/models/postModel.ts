@@ -6,13 +6,16 @@ const postModel =(sequelize:Sequelize)=>{
         
         post:{
             type:DataTypes.JSON,
-            defaultValue:[]
+            defaultValue:[],
+            allowNull:false
         },
         type:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull:false
         },
         status:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull:false
         }
     })
 

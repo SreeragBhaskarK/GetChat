@@ -2,7 +2,6 @@ import { User } from "../../entities/userEntity";
 import userModel from "../../frameworks/mongoose/models/userModel"
 import verifyModel from "../../frameworks/mongoose/models/verifyModel";
 import { userProducer } from "../messageBrokers/userProducer";
-
 class UserAuthRepository {
 
     async findUser(phoneOrusernameOremail: string) {
@@ -85,7 +84,9 @@ class UserAuthRepository {
 
             userData.save();
             console.log(userData);
-            await userProducer(userData, 'add-admin','insertUser')
+            await userProducer(userData, 'add-admin', 'insertUser').catch((err)=>{
+                
+            })
             return userData
         } catch (err) {
             throw err
@@ -128,6 +129,49 @@ class UserAuthRepository {
             return updatedDocument
         } catch (err) {
             throw err
+        }
+    }
+
+    static async googleAuth(profile: any) {
+        try {
+            console.log('///////');
+            const result = await userModel.findOne({ email: profile.emails[0].value })
+                if (result) {
+                    if(!result.google_auth)throw new Error('already used account')
+                    console.log(result, '///////');
+                    const userData = await userModel.findOneAndUpdate({ googleId: profile.id }, { full_name: profile.displayName, profile_pic: profile.photos[0].value }, { new: true })
+                    console.log(userData);
+                    return userData
+
+                } else {
+
+
+                    const min = 1000; // Minimum 4-digit number (inclusive)
+                    const max = 9999; // Maximum 4-digit number (inclusive)
+
+                    // Generate a random number between min and max
+                    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+                    const usernameSet = profile.displayName.replace(/\s/g, '') + randomNumber
+                    const userData = new userModel({
+                        googleId: profile.id,
+                        email: profile.emails[0].value,
+                        username: usernameSet,
+                        status: 'active',
+                        verification_status: 'verified',
+                        profile_pic: profile.photos[0].value,
+                        full_name: profile.displayName,
+                        google_auth: true
+                    })
+
+                    await userData.save()
+                    console.log(userData);
+                    return userData
+
+                }
+
+        } catch (err) {
+            throw err
+
         }
     }
 

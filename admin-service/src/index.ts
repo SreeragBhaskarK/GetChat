@@ -11,6 +11,7 @@ import adminPosts from './frameworks/express/routes/postsRoute'
 import admin from './frameworks/express/routes/adminRoutes'
 import { consumeUser } from './interfaces/messageBrokers/kafka/userConsumer'
 import cookieParser from "cookie-parser";
+import helmet from 'helmet'
 (async () => {
     try {
         await consumeUser()
@@ -18,6 +19,16 @@ import cookieParser from "cookie-parser";
             origin: ["http://localhost:5173"],
             credentials: true
         }))
+        app.use(helmet.contentSecurityPolicy({
+            directives: {
+              defaultSrc: ["'self'"],
+              scriptSrc: ["'self'"],
+              styleSrc: ["'self'"],
+              imgSrc: ["'self'"],
+              connectSrc: ["'self'"],
+              fontSrc: ["'self'"],
+            },
+          }));
         app.use(express.json())
         app.use(express.urlencoded())
         app.use(cookieParser())

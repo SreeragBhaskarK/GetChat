@@ -1,17 +1,52 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import api from '../services/api'
 
-export const DeleteModal = ({deleteItem, deleteModal, setDeleteModal,setDeleteConfirm,deleteConfirm  }) => {
-    const [open, setOpen] = useState(true)
-
+export const DeleteModal = ({ setItems, items, deleteItem, deleteModal, setDeleteModal, type }) => {
     const cancelButtonRef = useRef(null)
-   
+    const handleDelete = () => {
+        if (type == 'post') {
 
+            
+            api.deletePostsAdmin(deleteItem.id).then((response) => {
+                if (response.data.success) {
+
+                    
+                    setItems((prevsItem)=>prevsItem[items].status='solved');
+
+
+                    setDeleteModal(false)
+                }
+            }).catch((err) => {
+                console.log(err);
+
+            })
+        } else if (type == 'user') {
+            console.log(deleteItem, '//////////');
+
+            api.deleteAudienceAdmin(deleteItem.user_id).then((response) => {
+                console.log(response);
+
+                if (response.data.success) {
+                    console.log(items);
+                    
+                    const updatedItems = items.filter(item => item.id !== deleteItem.user_id);
+                    setItems(updatedItems);
+
+                    setDeleteModal(false)
+                }
+
+            }).catch((err) => {
+                console.log(err);
+
+            })
+        }
+    }
     return (
         <>
-            { <Transition.Root show={open} as={Fragment}>
-                <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+            {<Transition.Root show={deleteModal} as={Fragment}>
+                <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setDeleteModal}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -43,11 +78,11 @@ export const DeleteModal = ({deleteItem, deleteModal, setDeleteModal,setDeleteCo
                                             </div>
                                             <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                                                 <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                                    {deleteItem}
+                                                    {type == 'post' ? deleteItem.caption : deleteItem.username}
                                                 </Dialog.Title>
                                                 <div className="mt-2">
                                                     <p className="text-sm text-gray-500">
-                                                        Are you sure you want to delete {deleteItem}?
+                                                        Are you sure you want to delete {type == 'post' ? deleteItem.caption : deleteItem.username}?
                                                     </p>
                                                 </div>
                                             </div>
@@ -57,7 +92,7 @@ export const DeleteModal = ({deleteItem, deleteModal, setDeleteModal,setDeleteCo
                                         <button
                                             type="button"
                                             className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                                            onClick={()=>setDeleteConfirm(!deleteConfirm)}
+                                            onClick={() => handleDelete()}
                                         >
                                             Delete
                                         </button>

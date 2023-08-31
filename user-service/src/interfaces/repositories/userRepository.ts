@@ -1,93 +1,143 @@
 import mongoose from "mongoose"
 
-const ObjectId =  mongoose.Types.ObjectId
-class UserRepository{
-    
-    constructor(private userModel:any,private messageModel:any){
+const ObjectId = mongoose.Types.ObjectId
+class UserRepository {
+
+    constructor(private userModel: any, private messageModel: any) {
         this.userModel = userModel
         this.messageModel = messageModel
     }
-    async getUser (username:string){
+    async getUser(username: string) {
         try {
-            const userData = await this.userModel.findOne({username})
+            const userData = await this.userModel.findOne({ username })
             return userData
         } catch (err) {
             throw err
-            
+
         }
     }
-    async updateUser (username:string,bio:string,gender:string,profilePic:string){
+    async updateUser(username: string, bio: string, gender: string, profilePic: string) {
         try {
-            console.log(username,bio,gender);
-            if(profilePic) return await this.userModel.findOneAndUpdate({username},{$set:{bio,gender,profile_pic:profilePic}},{new:true})
-          return await this.userModel.findOneAndUpdate({username},{$set:{bio,gender}},{new:true})
-            
+            console.log(username, bio, gender);
+            if (profilePic) return await this.userModel.findOneAndUpdate({ username }, { $set: { bio, gender, profile_pic: profilePic } }, { new: true })
+            return await this.userModel.findOneAndUpdate({ username }, { $set: { bio, gender } }, { new: true })
+
         } catch (err) {
             throw err
-            
+
         }
     }
-    async searchUser (key:string){
+    async searchUser(key: string, username: string) {
         try {
-            
-           return await this.userModel.find({username:{$regex:key,$options:'i'}}).limit(5)
-            
+
+            return await this.userModel.find({
+                $and: [
+                    { username: { $regex: key, $options: 'i' } },
+                    { username: { $ne: username } }
+                ]
+            }).limit(5);
+
+
         } catch (err) {
             throw err
-            
+
         }
     }
 
-    async followUser(followId:string,userId:string){
+    async followUser(followUserName: string, user: string) {
         try {
-            return true
-            
+            const result = await this.userModel.findOne({ $and: [{ username: user }, { following: followUserName }] })
+            console.log(result, '//////user////');
+
+            if (result) throw new Error('already following user')
+            await this.userModel.findOneAndUpdate({ username: followUserName }, {
+                $push: {
+                    followers: user
+                }
+            })
+            return await this.userModel.findOneAndUpdate({ username: user }, {
+                $push: {
+                    following: followUserName
+                }
+            }, { new: true })
+
         } catch (err) {
             throw err
-            
+
         }
     }
-    async unFollowUser(unfollowId:string,userId:string){
+    async unFollowUser(followUserName: string, user: string) {
         try {
-            return true
-            
+            const result = await this.userModel.find({ username: user, following: followUserName })
+            if (!result) throw new Error('already unfollowing user')
+            await this.userModel.findOneAndUpdate({ username: followUserName }, {
+                $pull: {
+                    followers: user
+                }
+            })
+            return await this.userModel.findOneAndUpdate({ username: user }, {
+                $pull: {
+                    following: followUserName
+                }
+            }, { new: true })
+
         } catch (err) {
             throw err
-            
+
         }
     }
 
-    async getMessages(userId:string){
+    async getMessages(chatId: string) {
         try {
-            const result = await this.messageModel.aggregate([{
-                $match:{
-                    $or:[{senderId:new ObjectId(userId)},{recipientId:new ObjectId(userId)}]
-                }
-            },{
-                $lookup:{
-                    from:'users',
-                    localField:'senderId',
-                    foreignField:'_id',
-                    as:'sender'
-                }
-            },{
-                $lookup:{
-                    from:'users',
-                    localField:'recipientId',
-                    foreignField:'_id',
-                    as:'recipient'
-                }
-            },{
-                $sort:{createdAt:-1}
-            },{
-                $limit:10
-            }])
+            /*  const result = await this.messageModel.aggregate([{
+                 $match: {
+                     $or: [{ senderId: new ObjectId(userId) }, { recipientId: new ObjectId(userId) }]
+                 }
+             }, {
+                 $lookup: {
+                     from: 'users',
+                     localField: 'senderId',
+                     foreignField: '_id',
+                     as: 'sender'
+                 }
+             }, {
+                 $lookup: {
+                     from: 'users',
+                     localField: 'recipientId',
+                     foreignField: '_id',
+                     as: 'recipient'
+                 }
+             }, {
+                 $sort: { createdAt: -1 }
+             }, {
+                 $limit: 10
+             }]) */
+            const result = await this.messageModel.find({ chatId }).sort({ createdAt: 1 })
 
             return result
-            
+
         } catch (err) {
             throw err
-            
+
+        }
+    }
+
+    async getFollowData(userId: string, type: string) {
+        try {
+            const userData = await this.userModel.findOne({_id:userId})
+            if(!userData)throw new Error('invaild user id')
+            if(type==='following'){
+
+                return await this.userModel.find({username:{$in:userData.following}})
+            }else{
+                return await this.userModel.find({username:{$in:userData.followers}})
+
+            }
+
+        
+
+        } catch (err) {
+            throw err
         }
     }
 }

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { NavSideBar } from '../../widgets/layout/user'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { HiSquares2X2 } from 'react-icons/hi2'
 import api from '../../services/api'
-import { useNavigate, useParams } from 'react-router-dom'
-import { ViewPost } from '../../Components'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { FollowList, ViewPost } from '../../Components'
+import { addUserData } from '../../redux/userSlice'
 
 
 
@@ -17,17 +18,25 @@ const userProfile = () => {
     const [indexPost, setIndexPost] = useState()
     const [likedBy, setLikedBy] = useState(false)
     const [postData, setPostData] = useState([])
+    const [following, setFollowing] = useState(false)
+    const dispatch = useDispatch()
+    const [follows, setFollows] = useState(false)
+
+    const [type, setType] = useState('')
+
     useEffect(() => {
         if (userData.username == username) navigate('/' + username)
         api.getProfile({ username }).then((response) => {
             console.log(response, '///////userpro');
             if (response.data.success) {
                 setUserDetail(response.data.data)
+
             }
         }).catch((err) => {
             console.log(err);
 
         })
+
 
     }, [userData])
     useEffect(() => {
@@ -40,6 +49,10 @@ const userProfile = () => {
         }).catch((err) => {
             console.log(err);
         })
+
+        setFollowing(userData.following.some((follow) => follow == userDetail.username))
+
+
     }, [userDetail])
     const handlePostView = async (index, likedByUsername) => {
         console.log(index, '/////index');
@@ -53,6 +66,51 @@ const userProfile = () => {
         setIndexPost(index)
         setPostClick(true)
         console.log(indexPost);
+
+    }
+
+
+
+    const follow = () => {
+
+        api.putFollow({ followUserName: userDetail?.username, user: userData.username }).then((response) => {
+            console.log(response);
+
+            if (response.data.success) {
+                dispatch(addUserData(response.data.data))
+                setFollowing(true)
+            }
+
+        }).catch((err) => {
+            console.log(err);
+
+        })
+    }
+
+    const unfollow = () => {
+        api.deleteFollow({ followUserName: userDetail?.username, user: userData.username }).then((response) => {
+            console.log(response);
+
+            if (response.data.success) {
+                dispatch(addUserData(response.data.data))
+                setFollowing(false)
+            }
+
+        }).catch((err) => {
+            console.log(err);
+
+        })
+    }
+
+    const handleFollow = (type) => {
+        if (type == 'following') {
+            setType(type)
+
+            setFollows(true)
+        } else {
+            setType(type)
+            setFollows(true)
+        }
 
     }
     return (
@@ -85,25 +143,30 @@ const userProfile = () => {
                                     </span>
 
 
-                                    <button className="bg-blue-500 px-2 py-1 
+                                    {!following ? (<button onClick={() => follow()} className="bg-blue-500 px-2 py-1 
                 text-white font-semibold text-sm rounded  text-center 
-                sm:inline-block block">follow</button>
+                sm:inline-block block">follow</button>) : (<button onClick={() => unfollow()} className="bg-slate-100 px-2 py-1 
+                text-black font-semibold text-sm rounded  text-center 
+                sm:inline-block block">unfollow</button>)}
+                                    {following && <button className="bg-slate-100 ml-4 px-2 py-1 
+                text-black font-semibold text-sm rounded  text-center 
+                sm:inline-block block"><Link to={`/messages?userId=${userDetail._id}`}>message</Link></button>}
                                 </div>
 
 
                                 <ul className="hidden md:flex space-x-8 mb-4">
                                     <li>
-                                        <span className="font-semibold">{userDetail.posts?.length}</span>
+                                        <span className="font-semibold">{userDetail.posts?.length} </span>
                                         posts
                                     </li>
 
                                     <li>
-                                        <span className="font-semibold">50.5k</span>
-                                        followers
+                                        <span className="font-semibold">{userDetail.followers?.length} </span>
+                                        <a className='cursor-pointer' onClick={() => handleFollow('followers')}>followers</a>
                                     </li>
                                     <li>
-                                        <span className="font-semibold">10</span>
-                                        following
+                                        <span className="font-semibold">{userDetail.following?.length} </span>
+                                        <a className='cursor-pointer' onClick={() => handleFollow('following')}>following</a>
                                     </li>
                                 </ul>
 
@@ -125,6 +188,7 @@ const userProfile = () => {
                             </div>
 
                         </header>
+                        {follows && <FollowList follow={follows} setFollow={setFollows} userId={userDetail._id} type={type} />}
                         <div className="px-px md:px-3">
 
 

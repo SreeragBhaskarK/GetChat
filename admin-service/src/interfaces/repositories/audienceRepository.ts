@@ -1,6 +1,9 @@
 
 import userModel from "../../frameworks/sequelize/models/userModel"
 import { Op, Sequelize } from 'sequelize';
+import { consumeUser } from "../messageBrokers/kafka/userConsumer";
+import { Producer } from "kafka-node";
+import { adminProducer } from "../messageBrokers/kafka/postProducer";
 class AudienceRepository {
     private userModel
     constructor(sequelize: Sequelize) {
@@ -52,6 +55,7 @@ class AudienceRepository {
         try {
             const result = await this.userModel.destroy({ where: { user_id: userId } })
             if (result === 0) return false
+            await adminProducer({userId},'addPostInUser','userDelete')
             return true
         } catch (err) {
             throw err
@@ -68,6 +72,7 @@ class AudienceRepository {
                 }, { where: { username: username } })
 
                 if (result[0] === 0) return false
+                await adminProducer({phoneOrEmail,username,fullName},'addPostInUser','updateUser')
                 return true
 
             } else if (/^\d{10}$/.test(phoneOrEmail)) {

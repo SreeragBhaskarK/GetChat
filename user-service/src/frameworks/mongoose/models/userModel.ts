@@ -38,7 +38,22 @@ const userSchema = new mongoose.Schema<User>({
     },
     profile_pic:{
         type:String,
-        default:''
+        default:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'
+    },
+    googleId:{
+        type:String,
+    },
+    google_auth:{
+        type:Boolean,
+        default:false
+    },
+    following:{
+        type:[],
+        default:[]
+    },
+    followers:{
+        type:[],
+        default:[]
     }
 
 }, { timestamps: true })

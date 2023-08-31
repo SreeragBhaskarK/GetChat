@@ -9,10 +9,12 @@ export const webSocket = async (data: any) => {
         const message = new messageModel({
             senderId:new ObjectId(sender),
             recipientId:new ObjectId(recipient),
-            content: data.message,
+            content: data.content,
+            chatId:data.chatId
         })
 
         await message.save()
+        return message
 
     } catch (err) {
         throw err

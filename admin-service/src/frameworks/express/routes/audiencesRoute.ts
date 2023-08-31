@@ -10,7 +10,7 @@ router.get('/audience',auth, Audiences.getAudience)
 router.post('/audience',auth, Audiences.addAudience)
 
 /* audience deleting data */
-router.delete('/audience',auth, Audiences.deleteAudience)
+router.delete('/audience/:userId',auth, Audiences.deleteAudience)
 
 /* audience updating data */
 router.patch('/audience',auth, Audiences.updateAudience)

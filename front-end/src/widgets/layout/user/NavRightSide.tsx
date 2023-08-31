@@ -1,19 +1,10 @@
 import { Link } from "react-router-dom"
-import api from "../../../services/api"
-import { useDispatch } from "react-redux"
 import { loginCheck } from "../../../redux/userSlice"
 export const NavRightSide = () => {
-    let dispatch =useDispatch()
-    const logout = () => {
-        api.logoutUser().then((response)=>{
-            if(response.data.success){
-                dispatch(loginCheck(false))
-            }
-        })
-    }
+  
     return (
         <>
-            <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:right-0 xl:translate-x-0 xl:bg-transparent">
+            {/* <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:right-0 xl:translate-x-0 xl:bg-transparent">
                 <div className="h-19.5">
                     <i className="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden" sidenav-close></i>
                     <a className="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700"  target="_blank">
@@ -24,7 +15,7 @@ export const NavRightSide = () => {
 
                 <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
 
-                {/*    <div className="items-center block w-auto max-h-screen  grow basis-full">
+                   <div className="items-center block w-auto max-h-screen  grow basis-full">
                     <ul className="flex flex-col pl-0 mb-0">
                         <li className="mt-0.5 w-full">
                             <Link className="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors" to="/admin">
@@ -75,16 +66,10 @@ export const NavRightSide = () => {
                         </li>
 
                     </ul>
-                </div> */}
-                <li className="flex items-center">
-                    <i onClick={logout} className="block px-0 py-2 font-semibold transition-all ease-nav-brand text-sm text-slate-500">
-                        <i className="fa fa-user sm:mr-1"></i>
-                        <span onClick={logout} className="hidden sm:inline">Logout</span>
-                    </i>
-                </li>
+                </div>
+               
 
-
-            </aside>
+            </aside> */}
 
 
         </>

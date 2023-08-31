@@ -5,6 +5,7 @@ import connection from './config/connection'
 import cors from 'cors'
 import postRoute from './frameworks/express/routes/postRoute'
 import cookieParser from "cookie-parser";
+import { consumeUser } from './interfaces/messageBrokers/postConsumer'
 
 (async () => {
     try {
@@ -23,6 +24,7 @@ import cookieParser from "cookie-parser";
         app.use(express.urlencoded())
         app.use('/api/v1/post', postRoute)
         await app.listen(PORT, () => console.log('GetChat Post Service Ready...'))
+        await consumeUser()
     } catch (err) {
         console.log(err);
 

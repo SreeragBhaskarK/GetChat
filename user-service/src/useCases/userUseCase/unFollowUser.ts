@@ -5,9 +5,9 @@ class UnFollowUser{
         this.userRepository = userRepository
     }
 
-    async execute(unFollowId:string,userId:string){
+    async execute(followUserName:string,user:string){
         try {
-            return this.userRepository.unFollowUser(unFollowId,userId)
+            return this.userRepository.unFollowUser(followUserName,user)
             
         } catch (err) {
             throw err

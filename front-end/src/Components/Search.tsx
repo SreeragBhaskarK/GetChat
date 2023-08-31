@@ -4,12 +4,12 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import api from '../services/api'
 import { Link } from 'react-router-dom'
 
-export const Search = ({ open, setOpen }) => {
+export const Search = ({ open, setOpen,username }) => {
 
     const [searchKey, setSearchKey] = useState('')
     const [suggestions, setSuggestions] = useState([])
     useEffect(() => {
-        api.userSearch(searchKey).then((response) => {
+        api.userSearch(searchKey,username).then((response) => {
             console.log(response, 'search');
             if (response.data.success) {
                 setSuggestions(response.data.data)
@@ -89,7 +89,7 @@ export const Search = ({ open, setOpen }) => {
                                                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                                                                 </svg>
                                                             </div>
-                                                            <input type="search" value={searchKey} id="default-search" onChange={(e) => setSearchKey(e.target.value)} className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Mockups, Logos..." required />
+                                                            <input type="search" value={searchKey} id="default-search" onChange={(e) => setSearchKey(e.target.value)} className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Username, User..." required />
                                                             <button type="submit" className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
                                                         </div>
                                                     </form>
@@ -97,7 +97,11 @@ export const Search = ({ open, setOpen }) => {
                                                 <div className=' w-full border-t'>
                                                     <ul>
                                                         {suggestions.map((suggestion, index) => (
-                                                            <li key={index}><Link to={`/${suggestion.username}`}>{suggestion.username}</Link></li>
+                                                            <li key={index}><Link onClick={()=>setOpen(!open)} to={`/${suggestion.username}`}>  <div className='flex flex-row items-center gap-4'>
+                                                            <img src={suggestion.profile_pic?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                                                                className='h-10 w-10 rounded-full object-cover'/>
+                                                            <span>{suggestion.username}</span>
+                                                        </div></Link></li>
                                                         ))}
                                                     </ul>
                                                 </div>

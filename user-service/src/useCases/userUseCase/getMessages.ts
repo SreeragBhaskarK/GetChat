@@ -5,9 +5,9 @@ class GetMessages{
         this.userRepository = userRepository
     }
 
-    async execute(userId:string){
+    async execute(chatId:string){
         try {
-            return await this.userRepository.getMessages(userId)
+            return await this.userRepository.getMessages(chatId)
             
         } catch (err) {
             throw err

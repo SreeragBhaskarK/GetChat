@@ -4,33 +4,118 @@ import { NavSideBar } from '../../widgets/layout/user'
 import io from 'socket.io-client'
 import { useSelector } from 'react-redux'
 import api from '../../services/api'
+import { useLocation } from 'react-router-dom'
 const socket = io('http://localhost:3000', { withCredentials: true })
 export const Messages = () => {
     const [indexUser, setindexUser] = useState(0)
     const [chatUser, setChatUser] = useState([])
     const [userData, setUserData] = useState()
-    const userId = useSelector((state: any) => state.user.userData._id)
+    const userDetail = useSelector((state: any) => state.user.userData)
 
-  
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+
+    const paramValue = searchParams.get('userId');
+    console.log(paramValue, '////////////jshjdhf');
+
     const handleClick = (index, user) => {
         setUserData(user)
         setindexUser(index)
     }
     useEffect(() => {
-        socket.emit('auth', userId)
-        api.getMessage({userId}).then((response)=>{
+        socket.emit('auth', userDetail._id)
+        if (paramValue) {
+            api.chatCreate({ firstId: paramValue, secondId: userDetail._id }).then((response) => {
+                console.log(response, '////skjdsdh');
+                api.getChats(userDetail._id).then((response) => {
 
-            console.log(response,'/////////messages');
-            if(response.data.success){
-                setChatUser(response.data.data)
-                setUserData(response.data.data[0])
-            }
-            
-        })
-       
-    }, [userId])
+                    console.log(response, '/////////messages');
+                    if (response.data.success) {
+                        setChatUser(response.data.data)
+                        if (paramValue) {
+                            const result = response.data.data.findIndex(item => item.members.some(member => member === paramValue))
+                            if (result !== -1) {
+                                setUserData(response.data.data[result])
+                                setindexUser(result)
+                            } else {
 
-  
+                                setUserData(response.data.data[0])
+                            }
+                        } else {
+
+                            setUserData(response.data.data[0])
+                        }
+                    }
+
+                }).catch((err) => {
+                    console.log(err);
+
+                })
+               
+
+
+            }).catch((err) => {
+                api.getChats(userDetail._id).then((response) => {
+
+                    console.log(response, '/////////messages');
+                    if (response.data.success) {
+                        setChatUser(response.data.data)
+                        if (paramValue) {
+                            const result = response.data.data.findIndex(item => item.members.some(member => member === paramValue))
+                            if (result !== -1) {
+                                setUserData(response.data.data[result])
+                                setindexUser(result)
+                            } else {
+
+                                setUserData(response.data.data[0])
+                            }
+                        } else {
+
+                            setUserData(response.data.data[0])
+                        }
+                    }
+
+                }).catch((err) => {
+                    console.log(err);
+
+                })
+                console.log(err);
+
+            })
+        } else {
+            api.getChats(userDetail._id).then((response) => {
+
+                console.log(response, '/////////messages');
+                if (response.data.success) {
+                    setChatUser(response.data.data)
+                    if (paramValue) {
+                        const result = response.data.data.findIndex(item => item.members.some(member => member === paramValue))
+                        if (result !== -1) {
+                            setUserData(response.data.data[result])
+                            setindexUser(result)
+                        } else {
+
+                            setUserData(response.data.data[0])
+                        }
+                    } else {
+
+                        setUserData(response.data.data[0])
+                    }
+                }
+
+            }).catch((err) => {
+                console.log(err);
+
+            })
+        }
+
+
+
+
+
+    }, [userDetail])
+
+
     return (
         <>
 
@@ -62,13 +147,19 @@ export const Messages = () => {
                                                 className={`flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer  ${indexUser == index ? 'bg-gray-100' : 'hover:bg-gray-100'} focus:outline-none`}>
                                                 <div className="relative flex items-center p-3  border-gray-300">
                                                     <img className="object-cover w-10 h-10 rounded-full"
-                                                        src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg" alt="username" />
+                                                        src={user.memberDetails[0].username === userDetail.username
+                                                            ? user.memberDetails[1].profile_pic
+                                                            : user.memberDetails[0].profile_pic} alt="username" />
                                                     <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                                                     </span>
                                                 </div>
                                                 <div className="w-full pb-2">
                                                     <div className="flex justify-between">
-                                                        <span className="block ml-2 font-semibold text-gray-600">Jhon Don</span>
+                                                        <span className="block ml-2 font-semibold text-gray-600">
+                                                            {user.memberDetails[0].username === userDetail.username
+                                                                ? user.memberDetails[1].username
+                                                                : user.memberDetails[0].username}
+                                                        </span>
                                                         <span className="block ml-2 text-sm text-gray-600">25 minutes</span>
                                                     </div>
                                                     <span className="block ml-2 text-sm text-gray-600">bye</span>
@@ -80,9 +171,9 @@ export const Messages = () => {
                                 </li>
                             </ul>
                         </div>
-                        <ChatBox userData={userData} socket={socket} senderId={userId} />
+                        <ChatBox userData={userData} socket={socket} senderId={userDetail._id} />
                     </div>
-                   {/*  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
+                    {/*  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
                     <button onClick={sendMessage}>Send</button> */}
                 </div >
             </main>

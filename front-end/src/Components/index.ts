@@ -7,5 +7,7 @@ export * from './DeleteModal'
 export * from './SuccessModal'
 export * from './ChatBox'
 export * from './Search'
+export * from './FollowList'
+export * from './EditPost'
 
 

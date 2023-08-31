@@ -9,13 +9,16 @@ const adminModel = (sequelize:Sequelize)=>{
         _id:{
             type:DataTypes.STRING,
             defaultValue:DataTypes.UUIDV4,
-            primaryKey:true
+            primaryKey:true,
+            allowNull:false
         },
         email:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull:false
         },
         password:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull:false
         }
     })
 

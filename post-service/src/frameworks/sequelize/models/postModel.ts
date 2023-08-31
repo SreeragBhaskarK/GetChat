@@ -6,33 +6,43 @@ const postModel= (sequelize:Sequelize)=>{
         id:{
             type:DataTypes.STRING,
             defaultValue:DataTypes.UUIDV4,
-            primaryKey:true
+            primaryKey:true,
+            allowNull:false
+
 
         },
         username:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull:false
+
         },
         caption:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull:false
+
         },
         post_url:{
-            type:DataTypes.TEXT
+            type:DataTypes.TEXT,
+            allowNull:false
+
         },
         hashtags:{
             type:DataTypes.ARRAY(DataTypes.STRING),
-            defaultValue:[]
+            defaultValue:[],
+            allowNull:false
+
         },
         likes:{
             type:DataTypes.INTEGER,
-            defaultValue:0
+            defaultValue:0,
+            allowNull:false
+
         },
         likedBy:{
             type:DataTypes.ARRAY(DataTypes.STRING),
-            defaultValue:[]
-        },
-        comments:{
-            type:DataTypes.ARRAY(DataTypes.STRING),
-            defaultValue:[]
+            defaultValue:[],
+            allowNull:false
+
         }
     },{timestamps: true})
     sequelize.sync()

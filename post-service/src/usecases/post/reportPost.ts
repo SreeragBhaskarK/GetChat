@@ -1,5 +1,5 @@
-import { postProducer } from "../interfaces/messageBrokers/postProducer";
-import PostRepository from "../interfaces/repositories/postRepository";
+import { postProducer } from "../../interfaces/messageBrokers/postProducer";
+import PostRepository from "../../interfaces/repositories/postRepository";
 
 class ReportPost {
     constructor(private postRepository: PostRepository) {

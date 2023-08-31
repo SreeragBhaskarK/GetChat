@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavSideBar } from '../../widgets/layout/user'
-import { ViewPost } from '../../Components'
+import { FollowList, ViewPost } from '../../Components'
 import { Link } from 'react-router-dom'
 import { HiSquares2X2 } from 'react-icons/hi2'
 import { useSelector, useDispatch } from 'react-redux'
@@ -16,13 +16,16 @@ export const Profile = () => {
   const [postClick, setPostClick] = useState<boolean>(false)
   const [indexPost, setIndexPost] = useState()
   const [postData, setPostData] = useState([])
+  const [follow, setFollow] = useState(false)
 
- 
+  const [type, setType] = useState('')
+
+
   const handlePostView = async (index, likedByUsername) => {
     console.log(index, '/////index');
 
     console.log(likedByUsername, '////////');
-    await setLikedBy(likedByUsername.some((username)=> username ==userData.username))
+    await setLikedBy(likedByUsername.some((username) => username == userData.username))
 
 
     console.log('///////', likedBy);
@@ -34,17 +37,28 @@ export const Profile = () => {
 
   }
 
-  useEffect(()=>{
-    api.getPost(1,userData.username).then((response)=>{
+  useEffect(() => {
+    api.getPost(1, userData.username).then((response) => {
       console.log(response);
-      
-      if(response.data.success){
+
+      if (response.data.success) {
         setPostData(response.data.data)
       }
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err);
     })
-  },[userData])
+  }, [userData])
+  const handleFollow=(type)=>{
+    if(type=='following'){
+      setType(type)
+     
+      setFollow(true)
+    }else{
+      setType(type)
+      setFollow(true)
+    }
+
+  }
   return (
 
     <>
@@ -52,13 +66,14 @@ export const Profile = () => {
 
       <main className="ease-soft-in-out xl:ml-68.5  relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
         <div className='w-full mt-7' >
+          
           <div className='container'>
             <header className="flex flex-wrap items-center p-4 md:py-8">
 
               <div className="md:w-3/12 md:ml-16">
 
                 <img className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-full
-               border-2 border-pink-600 p-1" src={userData.profile_pic??'https://www.bytewebster.com/img/logo.png'} alt="profile" />
+               border-2 border-pink-600 p-1" src={userData.profile_pic ?? 'https://www.bytewebster.com/img/logo.png'} alt="profile" />
               </div>
 
 
@@ -76,7 +91,7 @@ export const Profile = () => {
                   </span>
 
 
-                  <Link to='/edit-profile' className="bg-blue-500 px-2 py-1 
+                  <Link to='/settings/edit-profile' className="bg-blue-500 px-2 py-1 
                   text-white font-semibold text-sm rounded  text-center 
                   sm:inline-block block">Edit</Link>
                 </div>
@@ -89,33 +104,35 @@ export const Profile = () => {
                   </li>
 
                   <li>
-                    <span className="font-semibold">50.5k</span>
-                    followers
+                    <span className="font-semibold">{userData.followers?.length} </span>
+                   <a className='cursor-pointer' onClick={()=>handleFollow('followers')}>followers</a> 
                   </li>
                   <li>
-                    <span className="font-semibold">10</span>
-                    following
+                    <span className="font-semibold">{userData.following?.length} </span>
+                    <a className='cursor-pointer' onClick={()=>handleFollow('following')}>following</a> 
+                    
                   </li>
                 </ul>
 
 
                 <div className="hidden md:block">
                   <h1 className="font-semibold">{userData.full_name}</h1>
-                 {/*  <span className="bioclass">Internet company</span> */}
+                  {/*  <span className="bioclass">Internet company</span> */}
                   <p>{userData.bio}</p>
-                 {/*  <span><strong>www.bytewebster.com</strong></span> */}
+                  {/*  <span><strong>www.bytewebster.com</strong></span> */}
                 </div>
 
               </div>
 
               <div className="md:hidden text-sm my-2">
                 <h1 className="font-semibold">{userData.full_name}</h1>
-              {/*   <span className="bioclass">Internet company</span> */}
+                {/*   <span className="bioclass">Internet company</span> */}
                 <p>{userData.bio}</p>
-             {/*    <span><strong>www.bytewebster.com</strong></span> */}
+                {/*    <span><strong>www.bytewebster.com</strong></span> */}
               </div>
 
             </header>
+           {follow && <FollowList follow={follow} setFollow={setFollow} userId={userData._id} type={type}/>}
             <div className="px-px md:px-3">
 
 
@@ -194,7 +211,7 @@ export const Profile = () => {
 
                         </article>
                       </a>
-                      {postClick && indexPost == index && (<ViewPost  post={post} postClick={postClick}  username={userData.username}   setPostClick={setPostClick}   likedBy={likedBy} />)}
+                      {postClick && indexPost == index && (<ViewPost post={post} postClick={postClick} username={userData.username} setPostClick={setPostClick} likedBy={likedBy} />)}
                     </div>
 
                   )
@@ -207,9 +224,10 @@ export const Profile = () => {
 
           </div>
         </div>
-
+       
       </main>
-
+    
+            
 
     </>
   )

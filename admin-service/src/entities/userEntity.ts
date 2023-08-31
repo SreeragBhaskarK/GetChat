@@ -5,6 +5,14 @@ export interface User{
     username:string
     full_name:string
     status?:string
-    password:string
+    password?:string
+    gender?:string
+    bio?:string
+    posts?:[]
+    profile_pic?:string
+    googleId?:string
+    google_auth?:boolean
+    following?:[]
+    followers?:[]
     verification_status?:string
 }

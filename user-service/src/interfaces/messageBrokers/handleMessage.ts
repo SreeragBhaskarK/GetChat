@@ -9,6 +9,8 @@ export const handleMessage = async (data: JSON, type: string) => {
             await messageRepository.insertPost(data)
         }else if(type =='updateUser'){
             await messageRepository.updateUser(data)
+        }else if(type =='userDelete'){
+            await messageRepository.deleteUser(data)
         }
     } catch (error) {
         console.log(error);

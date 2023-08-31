@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import api from '../../services/api'
 import { useDispatch } from 'react-redux'
 import { addUserData, loginCheck } from "../../redux/userSlice"
+import axios from "axios"
 export const Login = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -35,6 +36,26 @@ export const Login = () => {
             [name]: value
         }))
     }
+
+    const handleGoogleAuth = ()=>{
+        api.loginGoogle().then((response)=>{
+            console.log(response,'////////');
+          /*   if(response.data.success){ */
+              /*   axios.get(response.data.data).then((response)=>{
+                    console.log(response,'///////');
+                    
+                }).catch((err)=>{
+                    console.log(err);
+                    
+                }) */
+                /* window.location.href=response.data.data */
+           /*  } */
+            
+        }).catch((err)=>{
+            console.log(err,'///////');
+            
+        })
+    }
     return (
         <div>
 
@@ -50,7 +71,7 @@ export const Login = () => {
                     </h2>
                 </div>
                 <div className=" max-w-full w-fit ml-auto mt-2  px-1 mr-auto flex-0">
-                    <a className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" href="javascript:;">
+                    <a onClick={handleGoogleAuth} className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
                       <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                           <g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">
@@ -62,6 +83,7 @@ export const Login = () => {
                         </g>
                       </svg>
                     </a>
+                    
                   </div>
                   <div className="relative w-full max-w-full px-3 mt-2 text-center shrink-0">
                     <p className="z-20 inline px-4 mb-2 font-semibold leading-normal bg-white text-sm text-slate-400">or</p>

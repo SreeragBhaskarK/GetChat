@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an instance of Axios with custom configuration
  const api = axios.create({
-    baseURL: 'http://localhost/api/v1', // Replace with your API base URL
+    baseURL: 'http://localhost:3001/api/v1', // Replace with your API base URL
     /* timeout: 5000, */
     withCredentials: true
 });
@@ -18,19 +18,26 @@ import axios from 'axios';
     otpVerification:(formData)=>api.post('/user/otp-verification',formData),
     getProfile: (username) => api.post('/user/profile', username),
     updateProfile: (formData) => api.patch('/user/profile', formData),
-    userSearch:(key)=>api.get(`/user/search-user?search=${key}`),
+    userSearch:(key,username)=>api.get(`/user/search-user?search=${key}&&username=${username}`),
     followUser:(formData)=>api.post('/user/follow',formData),
     unfollowUser:(formData)=>api.post('/user/unfollow',formData),
     getMessage:(formData)=>api.post('/user/get-message',formData),  
+    loginGoogle:()=>api.get('/user/auth/google'),
+    putFollow:(formData)=>api.patch('/user/follow',formData),
+    deleteFollow:(formData)=>api.patch('/user/unfollow',formData),
+    chatCreate:(formData)=>api.post('/user/chat-create',formData),
+    getChats:(userId)=>api.get(`/user/find-user-chat/${userId}`),
+    changeSeen:(messageId)=>api.post('/user/change-seen',messageId),
+    getFollowData:(formData)=>api.post('/user/get-follows',formData),
     
     /* admin */
     logoutAdmin:()=>api.delete('/admin/logout'),
     loginAdmin: (formData:object) => api.post('/admin/login', formData),
     getAudienceAdmin:()=>api.get('/admin/audience'),
-    deleteAudienceAdmin:(formData)=>api.delete('/admin/audience',formData),
+    deleteAudienceAdmin:(userId)=>api.delete(`/admin/audience/${userId}`),
     editAudienceAdmin:(formData)=>api.patch('/admin/audience',formData),
     getPostsAdmin:()=>api.get('/admin/posts'),
-    deletePostsAdmin:(formData)=>api.delete('/admin/posts',formData),
+    deletePostsAdmin:(id)=>api.delete(`/admin/posts/${id}`),
 
     /* posts */
 
@@ -40,11 +47,12 @@ import axios from 'axios';
     postUnlike:(formData)=>api.post('/post/unlike',formData),
     postReport:(formData)=>api.post('/post/report',formData),
     getPosts:(formData)=>api.post('/post/post',formData),
-    postDelete:(formData)=>api.delete('/post/delete-post',formData),
+    postDelete:(id)=>api.delete(`/post/delete-post?id=${id}`),
     getPost:(page,username)=>api.get(`/post/post?page=${page}&&username=${username}`),
     addComment:(formData)=>api.post('/post/comment',formData),
     deleteComment:(formData)=>api.delete('/post/delete-comment',formData),
-    editPost:(formData)=>api.post('/post/edit-post',formData)
+    editPost:(formData)=>api.patch('/post/edit-post',formData),
+    getComment:(postId)=>api.get(`/post/comment?post_id=${postId}`)
    
 };
 

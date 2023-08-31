@@ -9,11 +9,8 @@ class UpdateAudience{
 
     async execute(phoneOrEmail:string,username:string,fullName:string){
         try{
-            const result = await this.audienceRepository.updateAudience(phoneOrEmail,username,fullName)
-            if(result){
-               await adminProducer({phoneOrEmail,username,fullName},'addPostInUser','updateUser')
-            }
-            return true
+            return await this.audienceRepository.updateAudience(phoneOrEmail,username,fullName)
+            
         }
         catch(err){
             throw err

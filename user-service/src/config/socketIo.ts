@@ -12,15 +12,20 @@ export const socketIoConnect = (server: any) => {
               },
         })
         
+
         io.on('connection', (socket) => {
             console.log('user Connected🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀', socket.id);
             socket.on('auth',userId=>{
+                
                 console.log(userId,'////////user');
                 
             })
             socket.on('message', async (data) => {
                 console.log(data,'message');
-                await webSocket(data)
+                const message =await webSocket(data)
+                console.log('////');
+                
+                io.emit('privateMessage',message)
             })
             socket.on('disconnect', () => {
                 console.log('user disconnected', socket.id);

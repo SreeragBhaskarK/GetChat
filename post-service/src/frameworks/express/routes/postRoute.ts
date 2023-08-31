@@ -12,7 +12,8 @@ router.post('/unlike',PostController.postUnLike)
 router.post('/report',PostController.postReport)
 router.get('/post',PostController.getProfilePost)
 router.post('/comment',PostController.addComment)
-router.post('/edit-post',PostController.editPost)
+router.patch('/edit-post',PostController.editPost)
 router.delete('/delete-post',PostController.deletePost),
 router.delete('/delete-comment',PostController.deleteComment)
+router.get('/comment',PostController.getComment)
 export default router
