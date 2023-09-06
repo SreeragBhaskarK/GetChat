@@ -1,20 +1,27 @@
-import { Admin } from "../../../entities/adminEntity";
+
 import { sequelize } from "../../../config/connections";
 import { DataTypes, Sequelize,Model } from "sequelize";
+import { Notification } from "../../../entities/notificationEntity";
 
-interface AdminModel extends Model<Admin>,Admin{}
+interface NotificationModal extends Model<Notification>,Notification{}
 
-const notificationModel = (sequelize:Sequelize)=>{
-    const Notification = sequelize.define<AdminModel>('Admin',{
-        _id:{
+export const notificationModel = (sequelize:Sequelize)=>{
+    const Notification = sequelize.define<NotificationModal>('Notification',{
+        id:{
             type:DataTypes.STRING,
             defaultValue:DataTypes.UUIDV4,
             primaryKey:true
         },
-        email:{
+        message:{
             type:DataTypes.STRING
         },
-        password:{
+        type:{
+            type:DataTypes.STRING
+        },
+        duration:{
+            type:DataTypes.STRING
+        },
+        user_type:{
             type:DataTypes.STRING
         }
     })

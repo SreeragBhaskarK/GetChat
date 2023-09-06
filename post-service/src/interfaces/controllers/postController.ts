@@ -21,11 +21,11 @@ const commentRepository = new CommentRepository(sequelize)
 class PostController {
     static getPosts = async (req: Request, res: Response) => {
         try {
-            const { page, username } = req.body
+            const { page, username,type } = req.body
             console.log(req.body, '🚀🚀🚀🚀');
-
+            if(!page||!username||!type)throw new Error('missing')
             const getPosts = new GetPosts(postRepository)
-            const result = await getPosts.execute(page, username)
+            const result = await getPosts.execute(page, username,type)
             if (result) {
                 res.status(200).json({ success: true, message: "successfully fetching posts", data: result })
             } else {
@@ -40,7 +40,7 @@ class PostController {
     static postPosts = async (req: Request, res: Response) => {
 
         /*   const image = await setImage(req.file) */
-        /* console.log(image,req.body); */
+        console.log(req.body,'🚀🚀🚀🚀');
 
         const { originalname, mimetype, type } = req.body
         try {

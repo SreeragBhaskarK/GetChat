@@ -16,231 +16,317 @@ import CreateUser from "../../useCases/userUseCase/createUser"
 import CreateChatUser from "../../useCases/chat/createChatUser"
 import ChangeSeen from "../../useCases/chat/changeSeen"
 import GetFollowData from "../../useCases/userUseCase/getFollowData"
+import DeleteMessage from "../../useCases/chat/deleteMessage"
+import DeleteChat from "../../useCases/chat/deleteChat"
+import getNotifications from "../../useCases/notifications/getNotifications"
+import NotificationRepository from "../repositories/notificationRepository"
+import GetNotifications from "../../useCases/notifications/getNotifications"
+import notificationModel from "../../frameworks/mongoose/models/notificationModel"
+import RemoveFollowers from "../../useCases/userUseCase/removeFollowers"
 
-const userRepository = new UserRepository(userModel,messageModel)
-const chatRepository = new ChatRepository(chatModel,messageModel)
-class UserController{
+const userRepository = new UserRepository(userModel, messageModel)
+const chatRepository = new ChatRepository(chatModel, messageModel)
+const notificationRepository = new NotificationRepository(notificationModel)
+class UserController {
 
-    static async getUser(req:Request,res:Response){
+    static async getUser(req: Request, res: Response) {
         try {
-            console.log(req.body,'///////////');
-            
-            const {username} = req.body
-            if(!username)throw new Error("not found user name");
-             new Error('not found username')
+            console.log(req.body, '///////////');
+
+            const { username } = req.body
+            if (!username) throw new Error("not found user name");
+            new Error('not found username')
             const getUser = new GetUser(userRepository)
-            const result:any = await getUser.execute(username)
-            console.log(result,'//////');
-            
-            if(result){
-                result.password =undefined
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            const result: any = await getUser.execute(username)
+            console.log(result, '//////');
+
+            if (result) {
+                result.password = undefined
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
 
-    static async updateUserData(req:Request,res:Response){
+    static async updateUserData(req: Request, res: Response) {
         try {
             console.log('🔥🔥🔥');
-            console.log(req.body,'///////////');
+            console.log(req.body, '///////////');
             console.log('🔥🔥🔥');
-            
-            const {username,bio,gender,profilePic} = req.body
-            if(!username||!bio||!gender)throw new Error("not found user name");
-             
+
+            const { username, bio, gender, profilePic } = req.body
+            if (!username || !bio || !gender) throw new Error("not found user name");
+
             const updateUser = new UpdateUser(userRepository);
 
-            const result:any = await updateUser.execute(username,bio,gender,profilePic);
+            const result: any = await updateUser.execute(username, bio, gender, profilePic);
 
-            console.log(result,'//////');
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            console.log(result, '//////');
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async searchUser(req:Request,res:Response){
+    static async searchUser(req: Request, res: Response) {
         try {
-            
-            const {search,username} = req.query as {search:string,username:string}
-            if(!search||!username)throw new Error("not found search key");
-             
+
+            const { search, username } = req.query as { search: string, username: string }
+            if (!search || !username) throw new Error("not found search key");
+
             const searchUser = new SearchUser(userRepository);
 
-            const result:any = await searchUser.execute(search,username);
+            const result: any = await searchUser.execute(search, username);
 
-            console.log(result,'//////');
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            console.log(result, '//////');
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async followUser(req:Request,res:Response){
+    static async followUser(req: Request, res: Response) {
         try {
             console.log(req.body);
-            
-            const {followUserName,user} = req.body
-            if(!followUserName||!user)throw new Error("not found follow id or user id");
-             
+
+            const { followUserName, user } = req.body
+            if (!followUserName || !user) throw new Error("not found follow id or user id");
+
             const followUser = new FollowUser(userRepository);
 
-            const result:any = await followUser.execute(followUserName,user);
+            const result: any = await followUser.execute(followUserName, user);
 
-            console.log(result,'//////');
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            console.log(result, '//////');
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async unFollowUser(req:Request,res:Response){
+    static async unFollowUser(req: Request, res: Response) {
         try {
             console.log(req.body);
-            
-            const {followUserName,user} = req.body        
-            if(!followUserName||!user)throw new Error("not found unfollow id or user id");
-             
+
+            const { followUserName, user } = req.body
+            if (!followUserName || !user) throw new Error("not found unfollow id or user id");
+
             const unFollowUser = new UnFollowUser(userRepository);
 
-            const result:any = await unFollowUser.execute(followUserName,user);
+            const result: any = await unFollowUser.execute(followUserName, user);
 
-            console.log(result,'//////');
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            console.log(result, '//////');
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async getMessages(req:Request,res:Response){
+    static async getMessages(req: Request, res: Response) {
         try {
-            
-            const {chatId} = req.body
-            if(!chatId)throw new Error("not found user id");
-             
+
+            const { chatId } = req.body
+            if (!chatId) throw new Error("not found user id");
+
             const getMessages = new GetMessages(userRepository);
 
-            const result:any = await getMessages.execute(chatId);
+            const result: any = await getMessages.execute(chatId);
 
-            console.log(result,'//////');
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            console.log(result, '//////');
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
 
-    static async getChatUser (req:Request,res:Response){
+    static async getChatUser(req: Request, res: Response) {
         try {
-            console.log(req.params,'/////');
-            
-            const {userId}=req.params
+            console.log(req.params, '/////');
+
+            const { userId } = req.params
             const getChatUser = new GetChatUser(chatRepository)
             const result = await getChatUser.execute(userId)
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async createChat (req:Request,res:Response){
+    static async createChat(req: Request, res: Response) {
         try {
-            const {firstId,secondId}=req.body
-            if(!firstId||!secondId)throw new Error('id is missing')
+            const { firstId, secondId } = req.body
+            if (!firstId || !secondId) throw new Error('id is missing')
             const createChatUser = new CreateChatUser(chatRepository)
-            const result = await createChatUser.execute(firstId,secondId)
-            
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            const result = await createChatUser.execute(firstId, secondId)
+
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async changeSeen (req:Request,res:Response){
+    static async changeSeen(req: Request, res: Response) {
         try {
-            const {messageId}=req.body
-            if(!messageId)throw new Error('id is missing')
+            const { messageId } = req.body
+            if (!messageId) throw new Error('id is missing')
             const changeSeen = new ChangeSeen(chatRepository)
             const result = await changeSeen.execute(messageId)
-            
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
-    static async getFollows (req:Request,res:Response){
+    static async getFollows(req: Request, res: Response) {
         try {
-            const {userId,type}=req.body
+            const { userId, type } = req.body
             console.log(req.body);
-            
-            if(!userId||!type)throw new Error('id or type is missing')
+
+            if (!userId || !type) throw new Error('id or type is missing')
             const getFollowData = new GetFollowData(userRepository)
-            const result = await getFollowData.execute(userId,type)
-            
-            
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            const result = await getFollowData.execute(userId, type)
+
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            res.status(404).json({success:false,message:err.message})
-            
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+    static async deleteMessage(req: Request, res: Response) {
+        try {
+            const { id } = req.params as { id: string }
+            console.log(req.body);
+
+            if (!id) throw new Error('id  is missing')
+            const deleteMessage = new DeleteMessage(chatRepository)
+            const result = await deleteMessage.execute(id)
+
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+    static async deleteChat(req: Request, res: Response) {
+        try {
+            const { id } = req.params as { id: string }
+            console.log(req.body);
+
+            if (!id) throw new Error('id  is missing')
+            const deleteChat = new DeleteChat(chatRepository)
+            const result = await deleteChat.execute(id)
+
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+    static async getNotifications(req: Request, res: Response) {
+        try {
+            const { username } = req.query as{username:string}
+            if(!username)throw new Error('username is missing')
+            const getNotifications = new GetNotifications(notificationRepository)
+            const result = await getNotifications.execute(username)
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+    static async removeFollow(req: Request, res: Response) {
+        try {
+            const { followersUsername,followingUsername } = req.body
+            if(!followersUsername||!followingUsername)throw new Error('username is missing')
+            const removeFollow = new RemoveFollowers(userRepository)
+            const result = await removeFollow.execute(followersUsername,followingUsername)
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
         }
     }
 

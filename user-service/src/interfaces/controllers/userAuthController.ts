@@ -108,7 +108,7 @@ class UserAuthController {
             if (userData?.phone || userData?.email) {
                 if (userData.email) {
                     await forgotPasswordMail(userData.email)
-                    res.status(400).json({ message: 'Mail sent successfully.', sucess: true, type: 'mail' })
+                    res.status(200).json({ message: 'Mail sent successfully.', sucess: true, type: 'mail' })
                 } else if (userData.phone) {
                     await forgotPasswordOtp(userData.phone)
                     res.status(400).json({ message: 'OTP sent successfully.', sucess: true, type: 'phone' })

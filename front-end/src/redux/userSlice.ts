@@ -1,12 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { act } from "react-dom/test-utils";
 interface userState {
     userData:any
     isLoggedIn:boolean
+    messagesIndication:boolean
 }
 
 const initialState: userState = {
    userData:{} ,
-   isLoggedIn:false
+   isLoggedIn:false,
+   messagesIndication:false
 }
 
 const userSlice = createSlice({
@@ -32,9 +35,13 @@ const userSlice = createSlice({
                 }
                 return post;
             });
-        }
+        },
+        
+        messagesIndication(state,actions){
+            state.messagesIndication=actions.payload
+        },
     }
 })
 
-export const { addUserData,loginCheck,addPost,updatePost } = userSlice.actions
+export const { addUserData,loginCheck,addPost,updatePost,messagesIndication } = userSlice.actions
 export default userSlice.reducer

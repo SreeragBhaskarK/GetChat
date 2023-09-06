@@ -1,18 +1,24 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { Search, Uploader } from "../../../Components"
+import { Notifications, Search, Uploader } from "../../../Components"
 import { useDispatch, useSelector } from "react-redux"
 import { CgDetailsMore } from 'react-icons/cg'
 import { BiSearchAlt } from 'react-icons/bi'
 import { AiTwotoneMessage } from 'react-icons/ai'
-import { loginCheck } from "../../../redux/userSlice"
+import { loginCheck, messagesIndication } from "../../../redux/userSlice"
 import api from "../../../services/api"
+import { socket } from "../../../services/socketIo"
+import { increaseMessageCount } from "../../../redux/messageSlice"
+
 
 export const NavSideBar = () => {
     const [uploader, setUploader] = useState(false)
     const username = useSelector((state: any) => state.user?.userData.username)
+    const userData = useSelector((state: any) => state.user?.userData)
     const [search, setSearch] = useState(false)
     const dispatch = useDispatch()
+    const messageIndication = useSelector((state: any) => state.message?.messages_count)
+    const [notifications, setNotifications] = useState(false)
     const logout = () => {
         api.logoutUser().then((response) => {
             if (response.data.success) {
@@ -21,6 +27,27 @@ export const NavSideBar = () => {
         })
     }
     const [more, setMore] = useState(false)
+const [messagesCount, setMessagesCount] = useState(0)
+    useEffect(() => {
+        socket.emit('auth', userData._id)
+        socket.on('private_message', (data) => {
+            
+            console.log(data, '//////messagingHome//////');
+            if (data != '') {
+                console.log(data);
+                dispatch(increaseMessageCount(data.senderId))
+
+            }
+        })
+
+        
+    }, [userData])
+
+    useEffect(() => {
+        setMessagesCount(messageIndication.reduce((total,message)=>total +message.count,0))
+
+    }, [messageIndication])
+    
     return (
         <>
             <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
@@ -129,8 +156,8 @@ export const NavSideBar = () => {
 
                         <li className="mt-0.5 w-full">
                             <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/messages">
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <AiTwotoneMessage>
+                                <div className="relative shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                                    <AiTwotoneMessage >
                                         <title>Message</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                             <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
@@ -143,13 +170,21 @@ export const NavSideBar = () => {
                                             </g>
                                         </g>
                                     </AiTwotoneMessage>
+                                       {messagesCount>0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
+                                        {messagesCount}
+                                        </span>}
+
+
+
                                 </div>
+
+
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Messages</span>
                             </Link>
                         </li>
 
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/notifications">
+                            <a className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" onClick={()=>setNotifications(!notifications)}>
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Audience</title>
@@ -166,7 +201,7 @@ export const NavSideBar = () => {
                                     </svg>
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Notifications</span>
-                            </Link>
+                            </a>
                         </li>
                         <li className="mt-0.5 w-full cursor-pointer" onClick={() => setUploader(!uploader)}>
                             <div className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" >
@@ -253,8 +288,9 @@ export const NavSideBar = () => {
 
 
             </aside>
-            <Uploader upload={uploader} setUpload={setUploader} />
-            <Search open={search} setOpen={setSearch} username={username} />
+            {uploader &&<Uploader upload={uploader} setUpload={setUploader} />}
+            {search && <Search open={search} setOpen={setSearch} username={username} />}
+            {notifications &&<Notifications open={notifications} setOpen={setNotifications} />}
         </>
     )
 }

@@ -1,13 +1,14 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import api from "../../services/api";
+import { SuccessModal } from "../../Components";
 
 export const ForgotPassword = () => {
   const [formData, setFormData] = useState({
     phoneOrusernameOremail: '',
   })
 
-
+  const [success, setSuccess] = useState(false)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement
     setFormData((preFormData) => ({
@@ -15,17 +16,50 @@ export const ForgotPassword = () => {
       [name]: value
     }))
   }
+  const navigate = useNavigate()
+  const [errors, setErrors] = useState({
+    phoneOrusernameOremail: '', error: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const validateForm = () => {
+    const errors = { phoneOrusernameOremail: '', error: '' };
+    let returnData = true
+    // Validate the 'phoneOrusernameOremail' field
+    if (!formData.phoneOrusernameOremail) {
+      errors.phoneOrusernameOremail = "Please enter a phone number, username, or email.";
+      returnData=false
+    }
+
+
+    setErrors(errors);
+
+    return returnData; // Return true if there are no errors
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    api.forgotPasswordUser(formData).then((response) => {
-      console.log(response);
-      
-    })
-      .catch((err: Error) => {
-        console.log(err);
+    const isValid = await validateForm();
+    console.log(isValid,'///////');
+    
+    if (isValid) {
+      api.forgotPasswordUser(formData).then((response) => {
+        console.log(response);
         
+        if (response.data.message === 'OTP sent successfully.') {
+          navigate('/otp-verification', { state: { phone: formData.phoneOrusernameOremail } })
+        } else {
+          setSuccess(true)
+        }
       })
+        .catch((err: any) => {
+          console.log(err,'err');
+          /* onsole.log(error,'error');
+          const error = errors.error=err.response.data.message
+          
+          setErrors(error) */
+        })
+    }
   }
 
   return (
@@ -58,11 +92,14 @@ export const ForgotPassword = () => {
                   name="phoneOrusernameOremail"
                   type="text"
                   autoComplete="phone email username"
-                  required
+
                   onChange={handleChange}
                   value={formData.phoneOrusernameOremail}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+
+                {errors?.phoneOrusernameOremail && <p className="text-red-500 text-sm mt-1">{errors.phoneOrusernameOremail}</p>}
+                {errors?.error && <p className="text-red-500 text-sm mt-1">{errors.error}</p>}
               </div>
             </div>
 
@@ -84,6 +121,7 @@ export const ForgotPassword = () => {
           </p>
         </div>
       </div>
+      <SuccessModal success={success} setSuccess={setSuccess} />
     </div>
 
   )

@@ -76,6 +76,24 @@ class ChatRepository {
             throw error
         }
     }
+    async deleteMessage(id:string){
+        try {
+            return await this.messageModel.deleteOne({_id:id})
+            
+        } catch (err) {
+            throw err
+            
+        }
+    }
+    async deleteChat(id:string){
+        try {
+            return await this.chatModel.deleteOne({_id:id})
+            
+        } catch (err) {
+            throw err
+            
+        }
+    }
 }
 
 export default ChatRepository

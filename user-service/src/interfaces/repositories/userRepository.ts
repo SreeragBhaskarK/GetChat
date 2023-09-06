@@ -112,7 +112,8 @@ class UserRepository {
              }, {
                  $limit: 10
              }]) */
-            const result = await this.messageModel.find({ chatId }).sort({ createdAt: 1 })
+            let result = await this.messageModel.find({ chatId }).sort({ createdAt: -1 }).limit(50)
+            result = result.slice().reverse()
 
             return result
 
@@ -124,17 +125,31 @@ class UserRepository {
 
     async getFollowData(userId: string, type: string) {
         try {
-            const userData = await this.userModel.findOne({_id:userId})
-            if(!userData)throw new Error('invaild user id')
-            if(type==='following'){
+            const userData = await this.userModel.findOne({ _id: userId })
+            if (!userData) throw new Error('invaild user id')
+            if (type === 'following') {
 
-                return await this.userModel.find({username:{$in:userData.following}})
-            }else{
-                return await this.userModel.find({username:{$in:userData.followers}})
+                return await this.userModel.find({ username: { $in: userData.following } })
+            } else {
+                return await this.userModel.find({ username: { $in: userData.followers } })
 
             }
 
-        
+
+
+        } catch (err) {
+            throw err
+        }
+    }
+    async removeFollow(followersUsername: string, followingUsername: string) {
+        try {
+           const followers = await this.userModel.updateOne({username:followersUsername},{$pull:{
+            following:followingUsername
+           }})
+
+           return await this.userModel.findOneAndUpdate({username:followingUsername},{$pull:{
+            followers:followersUsername
+           }},{new:true})
 
         } catch (err) {
             throw err

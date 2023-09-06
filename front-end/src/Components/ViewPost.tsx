@@ -36,10 +36,10 @@ export const ViewPost = ({ post, postClick, setPostClick,username,likedBy}) => {
                             </button>
                         </div>
                         <div className="p-6 flex justify-center   dark:bg-gray-700  ">
-                            <div className='w-fit '>
-                                <img className='max-w-lg h-80vh ' src={post.post_url} alt="" />
+                            <div className='w-fit border border-slate-200 '>
+                                <img className='max-w-lg h-[80vh] ' src={post.post_url} alt="" />
                             </div>
-                            <div className='max-w-lg  min-w-[480px] h-80vh  '>
+                            <div className='max-w-lg  min-w-[480px] h-[80vh]  '>
                                 <PostDetail post={post} username={username}  likedBy={likedBy} />
                             </div>
                         </div>

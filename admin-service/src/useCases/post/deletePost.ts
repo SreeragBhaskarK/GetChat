@@ -10,9 +10,6 @@ class DeletePost {
     async execute(id: string) {
         try {
            return await this.postRepository.deletePost(id)
-
-            
-
         }
         catch (err) {
             throw err

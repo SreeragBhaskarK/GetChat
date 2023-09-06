@@ -4,23 +4,29 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import api from '../services/api'
 import { Link } from 'react-router-dom'
 
-export const Search = ({ open, setOpen,username }) => {
+export const Search = ({ open, setOpen, username }) => {
 
     const [searchKey, setSearchKey] = useState('')
     const [suggestions, setSuggestions] = useState([])
     useEffect(() => {
-        api.userSearch(searchKey,username).then((response) => {
-            console.log(response, 'search');
-            if (response.data.success) {
-                setSuggestions(response.data.data)
-            }
-        })
+        if (searchKey) {
+
+            api.userSearch(searchKey, username).then((response) => {
+                console.log(response, 'search');
+                if (response.data.success) {
+                    setSuggestions(response.data.data)
+                }
+            }).catch((err) => {
+                console.log(err);
+
+            })
+        }
 
     }, [searchKey])
 
-    const handleSubmit = (e)=>{
+    const handleSubmit = (e) => {
         e.preventDefault()
-        
+
     }
 
     return (
@@ -94,17 +100,17 @@ export const Search = ({ open, setOpen,username }) => {
                                                         </div>
                                                     </form>
                                                 </div>
-                                                <div className=' w-full border-t'>
+                                                {searchKey && <div className=' w-full border-t'>
                                                     <ul>
                                                         {suggestions.map((suggestion, index) => (
-                                                            <li key={index}><Link onClick={()=>setOpen(!open)} to={`/${suggestion.username}`}>  <div className='flex flex-row items-center gap-4'>
-                                                            <img src={suggestion.profile_pic?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
-                                                                className='h-10 w-10 rounded-full object-cover'/>
-                                                            <span>{suggestion.username}</span>
-                                                        </div></Link></li>
+                                                            <li key={index}><Link onClick={() => { setOpen(!open); setSearchKey(''); setSuggestions([]) }} to={`/${suggestion.username}`}>  <div className='flex flex-row items-center gap-4'>
+                                                                <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                                                                    className='h-10 w-10 rounded-full object-cover' />
+                                                                <span>{suggestion.username}</span>
+                                                            </div></Link></li>
                                                         ))}
                                                     </ul>
-                                                </div>
+                                                </div>}
                                             </div>
                                         </div>
                                     </Dialog.Panel>

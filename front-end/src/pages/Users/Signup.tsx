@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from '../../services/api'
-import {  SuccessModal } from "../../Components"
+import { SuccessModal } from "../../Components"
 
 export const Signup = () => {
     const navigate = useNavigate()
@@ -14,27 +14,65 @@ export const Signup = () => {
         username: '',
         password: ''
     })
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [errors, setErrors] = useState({
+        phoneOrEmail: '', password: '', fullName: '',
+        username: ''
+    });
+    const validateForm = () => {
+
+        const errors = { phoneOrEmail: '', password: '', fullName: '', username: '' };
+        let returnData = true
+        // Validate the 'phoneOrusernameOremail' field
+        if (!formData.phoneOrEmail) {
+            errors.phoneOrEmail = "Please enter a phone number or email.";
+        }
+        
+        // Validate the 'password' field
+        if (!formData.password) {
+            errors.password = "Please enter a password.";
+            returnData =false
+        }
+        if (!formData.fullName) {
+            errors.fullName = "Please enter a full name.";
+            returnData =false
+        }
+        if (!formData.username) {
+            errors.username = "Please enter a username.";
+            returnData =false
+        }
+        
+        setErrors(errors);
+        
+        
+        return returnData// Return true if there are no errors
+    };
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (formData.phoneOrEmail && formData.fullName && formData.username && formData.password) {
+        const isValid = await validateForm();
+
+        if (isValid) {
+
+            if (formData.phoneOrEmail && formData.fullName && formData.username && formData.password) {
 
 
-            api.signupUser(formData).then((response) => {
-                console.log(response);
+                api.signupUser(formData).then((response) => {
+                    console.log(response);
 
-                if (response.data.success) {
+                    if (response.data.success) {
 
-                    if(response.data.message ==='OTP sent successfully.'){
-                         navigate('/otp-verification',{state:{phone:formData.phoneOrEmail}})
-                    }else{
-                        setSuccess(true)
+                        if (response.data.message === 'OTP sent successfully.') {
+                            navigate('/otp-verification', { state: { phone: formData.phoneOrEmail } })
+                        } else {
+                            setSuccess(true)
+                        }
                     }
-                }
-            })
-                .catch((err: Error) => {
-                    console.log(err);
-
                 })
+                    .catch((err: Error) => {
+                        console.log(err);
+
+                    })
+            }
+
         }
     }
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +85,7 @@ export const Signup = () => {
     return (
         <div>
 
-           <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
+            <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
                         className="mx-auto h-10 w-auto"
@@ -71,11 +109,12 @@ export const Signup = () => {
                                     name="phoneOrEmail"
                                     type="text"
                                     autoComplete="email phone"
-                                    required
+
                                     value={formData.phoneOrEmail}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors?.phoneOrEmail && <p className="text-red-500 text-sm mt-1">{errors.phoneOrEmail}</p>}
                             </div>
                         </div>
                         <div>
@@ -88,11 +127,12 @@ export const Signup = () => {
                                     name="fullName"
                                     type="text"
                                     autoComplete="fullName"
-                                    required
+
                                     value={formData.fullName}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors?.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                             </div>
                         </div>
                         <div>
@@ -105,11 +145,12 @@ export const Signup = () => {
                                     name="username"
                                     type="text"
                                     autoComplete="username"
-                                    required
+
                                     value={formData.username}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors?.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                             </div>
                         </div>
                         <div>
@@ -124,11 +165,12 @@ export const Signup = () => {
                                     name="password"
                                     type="password"
                                     autoComplete="current-password"
-                                    required
+
                                     value={formData.password}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors?.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                             </div>
                         </div>
 
@@ -150,7 +192,7 @@ export const Signup = () => {
                     </p>
                 </div>
             </div>
-            <SuccessModal success={success} setSuccess={setSuccess}/>
+            <SuccessModal success={success} setSuccess={setSuccess} />
         </div>
     )
 }

@@ -7,16 +7,28 @@ import { Post } from "../../entities/postEntity"
 import { commentModel } from "../../frameworks/sequelize/models/commentModel"
 
 class PostRepository {
-    private postModel 
+    private postModel
     constructor(sequelize: Sequelize) {
         this.postModel = postModel(sequelize)
     }
-    async getPosts(page: number, username: string) {
+    async getPosts(page: number, username: any, type: string) {
         try {
-            console.log(username, page);
+            console.log(username, page, '/////////post',type);
 
-
-            return await this.postModel.findAll({ where: { username: { [Op.ne]: username } }, offset: (page - 1) * 5, limit: 5 })
+            if (type == 'home') {
+                return await this.postModel.findAll({ where: { username: username },order:[["createdAt","DESC"]], offset: (page - 1) * 5, limit: 5 })
+                
+            } else {
+                console.log(username.username,'username', '////',username.following);
+                
+                return await this.postModel.findAll({ where: {
+                    [Op.and]: [
+                        { username: { [Op.ne]: username.username } },
+                        { username: { [Op.notIn]: username.following } }
+                    ]
+                }, offset: (page - 1) * 5, limit: 5 })
+                
+            }
         } catch (err) {
             throw err
 
@@ -109,26 +121,26 @@ class PostRepository {
 
         }
     }
-  
 
-    async editPost (id:string,caption:string){
+
+    async editPost(id: string, caption: string) {
         try {
 
-            const result= await this.postModel.update({caption},{where:{id},returning:true})
+            const result = await this.postModel.update({ caption }, { where: { id }, returning: true })
             return result[1]
         } catch (err) {
             throw err
-            
+
         }
     }
 
-    async deletePost(id:string){
+    async deletePost(id: string) {
         try {
-            const post = await this.postModel.findOne({where:{id}})
-            if(!post)throw new Error('invalid post id')
-            const result = await this.postModel.destroy({where:{id}})
-            console.log(result,'//////');
-            
+            const post = await this.postModel.findOne({ where: { id } })
+            if (!post) throw new Error('invalid post id')
+            const result = await this.postModel.destroy({ where: { id } })
+            console.log(result, '//////');
+
             await deleteObject(post.post_url)
             return true
         } catch (err) {
@@ -136,7 +148,7 @@ class PostRepository {
         }
     }
 
-    async deleteComment (id:string,comment:string){
+    async deleteComment(id: string, comment: string) {
         try {
 
             /* const result =await this.postModel.update({comments:sequelize.fn('array_remove',sequelize.col('comments'),comment)},{where:{id},returning:true})
@@ -144,7 +156,7 @@ class PostRepository {
             return true
         } catch (err) {
             throw err
-            
+
         }
     }
 }

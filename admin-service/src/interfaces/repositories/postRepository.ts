@@ -9,7 +9,10 @@ class PostRepository {
     }
     async getPost() {
         try {
-            return await this.postModel.findAll()
+            return await this.postModel.findAll({
+                order: [['createdAt', 'DESC']]
+              });
+              
         } catch (err) {
             throw err
         }

@@ -17,13 +17,15 @@ export const Home = () => {
     }, [userData])
     const loadPost = async () => {
         try {
+           console.log(page);
            
             if(page===0)return page=1 
             if (!hasMore || loading) return;
             setLoading(true);
             const formData = {
                 page,
-                username: userData.username
+                username: userData.following,
+                type:'home'
             }
             const response = await api.getPosts(formData)
 
@@ -55,11 +57,13 @@ export const Home = () => {
     };
 
     useEffect(() => {
+        handleScroll()
         window.addEventListener('scroll', handleScroll);
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, [hasMore]);
+    
     return (
         <>
             <NavSideBar />

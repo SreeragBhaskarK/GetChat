@@ -6,16 +6,7 @@ interface Props {
     navLocation: string
 }
 export const NavTopBar: React.FC<Props> = ({ navLocation }) => {
-    const dispatch = useDispatch()
-    const logout = () => {
-        api.logoutAdmin().then((response) => {
-            
-
-            if (response.data.success) {
-                dispatch(loginCheckAdmin(false))
-            }
-        })
-    }
+  
     return (
         <>
 
@@ -45,10 +36,10 @@ export const NavTopBar: React.FC<Props> = ({ navLocation }) => {
 
 
                             <li className="flex items-center">
-                                <i onClick={logout} className="block px-0 py-2 font-semibold transition-all ease-nav-brand text-sm text-slate-500">
+                               {/*  <i onClick={logout} className="block px-0 py-2 font-semibold transition-all ease-nav-brand text-sm text-slate-500">
                                     <i className="fa fa-user sm:mr-1"></i>
                                     <span onClick={logout} className="hidden sm:inline">Logout</span>
-                                </i>
+                                </i> */}
                             </li>
                             <li className="flex items-center pl-4 xl:hidden">
                                 <a href="javascript:;" className="block p-0 transition-all ease-nav-brand text-sm text-slate-500" sidenav-trigger>

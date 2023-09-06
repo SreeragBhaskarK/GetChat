@@ -1,25 +1,36 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api';
+import { useDispatch } from 'react-redux';
+
+import { MdDelete } from 'react-icons/md'
+import { AiFillInfoCircle } from 'react-icons/ai'
+import { DeleteChatBox } from '../widgets/cards';
+
+import { messagesIndication } from '../redux/userSlice';
+import { socket } from '../services/socketIo';
+import { decreamentMessageCount, increaseMessageCount } from '../redux/messageSlice';
 
 
-export const ChatBox = ({ userData, socket, senderId }) => {
+export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([])
-    const [listen, setListen] = useState(false)
+   /*  const [listen, setListen] = useState(false) */
+    const [deleteChat, setDeleteChat] = useState(false)
+    const dispatch = useDispatch()
     const sendMessage = (e) => {
         e.preventDefault()
         if (message.trim() !== '') {
 
 
-            socket.emit('message', {
-                recipientId: userData.memberDetails[0]._id === senderId
-                    ? userData.memberDetails[1]._id
-                    : userData.memberDetails[0]._id,
+            socket.emit('private_message', {
+                recipientId:userData?.memberDetails[0]?._id === senderId
+                ? userData?.memberDetails[1]._id
+                : userData?.memberDetails[0]._id,
                 senderId: senderId,
                 content: message,
                 chatId: userData._id
             });
-            setMessages([...messages, {
+            setMessages((prevMessage)=>[...prevMessage, {
                 chatId: userData._id, content: message, recipientId: userData.memberDetails[0]._id === senderId
                     ? userData.memberDetails[1]._id
                     : userData.memberDetails[0]._id, senderId
@@ -29,14 +40,17 @@ export const ChatBox = ({ userData, socket, senderId }) => {
         }
     }
 
+    
+
+
     useEffect(() => {
-
-
+        console.log(userData,'🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥');
+       
         api.getMessage({ chatId: userData?._id }).then((response) => {
             console.log(response);
             if (response.data.success) {
                 setMessages(response.data.data)
-                setListen(true)
+              
             }
 
         }).catch((err) => {
@@ -49,21 +63,45 @@ export const ChatBox = ({ userData, socket, senderId }) => {
     }, [userData])
 
     useEffect(() => {
-        socket.on('privateMessage', (data) => {
-            /* setMessages((prevMessages) => [...prevMessages, message]) */
+        /* console.log(messages[messages.length-1]?.updatedAt,'/agoo'); */
+
+        timeAgoCallBack(messages[messages.length - 1])
+
+    }, [messages])
+
+    useEffect(() => {
+        
+        const recipientId = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1]._id : userData?.memberDetails[0]._id
+        socket.on('private_message',(data)=>{
+            console.log(userData,'userData');
             console.log(data, '//////messaging//////');
-            if (data != '') {
-                console.log(messages);
-                setMessages( [...messages, data]);
-                setListen(false)
-
+            console.log(socket.id,'/////////socketId')
+            console.log(recipientId,'recIdikkkkkkk😁😁');
+            dispatch(increaseMessageCount(data?.senderId))
+            if (data != '' && recipientId ==data.senderId) {
+                setMessages((prevMessages) => [...prevMessages, data]);
             }
-            return () => {
-                socket.disconnect(); // Disconnect when unmounting
-            };
-        })
-    }, [listen])
+        } );
+        dispatch(decreamentMessageCount(recipientId))
+        return () => {
+            // Cleanup function to remove the event listener when the component unmounts.
+            socket.off('private_message');
+            
+        };
+    }, [userData])
+    const messageDelete = (id) => {
+        api.deleteMessage(id).then((response) => {
+            console.log(response);
 
+            if (response.data.success) {
+                setMessages(messages.filter((message) => message._id != id))
+            }
+        }).catch((err) => {
+            console.log(err);
+
+        })
+
+    }
 
     return (
         <>
@@ -79,36 +117,43 @@ export const ChatBox = ({ userData, socket, senderId }) => {
                             : userData?.memberDetails[0].username}</span>
                         <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                         </span>
+
+                        <AiFillInfoCircle onClick={() => setDeleteChat(!deleteChat)} className='ml-auto' />
                     </div>
+                    {deleteChat && <DeleteChatBox setDeleteChat={setDeleteChat} chatId={userData._id} deleteChat={deleteChat} setChat={setChat} />}
                     <div className="relative w-full p-6 overflow-y-auto h-[40rem]">
                         <ul className="space-y-2">
-                            {messages.map((messageContent,index) => {
-                                console.log(index);
-                                
-                                if(messageContent?.senderId !== senderId &&messageContent.seen==false){
-                                    api.changeSeen({messageId:messageContent._id}).then((response)=>{
+                            {messages.map((messageContent, index) => {
+    
+
+                                if (messageContent?.senderId !== senderId && messageContent.seen == false) {
+                                    api.changeSeen({ messageId: messageContent._id }).then((response) => {
                                         console.log(response);
-                                        if(response.data.success){
-                                            let prevMessage= messages
-                                            prevMessage[index]=response.data.data
+                                        if (response.data.success) {
+                                            let prevMessage = messages
+                                            prevMessage[index] = response.data.data
                                             setMessages(prevMessage)
                                         }
-                                        
-                                    }).catch((err)=>{
+
+                                    }).catch((err) => {
                                         console.log(err);
-                                        
+
                                     })
                                 }
+                                
+                                
                                 return (<li className={messageContent?.senderId === senderId ? "flex justify-end" : "flex justify-start"}>
-                                    <div className="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
+                                    {messageContent?.senderId === senderId  && <div onClick={() => messageDelete(messageContent?._id)}   className='cursor-pointer hover:block hidden'> <MdDelete /></div>}
+                                    <div  className="relative cursor-pointer max-w-xl px-4 py-2 text-gray-700 rounded shadow">
                                         <span className="block">{messageContent?.content}</span>
                                     </div>
                                 </li>)
                             }
                             )}
                         </ul>
-                            {messages[messages.length-1]?.senderId === senderId&&messages[messages.length-1]?.seen==true&&<span className="block mt-2 text-sm float-right">seen</span>}
+                        {messages[messages.length - 1]?.senderId === senderId && messages[messages.length - 1]?.seen == true && <span className="block mt-2 text-sm float-right">seen</span>}
                     </div>
+
 
                     <form onSubmit={sendMessage}>
                         <div className="flex items-center justify-between w-full p-3 border-t border-gray-300">
@@ -146,6 +191,7 @@ export const ChatBox = ({ userData, socket, senderId }) => {
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </>

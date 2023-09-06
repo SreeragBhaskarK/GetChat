@@ -1,11 +1,13 @@
+import notificationModel from "../../frameworks/mongoose/models/notificationModel";
 
 
 
 class MessageRepository {
     private userModel// Use the correct parameter name here
-
-    constructor(userModel: any) {
+    private notificationModel
+    constructor(userModel: any,notificationModel:any) {
         this.userModel = userModel; // Use the correct parameter name here
+        this.notificationModel = notificationModel
     }
 
     async insertPost(data: any) {
@@ -53,6 +55,16 @@ class MessageRepository {
             throw err
         }
 
+    }
+
+    async notification(data:any){
+        try {
+            const notification  = new notificationModel(data)
+            await notification.save()
+        } catch (err) {
+            throw err
+            
+        }
     }
 
 

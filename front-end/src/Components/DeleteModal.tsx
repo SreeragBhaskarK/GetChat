@@ -12,8 +12,8 @@ export const DeleteModal = ({ setItems, items, deleteItem, deleteModal, setDelet
             api.deletePostsAdmin(deleteItem.id).then((response) => {
                 if (response.data.success) {
 
-                    
-                    setItems((prevsItem)=>prevsItem[items].status='solved');
+                   
+                  /*   setItems((prevsItem)=>prevsItem[items].status='solved'); */
 
 
                     setDeleteModal(false)

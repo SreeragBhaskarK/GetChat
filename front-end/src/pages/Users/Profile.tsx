@@ -19,7 +19,7 @@ export const Profile = () => {
   const [follow, setFollow] = useState(false)
 
   const [type, setType] = useState('')
-
+  const dispatch = useDispatch()
 
   const handlePostView = async (index, likedByUsername) => {
     console.log(index, '/////index');
@@ -36,6 +36,21 @@ export const Profile = () => {
 
 
   }
+
+  useEffect(() => {
+   
+    api.getProfile({ username:userData.username }).then((response) => {
+        console.log(response, '///////userpro');
+        if (response.data.success) {
+            dispatch(addUserData(response.data.data))
+        }
+    }).catch((err) => {
+        console.log(err);
+
+    })
+
+
+}, [])
 
   useEffect(() => {
     api.getPost(1, userData.username).then((response) => {
@@ -99,7 +114,7 @@ export const Profile = () => {
 
                 <ul className="hidden md:flex space-x-8 mb-4">
                   <li>
-                    <span className="font-semibold">{userData.posts.length}</span>
+                    <span className="font-semibold">{userData.posts.length} </span>
                     posts
                   </li>
 
@@ -132,7 +147,7 @@ export const Profile = () => {
               </div>
 
             </header>
-           {follow && <FollowList follow={follow} setFollow={setFollow} userId={userData._id} type={type}/>}
+           {follow && <FollowList follow={follow} setFollow={setFollow} userId={userData._id} user={true} type={type}/>}
             <div className="px-px md:px-3">
 
 

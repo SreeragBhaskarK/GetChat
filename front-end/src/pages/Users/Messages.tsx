@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { ChatBox } from '../../Components'
 import { NavSideBar } from '../../widgets/layout/user'
-import io from 'socket.io-client'
+
 import { useSelector } from 'react-redux'
 import api from '../../services/api'
-import { useLocation } from 'react-router-dom'
-const socket = io('http://localhost:3000', { withCredentials: true })
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { formatDistanceToNow } from 'date-fns'
+
+
 export const Messages = () => {
     const [indexUser, setindexUser] = useState(0)
     const [chatUser, setChatUser] = useState([])
@@ -13,20 +15,55 @@ export const Messages = () => {
     const userDetail = useSelector((state: any) => state.user.userData)
 
     const location = useLocation();
+    const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
 
     const paramValue = searchParams.get('userId');
     console.log(paramValue, '////////////jshjdhf');
 
+    const [timeAgo, setTimeAgo] = useState('')
+    const [lastMessage, setLastMessage] = useState('')
+
+    const messageCount = useState(useSelector((state: any) => state.message.messages_count))
+    const [messageInd, setMessageInd] = useState(messageCount[0])
+    const [searchKey, setSearchKey] = useState('')
+    const [suggestions, setSuggestions] = useState([])
     const handleClick = (index, user) => {
+        console.log(user, 'userrrrrrrrrr🔥🔥🔥🔥');
+
         setUserData(user)
         setindexUser(index)
     }
+
     useEffect(() => {
-        socket.emit('auth', userDetail._id)
+        api.userSearch(searchKey, userDetail.username).then((response) => {
+            console.log(response, 'search');
+            if (response.data.success) {
+                setSuggestions(response.data.data)
+            }
+        }).catch((err) => {
+            console.log(err);
+
+        })
+
+    }, [searchKey, userDetail])
+
+    useEffect(() => {
+        setMessageInd(messageCount[0])
+    }, [messageCount])
+    useEffect(() => {
+
         if (paramValue) {
             api.chatCreate({ firstId: paramValue, secondId: userDetail._id }).then((response) => {
                 console.log(response, '////skjdsdh');
+
+                searchParams.delete('userId');
+
+                navigate({
+                    pathname: window.location.pathname, // Keep the same pathname
+                    search: searchParams.toString(), // Set the updated search query
+                });
+
                 api.getChats(userDetail._id).then((response) => {
 
                     console.log(response, '/////////messages');
@@ -51,7 +88,7 @@ export const Messages = () => {
                     console.log(err);
 
                 })
-               
+
 
 
             }).catch((err) => {
@@ -113,7 +150,28 @@ export const Messages = () => {
 
 
 
-    }, [userDetail])
+    }, [userDetail,paramValue])
+
+    const previousMessageTime = useCallback((data) => {
+        if (data) {
+            console.log(data, '/callback');
+            if (data?.updatedAt && data.senderId != userDetail._id) {
+
+                const parsedTimestamp = new Date(data?.updatedAt);
+                const ago = formatDistanceToNow(parsedTimestamp, { addSuffix: true });
+                setTimeAgo(ago)
+            } else {
+                setTimeAgo('')
+            }
+            if (data.content && data.senderId != userDetail._id) {
+
+                setLastMessage(data?.content)
+            } else {
+                setLastMessage('')
+            }
+        }
+
+    }, [])
 
 
     return (
@@ -132,15 +190,36 @@ export const Messages = () => {
                                             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                         </svg>
                                     </span>
-                                    <input type="search" className="block w-full py-2 pl-10 bg-gray-100 rounded outline-none" name="search"
+                                    <input type="search" value={searchKey} onChange={(e) => setSearchKey(e.target.value)} className="block w-full py-2 pl-10 bg-gray-100 rounded outline-none" name="search"
                                         placeholder="Search" required />
                                 </div>
+                                {searchKey &&<div className=' w-full border-t relative z-10  '>
+                                    <ul className='absolute w-full bg-gray-600 rounded-lg'>
+                                        {suggestions.map((suggestion, index) => (
+                                            <li key={index}><Link onClick={()=>{setSearchKey('');setSuggestions([])}} to={`/messages?userId=${suggestion._id}`}>  <div className='flex flex-row items-center gap-4'>
+                                                <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                                                    className='h-10 w-10 rounded-full object-cover' />
+                                                <span className='text-white'>{suggestion.username}</span>
+                                            </div></Link></li>
+                                        ))}
+                                    </ul>
+                                </div>}
                             </div>
 
                             <ul className="overflow-auto h-[32rem]">
                                 <h2 className="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
                                 <li>
                                     {chatUser?.map((user, index) => {
+                                        const recipientId = user?.memberDetails[0]._id === userDetail._id ? user?.memberDetails[1]._id : user?.memberDetails[0]._id
+                                        console.log(messageInd, 'message');
+
+                                        const result = messageInd?.findIndex((message) => message.recipientId == recipientId)
+                                        let count = 0
+                                        if (result != -1) {
+                                            count = messageInd[result]?.count
+                                        }
+                                        console.log(count, result, 'count');
+
                                         return (
 
                                             <a onClick={() => handleClick(index, user)}
@@ -160,9 +239,14 @@ export const Messages = () => {
                                                                 ? user.memberDetails[1].username
                                                                 : user.memberDetails[0].username}
                                                         </span>
-                                                        <span className="block ml-2 text-sm text-gray-600">25 minutes</span>
+                                                        <span className="block ml-2 text-sm text-gray-600">{timeAgo}</span>
                                                     </div>
-                                                    <span className="block ml-2 text-sm text-gray-600">bye</span>
+                                                    <div className='relative'>
+                                                        <span className="block ml-2 text-sm text-gray-600">{lastMessage}</span>
+                                                        {count > 0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
+                                                            {count}
+                                                        </span>}
+                                                    </div>
                                                 </div>
                                             </a>
                                         )
@@ -171,7 +255,7 @@ export const Messages = () => {
                                 </li>
                             </ul>
                         </div>
-                        <ChatBox userData={userData} socket={socket} senderId={userDetail._id} />
+                        {chatUser.length>0&&<ChatBox userData={userData} timeAgoCallBack={previousMessageTime} senderId={userDetail._id} setChat={setChatUser} />}
                     </div>
                     {/*  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
                     <button onClick={sendMessage}>Send</button> */}

@@ -6,13 +6,14 @@ import api from '../../services/api'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FollowList, ViewPost } from '../../Components'
 import { addUserData } from '../../redux/userSlice'
+import { socket } from '../../services/socketIo'
 
 
 
 const userProfile = () => {
     const userData = useSelector((state: any) => state.user.userData)
     const { username } = useParams()
-    const [userDetail, setUserDetail] = useState<any>({})
+    const [userDetail, setUserDetail] = useState<any>('')
     const navigate = useNavigate()
     const [postClick, setPostClick] = useState<boolean>(false)
     const [indexPost, setIndexPost] = useState()
@@ -30,7 +31,6 @@ const userProfile = () => {
             console.log(response, '///////userpro');
             if (response.data.success) {
                 setUserDetail(response.data.data)
-
             }
         }).catch((err) => {
             console.log(err);
@@ -38,7 +38,7 @@ const userProfile = () => {
         })
 
 
-    }, [userData])
+    }, [userData, username])
     useEffect(() => {
         api.getPost(1, userDetail.username).then((response) => {
             console.log(response);
@@ -79,6 +79,7 @@ const userProfile = () => {
             if (response.data.success) {
                 dispatch(addUserData(response.data.data))
                 setFollowing(true)
+                socket.emit('following', { sender_username: userData.username, senderId: userData._id, recipient_username: userDetail.username, recipientId: userDetail._id, message: 'started following you.' })
             }
 
         }).catch((err) => {
@@ -119,7 +120,7 @@ const userProfile = () => {
 
             <main className="ease-soft-in-out xl:ml-68.5  relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className='w-full mt-7' >
-                    {userDetail && <div className='container'>
+                    {userDetail ? (<div className='container'>
                         <header className="flex flex-wrap items-center p-4 md:py-8">
 
                             <div className="md:w-3/12 md:ml-16">
@@ -188,7 +189,7 @@ const userProfile = () => {
                             </div>
 
                         </header>
-                        {follows && <FollowList follow={follows} setFollow={setFollows} userId={userDetail._id} type={type} />}
+                        {follows && <FollowList follow={follows} setFollow={setFollows} userId={userDetail._id} type={type} user={false} />}
                         <div className="px-px md:px-3">
 
 
@@ -278,7 +279,11 @@ const userProfile = () => {
                             </div>
                         </div>
 
-                    </div>}
+                    </div>) : (<div >
+                        <h1 className='flex justify-center font-bold text-4xl mt-7'>Sorry, this page isn't available.</h1>
+                        <span className='flex justify-center mt-12'>The link you followed may be broken, or the page may have been removed. <Link to='/' className='text-cyan-600'>Go back to GetChat.</Link></span>
+                    </div>)}
+
                 </div>
 
             </main>

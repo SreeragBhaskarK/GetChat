@@ -4,7 +4,7 @@ import { handleMessage } from "./handleMessage";
 
 
 const consumer = kafka.consumer({
-    groupId: 'admin-service'
+    groupId: 'post-service'
 })
 
 export const consumeUser = async () => {

@@ -164,8 +164,8 @@ export const EditProfile = () => {
                           id="name"
                           onChange={handleChange} name='gender' value={formData.gender}
                           className="w-full border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500">
-                          <option selected={formData.gender == 'male'} value='male'>male</option>
-                          <option selected={formData.gender == 'female'} value='female'>female</option>
+                          <option  value='male'>male</option>
+                          <option  value='female'>female</option>
                         </select>
                       </div>
 

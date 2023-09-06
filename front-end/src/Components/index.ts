@@ -9,5 +9,6 @@ export * from './ChatBox'
 export * from './Search'
 export * from './FollowList'
 export * from './EditPost'
+export * from './Notifications'
 
 
