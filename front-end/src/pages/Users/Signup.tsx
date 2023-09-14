@@ -1,8 +1,7 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from '../../services/api'
-import { SuccessModal } from "../../Components"
-
+import { toast } from "react-toastify"
 export const Signup = () => {
     const navigate = useNavigate()
     const [success, setSuccess] = useState(false)
@@ -26,24 +25,24 @@ export const Signup = () => {
         if (!formData.phoneOrEmail) {
             errors.phoneOrEmail = "Please enter a phone number or email.";
         }
-        
+
         // Validate the 'password' field
         if (!formData.password) {
             errors.password = "Please enter a password.";
-            returnData =false
+            returnData = false
         }
         if (!formData.fullName) {
             errors.fullName = "Please enter a full name.";
-            returnData =false
+            returnData = false
         }
         if (!formData.username) {
             errors.username = "Please enter a username.";
-            returnData =false
+            returnData = false
         }
-        
+
         setErrors(errors);
-        
-        
+
+
         return returnData// Return true if there are no errors
     };
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,15 +60,59 @@ export const Signup = () => {
                     if (response.data.success) {
 
                         if (response.data.message === 'OTP sent successfully.') {
+                            toast.info('Successfully send verification otp.', {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "colored",
+                            });
                             navigate('/otp-verification', { state: { phone: formData.phoneOrEmail } })
                         } else {
-                            setSuccess(true)
+
+                            toast.info('Successfully send verification mail.', {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "colored",
+                            });
+                            navigate('/login')
                         }
                     }
                 })
-                    .catch((err: Error) => {
-                        console.log(err);
+                    .catch((err: any) => {
+                        console.log(err,'////////');
+                        if (err.response) {
 
+                            toast.error(err.response.data.message, {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                            });
+                        }else{
+                            toast.error('signup error', {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "light",
+                            }); 
+                        }
                     })
             }
 
@@ -192,7 +235,6 @@ export const Signup = () => {
                     </p>
                 </div>
             </div>
-            <SuccessModal success={success} setSuccess={setSuccess} />
         </div>
     )
 }

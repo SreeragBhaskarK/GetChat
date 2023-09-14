@@ -6,4 +6,7 @@ export interface Notification {
     user_type?:string
     sender_username?:string
     recipient_username?:string
+    seen_username?:[]
+    updatedAt:string
+    createdAt:string
 }

@@ -8,7 +8,7 @@ class NotificationRepository{
         try {
             console.log(username,'usernamekdjfjfj');
             
-           return await this.notificationModel.find({recipient_username:username}).sort({createdAt:-1}).limit(20) 
+           return await this.notificationModel.find({$or:[{recipient_username:username},{user_type:'all'},{user_type:username}]}).sort({createdAt:-1}).limit(20) 
         } catch (err) {
             throw err
             

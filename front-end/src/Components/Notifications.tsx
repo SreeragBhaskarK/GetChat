@@ -31,8 +31,8 @@ export const Notifications = ({ open, setOpen }) => {
     }, [])
 
 
-    const follow = (username,userId) => {
-        
+    const follow = (username, userId) => {
+
         console.log(username);
         api.putFollow({ followUserName: username, user: userData.username }).then((response) => {
             console.log(response);
@@ -50,7 +50,7 @@ export const Notifications = ({ open, setOpen }) => {
 
     const unfollow = (username) => {
         console.log(username);
-        
+
         api.deleteFollow({ followUserName: username, user: userData.username }).then((response) => {
             console.log(response);
 
@@ -120,7 +120,7 @@ export const Notifications = ({ open, setOpen }) => {
                                         </div>
                                         <div className="relative mt-6 flex-1 px-4 sm:px-6">
 
-                                            {notifications.map((notification,index) => {
+                                            {notifications.map((notification, index) => {
                                                 const result = userData.following.some((username) => username == notification.sender_username)
                                                 return (
 
@@ -129,15 +129,18 @@ export const Notifications = ({ open, setOpen }) => {
                                                             <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
                                                                 className='h-10 w-10 rounded-full object-cover' />
                                                         </div>
-                                                        <div className='gap-4 ml-2 flex text-ellipsis'>
+                                                        {notification.type == 'follow' ? (<div className='gap-4 ml-2 flex text-ellipsis'>
                                                             <span>{notification.sender_username}</span>
                                                             <span>{notification.message}</span>
-                                                        </div>
-                                                        <div className='gap-4 '>
+                                                        </div>) : (<div className='gap-4 ml-2 flex text-ellipsis'>
+
+                                                            <span className={notification.type=='warning' ?'text-yellow-500' :'' && notification.type=='success' ?'text-green-500':'' && notification.type=='danger' ?'text-red-500':''}>{notification.message}</span>
+                                                        </div>)}
+                                                        {notification.type == 'follow' && <div className='gap-4 '>
                                                             {
 
-                                                                result ? (<button onClick={()=>unfollow(notification.sender_username)} className="bg-slate-100 px-2 py-1  text-black font-semibold text-sm rounded  text-center sm:inline-block block">following</button>) : (<button onClick={()=>follow(notification.sender_username,notification.senderId)} className="bg-blue-500 px-2 py-1  text-white font-semibold text-sm rounded  text-center sm:inline-block block">follow</button>)}
-                                                        </div>
+                                                                result ? (<button onClick={() => unfollow(notification.sender_username)} className="bg-slate-100 px-2 py-1  text-black font-semibold text-sm rounded  text-center sm:inline-block block">following</button>) : (<button onClick={() => follow(notification.sender_username, notification.senderId)} className="bg-blue-500 px-2 py-1  text-white font-semibold text-sm rounded  text-center sm:inline-block block">follow</button>)}
+                                                        </div>}
 
                                                     </div>
 

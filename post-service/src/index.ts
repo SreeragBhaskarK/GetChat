@@ -6,6 +6,8 @@ import cors from 'cors'
 import postRoute from './frameworks/express/routes/postRoute'
 import cookieParser from "cookie-parser";
 import { consumeUser } from './interfaces/messageBrokers/postConsumer'
+import http from 'http'
+import { socketIoConnect } from './config/socketIo'
 
 (async () => {
     try {
@@ -14,16 +16,17 @@ import { consumeUser } from './interfaces/messageBrokers/postConsumer'
         const { PORT } = process.env
       
         const app = express()
+        const server = http.createServer(app)
         app.use(cors({
             origin: 'http://localhost:5173',
             credentials: true,
         }));
-        
+        await socketIoConnect(server)
         app.use(cookieParser())
         app.use(express.json())
         app.use(express.urlencoded())
         app.use('/api/v1/post', postRoute)
-        await app.listen(PORT, () => console.log('GetChat Post Service Ready...'))
+        await server.listen(PORT, () => console.log('GetChat Post Service Ready...'))
         await consumeUser()
     } catch (err) {
         console.log(err);

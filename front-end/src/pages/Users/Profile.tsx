@@ -38,19 +38,19 @@ export const Profile = () => {
   }
 
   useEffect(() => {
-   
-    api.getProfile({ username:userData.username }).then((response) => {
-        console.log(response, '///////userpro');
-        if (response.data.success) {
-            dispatch(addUserData(response.data.data))
-        }
+
+    api.getProfile({ username: userData.username }).then((response) => {
+      console.log(response, '///////userpro');
+      if (response.data.success) {
+        dispatch(addUserData(response.data.data))
+      }
     }).catch((err) => {
-        console.log(err);
+      console.log(err);
 
     })
 
 
-}, [])
+  }, [])
 
   useEffect(() => {
     api.getPost(1, userData.username).then((response) => {
@@ -63,12 +63,12 @@ export const Profile = () => {
       console.log(err);
     })
   }, [userData])
-  const handleFollow=(type)=>{
-    if(type=='following'){
+  const handleFollow = (type) => {
+    if (type == 'following') {
       setType(type)
-     
+
       setFollow(true)
-    }else{
+    } else {
       setType(type)
       setFollow(true)
     }
@@ -78,10 +78,9 @@ export const Profile = () => {
 
     <>
       <NavSideBar />
-
       <main className="ease-soft-in-out xl:ml-68.5  relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
         <div className='w-full mt-7' >
-          
+
           <div className='container'>
             <header className="flex flex-wrap items-center p-4 md:py-8">
 
@@ -120,12 +119,12 @@ export const Profile = () => {
 
                   <li>
                     <span className="font-semibold">{userData.followers?.length} </span>
-                   <a className='cursor-pointer' onClick={()=>handleFollow('followers')}>followers</a> 
+                    <a className='cursor-pointer' onClick={() => handleFollow('followers')}>followers</a>
                   </li>
                   <li>
                     <span className="font-semibold">{userData.following?.length} </span>
-                    <a className='cursor-pointer' onClick={()=>handleFollow('following')}>following</a> 
-                    
+                    <a className='cursor-pointer' onClick={() => handleFollow('following')}>following</a>
+
                   </li>
                 </ul>
 
@@ -147,7 +146,7 @@ export const Profile = () => {
               </div>
 
             </header>
-           {follow && <FollowList follow={follow} setFollow={setFollow} userId={userData._id} user={true} type={type}/>}
+            {follow && <FollowList follow={follow} setFollow={setFollow} userId={userData._id} user={true} type={type} />}
             <div className="px-px md:px-3">
 
 
@@ -239,10 +238,10 @@ export const Profile = () => {
 
           </div>
         </div>
-       
+
       </main>
-    
-            
+
+
 
     </>
   )

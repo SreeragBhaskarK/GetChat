@@ -4,24 +4,25 @@ import { useNavigate } from 'react-router-dom';
 
 // Create an instance of Axios with custom configuration
 const api = axios.create({
-    baseURL: 'http://localhost:4000/api/v1', // Replace with your API base URL
+    baseURL: 'http://localhost:3000/api/v1', // Replace with your API base URL
     /* timeout: 5000, */
     withCredentials: true
 });
-api.interceptors.response.use(
-    response => response,
-    error => {
-        console.log(error, 'errrhandle');
-        if (error.response) {
-            // Handle error responses
-            return error
-        } else {
-            // Handle network errors
-           /*  window.location.href ='/500' */
+// api.interceptors.response.use(
+//     response => response,
+//     error => {
+//         console.log(error, 'errrhandle');
+//         if (error.response) {
+//             // Handle error responses
+//             return error
+//         } else {
+//             return error
+//             // Handle network errors
+//             window.location.href ='/500'
         
-        }
-    }
-)
+//         }
+//     }
+// )
 
 // Define your API methods
 const apiMethods = {
@@ -41,8 +42,7 @@ const apiMethods = {
     loginGoogle: () => api.get('/user/auth/google'),
     putFollow: (formData) => api.patch('/user/follow', formData),
     deleteFollow: (formData) => api.patch('/user/unfollow', formData),
-    removeFollow: (formData) => api.patch('/user/remove-follow', formData)
-    ,
+    removeFollow: (formData) => api.patch('/user/remove-follow', formData),
     chatCreate: (formData) => api.post('/user/chat-create', formData),
     getChats: (userId) => api.get(`/user/find-user-chat/${userId}`),
     changeSeen: (messageId) => api.post('/user/change-seen', messageId),
@@ -61,6 +61,13 @@ const apiMethods = {
     deletePostsAdmin: (id) => api.delete(`/admin/posts/${id}`),
     sendNotificationAdmin:(formData)=>api.post('/admin/send-notification',formData),
     getNotificationsAdmin:()=>api.get('/admin/notifications'),
+    getUserDashboard:(type,target)=>api.get(`/admin/users?type=${type}&&target=${target}`),
+    getPostReportsDashboard:(type,target)=>api.get(`/admin/post-reports?type=${type}&&target=${target}`),
+    getPopularUsersDashboard:()=>api.get('/admin/popular-users'),
+    addAdvertising:(formData)=>api.post('/admin/advertising',formData),
+    getAdvertising:()=>api.get('/admin/advertising'),
+    updateAdvertising:(formData)=>api.patch('/admin/advertising',formData),
+    deleteAdvertising:(id)=>api.delete(`/admin/advertising/'${id}`,),
 
     /* posts */
 

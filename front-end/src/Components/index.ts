@@ -10,5 +10,8 @@ export * from './Search'
 export * from './FollowList'
 export * from './EditPost'
 export * from './Notifications'
+export * from './CallScreen'
+export * from './AddAdvertising'
+export * from './editAdvertising'
 
 

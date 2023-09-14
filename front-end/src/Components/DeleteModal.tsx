@@ -41,6 +41,17 @@ export const DeleteModal = ({ setItems, items, deleteItem, deleteModal, setDelet
                 console.log(err);
 
             })
+        }else if(type=='advertising'){
+            api.deleteAdvertising(deleteItem).then((response)=>{
+                console.log(response,'////');
+                
+                if(response.data.success){
+                    setDeleteModal(false)
+                }
+            }).catch((err)=>{
+                console.log(err);
+                
+            })
         }
     }
     return (

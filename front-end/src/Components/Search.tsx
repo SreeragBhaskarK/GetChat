@@ -32,7 +32,7 @@ export const Search = ({ open, setOpen, username }) => {
     return (
         <>
             <Transition.Root show={open} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={setOpen}>
+                <Dialog as="div" className="relative z-10" onClose={()=>{setOpen(!open);setSearchKey('')}}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-in-out duration-500"
@@ -71,7 +71,7 @@ export const Search = ({ open, setOpen, username }) => {
                                                 <button
                                                     type="button"
                                                     className="relative rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                                                    onClick={() => setOpen(false)}
+                                                    onClick={() => {setOpen(!open);setSearchKey('')}}
                                                 >
                                                     <span className="absolute -inset-2.5" />
                                                     <span className="sr-only">Close panel</span>

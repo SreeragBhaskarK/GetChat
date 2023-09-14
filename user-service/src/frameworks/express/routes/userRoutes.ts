@@ -18,5 +18,6 @@ router.post('/get-follows',UserController.getFollows)
 router.delete('/delete-message/:id',UserController.deleteMessage)
 router.delete('/delete-chat/:id',UserController.deleteChat)
 router.get('/notifications',UserController.getNotifications)
+router.get('/advertising',UserController.getAdvertising)
 
 export default router

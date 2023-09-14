@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { useState } from "react"
+import { useState,memo } from "react"
 import { loginCheckAdmin } from "../../../redux/adminSlice"
 import { useDispatch } from "react-redux"
 import api from "../../../services/api"
@@ -229,4 +229,4 @@ export const NavSideBar = () => {
     )
 }
 
-export default NavSideBar
+export default memo(NavSideBar) 

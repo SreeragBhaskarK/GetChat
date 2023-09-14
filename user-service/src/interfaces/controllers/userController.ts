@@ -23,10 +23,14 @@ import NotificationRepository from "../repositories/notificationRepository"
 import GetNotifications from "../../useCases/notifications/getNotifications"
 import notificationModel from "../../frameworks/mongoose/models/notificationModel"
 import RemoveFollowers from "../../useCases/userUseCase/removeFollowers"
+import GetAdvertising from "../../useCases/userUseCase/getAdvertising"
+import AdvertisingRepository from "../repositories/advertisingRepository"
+import advertisingModel from "../../frameworks/mongoose/models/advertisingModel"
 
 const userRepository = new UserRepository(userModel, messageModel)
 const chatRepository = new ChatRepository(chatModel, messageModel)
 const notificationRepository = new NotificationRepository(notificationModel)
+const advertisingRepository = new AdvertisingRepository(advertisingModel)
 class UserController {
 
     static async getUser(req: Request, res: Response) {
@@ -329,6 +333,26 @@ class UserController {
 
         }
     }
+    static async getAdvertising(req: Request, res: Response) {
+        try {
+           
+            const getAdvertising = new GetAdvertising(advertisingRepository)
+            const result = await getAdvertising.execute()
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+
+
+    
 
 
 

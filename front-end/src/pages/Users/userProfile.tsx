@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { NavSideBar } from '../../widgets/layout/user'
+import { NavRightSide, NavSideBar } from '../../widgets/layout/user'
 import { useDispatch, useSelector } from 'react-redux'
 import { HiSquares2X2 } from 'react-icons/hi2'
 import api from '../../services/api'
@@ -116,8 +116,8 @@ const userProfile = () => {
     }
     return (
         <>
-            <NavSideBar />
-
+          
+          <NavSideBar/>
             <main className="ease-soft-in-out xl:ml-68.5  relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className='w-full mt-7' >
                     {userDetail ? (<div className='container'>

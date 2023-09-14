@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { ChatBox } from '../../Components'
-import { NavSideBar } from '../../widgets/layout/user'
+import { NavRightSide, NavSideBar } from '../../widgets/layout/user'
 
 import { useSelector } from 'react-redux'
 import api from '../../services/api'
@@ -150,7 +150,7 @@ export const Messages = () => {
 
 
 
-    }, [userDetail,paramValue])
+    }, [userDetail, paramValue])
 
     const previousMessageTime = useCallback((data) => {
         if (data) {
@@ -193,10 +193,10 @@ export const Messages = () => {
                                     <input type="search" value={searchKey} onChange={(e) => setSearchKey(e.target.value)} className="block w-full py-2 pl-10 bg-gray-100 rounded outline-none" name="search"
                                         placeholder="Search" required />
                                 </div>
-                                {searchKey &&<div className=' w-full border-t relative z-10  '>
+                                {searchKey && <div className=' w-full border-t relative z-10  '>
                                     <ul className='absolute w-full bg-gray-600 rounded-lg'>
                                         {suggestions.map((suggestion, index) => (
-                                            <li key={index}><Link onClick={()=>{setSearchKey('');setSuggestions([])}} to={`/messages?userId=${suggestion._id}`}>  <div className='flex flex-row items-center gap-4'>
+                                            <li key={index}><Link onClick={() => { setSearchKey(''); setSuggestions([]) }} to={`/messages?userId=${suggestion._id}`}>  <div className='flex flex-row items-center gap-4'>
                                                 <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
                                                     className='h-10 w-10 rounded-full object-cover' />
                                                 <span className='text-white'>{suggestion.username}</span>
@@ -210,6 +210,8 @@ export const Messages = () => {
                                 <h2 className="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
                                 <li>
                                     {chatUser?.map((user, index) => {
+                                        console.log(user, 'uuuuuuuuuuser', userDetail);
+
                                         const recipientId = user?.memberDetails[0]._id === userDetail._id ? user?.memberDetails[1]._id : user?.memberDetails[0]._id
                                         console.log(messageInd, 'message');
 
@@ -255,7 +257,7 @@ export const Messages = () => {
                                 </li>
                             </ul>
                         </div>
-                        {chatUser.length>0&&<ChatBox userData={userData} timeAgoCallBack={previousMessageTime} senderId={userDetail._id} setChat={setChatUser} />}
+                        {chatUser.length > 0 && <ChatBox userData={userData} timeAgoCallBack={previousMessageTime} senderId={userDetail._id} setChat={setChatUser} />}
                     </div>
                     {/*  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
                     <button onClick={sendMessage}>Send</button> */}

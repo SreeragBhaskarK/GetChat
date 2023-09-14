@@ -1,14 +1,14 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from "../../services/api";
-import { SuccessModal } from "../../Components";
+import { toast } from "react-toastify"
 
 export const ForgotPassword = () => {
   const [formData, setFormData] = useState({
     phoneOrusernameOremail: '',
   })
 
-  const [success, setSuccess] = useState(false)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement
     setFormData((preFormData) => ({
@@ -49,7 +49,17 @@ export const ForgotPassword = () => {
         if (response.data.message === 'OTP sent successfully.') {
           navigate('/otp-verification', { state: { phone: formData.phoneOrusernameOremail } })
         } else {
-          setSuccess(true)
+          toast.info('Successfully send verification mail.', {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            });
+            navigate('/login')
         }
       })
         .catch((err: any) => {
@@ -121,7 +131,7 @@ export const ForgotPassword = () => {
           </p>
         </div>
       </div>
-      <SuccessModal success={success} setSuccess={setSuccess} />
+   
     </div>
 
   )

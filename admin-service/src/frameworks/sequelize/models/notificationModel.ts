@@ -23,7 +23,11 @@ export const notificationModel = (sequelize:Sequelize)=>{
         },
         user_type:{
             type:DataTypes.STRING
-        }
+        },
+        seen_username:{
+            type:DataTypes.JSON,
+            defaultValue:[]
+        }                                                                                                                                                                                                                                                                                                         
     })
 
     sequelize.sync()

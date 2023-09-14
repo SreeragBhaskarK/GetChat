@@ -106,7 +106,7 @@ export const Uploader = ({ upload, setUpload }) => {
     return (
         <>
             {upload && (
-                <div className="fixed top-0 left-0 right-0 z-50 m-auto w-fit p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div  className="fixed top-0 left-0 right-0 z-50 m-auto w-fit p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full  transition-opacity duration-500 ease-in-out">
                     <div className="relative w-full max-w-2xl max-h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                             <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">

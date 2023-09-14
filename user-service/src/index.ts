@@ -20,9 +20,10 @@ import { googleAuthMiddleware } from './interfaces/middleware/googleAuth'
 
         const server = http.createServer(app)
         app.use(cors({
-            origin: ['http://localhost:5173'],
+            origin: ['http://localhost:5173','https://accounts.google.com/o/oauth2/v2/auth'],
             credentials: true,
         }))
+        
         app.use(passport.initialize())
         googleAuthMiddleware()
         await socketIoConnect(server)

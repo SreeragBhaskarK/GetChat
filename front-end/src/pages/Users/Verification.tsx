@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { useDispatch } from 'react-redux'
 import { addUserData, loginCheck } from "../../redux/userSlice"
 import { NewPassword } from '.';
+import {toast} from 'react-toastify'
 
 
 const Verification = () => {
@@ -31,11 +32,45 @@ const Verification = () => {
                 } else {
                     dispatch(loginCheck(true))
                     navigate('/')
+                    toast.success('successfull login', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
                 }
             }
         }).catch((err) => {
-            console.log(err);
-            setMessage(err.response.data.message)
+            if (err.response) {
+
+                toast.error(err.response.data.message, {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+                navigate('/login')
+            }else{
+                toast.error('signup error', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                }); 
+                navigate('/login')
+            }
 
         })
         console.log(token, email, '//////////////');

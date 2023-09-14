@@ -39,7 +39,13 @@ const Notifications = () => {
         api.sendNotificationAdmin(formData).then((response) => {
             console.log(response);
             if (response.data.success) {
-                setNotifications((prevNotification)=>[response.data.data,...prevNotification])
+                setNotifications((prevNotification) => [response.data.data, ...prevNotification])
+                setFormData({
+                    message: '',
+                    type: 'default',
+                    duration: '2.5',
+                    userType: 'all'
+                })
             }
 
         }).catch((err) => {
@@ -52,7 +58,7 @@ const Notifications = () => {
     }
     return (
         <>
-            <NavSideBar />
+            <NavSideBar/>
             <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
                 <NavTopBar navLocation='Notifications' />
                 <section className="max-w-4xl p-6 mx-auto bg-indigo-600 rounded-md shadow-md dark:bg-gray-800 mt-20">
@@ -65,7 +71,7 @@ const Notifications = () => {
                                 <textarea id="textarea" onChange={handleChange} value={formData.message} name='message' required className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring"></textarea>
                             </div>
                             <div>
-                                <label className="text-white dark:text-gray-200" >Type</label>
+                                <label className="text-white  dark:text-gray-200" >Type</label>
                                 <select onChange={handleChange} name='type' className="block w-full px-4 py-2 mt-2  text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
                                     <option value='default'>Default</option>
                                     <option className='text-green-500' value='success'>Success</option>
@@ -125,15 +131,15 @@ const Notifications = () => {
                                                 <tr>
                                                     <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
                                                         <div className="flex px-2 py-1">
-                                                            
+
                                                             <div className="flex flex-col justify-center">
                                                                 <h6 className="mb-0 leading-normal text-sm">{notification.message}</h6>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        {notification.user_type!='all' &&notification.user_type!='popularUsers'  ?(<div className="mt-2 avatar-group">
-                                                           
+                                                        {notification.user_type != 'all' && notification.user_type != 'popularUsers' ? (<div className="mt-2 avatar-group">
+
                                                             <Link to={`/${notification.user_type}`} className="relative z-20 inline-flex items-center justify-center w-6 h-6  text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
                                                                 <img src="../assets/img/team-2.jpg" className="w-full rounded-full" alt="team2" />
                                                             </Link>
@@ -141,9 +147,9 @@ const Notifications = () => {
                                                                 Romina Hadid
                                                                 <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
                                                             </div>
-                                                           
-                                                        </div>):(<div className='mt-2'>
-                                                            {notification.user_type=='popularUsers'?'popular users':'all'}
+
+                                                        </div>) : (<div className='mt-2'>
+                                                            {notification.user_type == 'popularUsers' ? 'popular users' : 'all'}
                                                         </div>)}
                                                     </td>
                                                     <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">

@@ -1,56 +1,67 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { MdDelete } from 'react-icons/md'
 import { AiFillInfoCircle } from 'react-icons/ai'
 import { DeleteChatBox } from '../widgets/cards';
+import { BsCameraVideo } from 'react-icons/bs'
 
 import { messagesIndication } from '../redux/userSlice';
 import { socket } from '../services/socketIo';
 import { decreamentMessageCount, increaseMessageCount } from '../redux/messageSlice';
+import { useNavigate } from 'react-router-dom';
+import { addCallUser, addVideoCall } from '../redux/callSlice';
 
 
 export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([])
-   /*  const [listen, setListen] = useState(false) */
+    /*  const [listen, setListen] = useState(false) */
     const [deleteChat, setDeleteChat] = useState(false)
     const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [incommingCall, setIncommingCall] = useState({senderId:''})
+    const videoCall =useSelector((state:any)=>state.video_call.videoCall)
+    const recipientId = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1]._id : userData?.memberDetails[0]._id
     const sendMessage = (e) => {
         e.preventDefault()
         if (message.trim() !== '') {
 
 
             socket.emit('private_message', {
-                recipientId:userData?.memberDetails[0]?._id === senderId
-                ? userData?.memberDetails[1]._id
-                : userData?.memberDetails[0]._id,
+                recipientId: userData?.memberDetails[0]?._id === senderId
+                    ? userData?.memberDetails[1]._id
+                    : userData?.memberDetails[0]._id,
                 senderId: senderId,
                 content: message,
                 chatId: userData._id
             });
-            setMessages((prevMessage)=>[...prevMessage, {
+            setMessages((prevMessage) => [...prevMessage, {
                 chatId: userData._id, content: message, recipientId: userData.memberDetails[0]._id === senderId
                     ? userData.memberDetails[1]._id
                     : userData.memberDetails[0]._id, senderId
             }])
             setMessage('')
 
+
+
         }
     }
 
-    
+    useEffect(()=>{
+        setIncommingCall(videoCall)
+    },[videoCall])
 
 
     useEffect(() => {
-        console.log(userData,'🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥');
-       
+        console.log(userData, '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥');
+
         api.getMessage({ chatId: userData?._id }).then((response) => {
             console.log(response);
             if (response.data.success) {
                 setMessages(response.data.data)
-              
+
             }
 
         }).catch((err) => {
@@ -70,23 +81,31 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
     }, [messages])
 
     useEffect(() => {
-        
+
         const recipientId = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1]._id : userData?.memberDetails[0]._id
-        socket.on('private_message',(data)=>{
-            console.log(userData,'userData');
+        socket.on('private_message', (data) => {
+            console.log(userData, 'userData');
             console.log(data, '//////messaging//////');
-            console.log(socket.id,'/////////socketId')
-            console.log(recipientId,'recIdikkkkkkk😁😁');
+            console.log(socket.id, '/////////socketId')
+            console.log(recipientId, 'recIdikkkkkkk😁😁');
             dispatch(increaseMessageCount(data?.senderId))
-            if (data != '' && recipientId ==data.senderId) {
+            if (data != '' && recipientId == data.senderId) {
                 setMessages((prevMessages) => [...prevMessages, data]);
             }
-        } );
+        });
         dispatch(decreamentMessageCount(recipientId))
+
+        socket.on('incommingCall', (data) => {
+            console.log(data, '////message');
+            dispatch(addVideoCall({senderId:data.userData.senderId,recipientId:data.userData.recipient._id}))
+            
+
+        })
         return () => {
             // Cleanup function to remove the event listener when the component unmounts.
             socket.off('private_message');
-            
+         /*    socket.off('incommingCall') */
+
         };
     }, [userData])
     const messageDelete = (id) => {
@@ -103,6 +122,12 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
 
     }
 
+    const handleVideoCall = () => {
+        const recipient = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1] : userData?.memberDetails[0]
+        dispatch(addCallUser({senderId,recipient}))
+        navigate('/video_call')
+    }
+
     return (
         <>
             <div className="hidden lg:col-span-2 lg:block">
@@ -117,14 +142,14 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
                             : userData?.memberDetails[0].username}</span>
                         <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                         </span>
-
-                        <AiFillInfoCircle onClick={() => setDeleteChat(!deleteChat)} className='ml-auto' />
+                        {incommingCall?.senderId== recipientId? <div className='bg-green-400 flex rounded-2xl ml-auto ' onClick={()=>handleVideoCall()}> <BsCameraVideo className='ml-auto mr-3 cursor-pointer' onClick={() => handleVideoCall()} /> <span className='text-white font-black'>JOIN</span> </div>:<BsCameraVideo className='ml-auto cursor-pointer' onClick={() => handleVideoCall()} />  }
+                        <AiFillInfoCircle onClick={() => setDeleteChat(!deleteChat)} className='ml-auto w-fit' />
                     </div>
                     {deleteChat && <DeleteChatBox setDeleteChat={setDeleteChat} chatId={userData._id} deleteChat={deleteChat} setChat={setChat} />}
                     <div className="relative w-full p-6 overflow-y-auto h-[40rem]">
                         <ul className="space-y-2">
                             {messages.map((messageContent, index) => {
-    
+
 
                                 if (messageContent?.senderId !== senderId && messageContent.seen == false) {
                                     api.changeSeen({ messageId: messageContent._id }).then((response) => {
@@ -140,11 +165,11 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
 
                                     })
                                 }
-                                
-                                
+
+
                                 return (<li className={messageContent?.senderId === senderId ? "flex justify-end" : "flex justify-start"}>
-                                    {messageContent?.senderId === senderId  && <div onClick={() => messageDelete(messageContent?._id)}   className='cursor-pointer hover:block hidden'> <MdDelete /></div>}
-                                    <div  className="relative cursor-pointer max-w-xl px-4 py-2 text-gray-700 rounded shadow">
+                                    {messageContent?.senderId === senderId && <div onClick={() => messageDelete(messageContent?._id)} className='cursor-pointer hover:block hidden'> <MdDelete /></div>}
+                                    <div className="relative cursor-pointer max-w-xl px-4 py-2 text-gray-700 rounded shadow">
                                         <span className="block">{messageContent?.content}</span>
                                     </div>
                                 </li>)

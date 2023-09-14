@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import api from '../../services/api'
 import { useDispatch } from 'react-redux'
 import { addUserData, loginCheck } from "../../redux/userSlice"
-import axios from "axios"
+import { toast } from "react-toastify"
 export const Login = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -11,17 +11,17 @@ export const Login = () => {
         phoneOrusernameOremail: '',
         password: ''
     })
-    const [errors, setErrors] = useState({phoneOrusernameOremail:'',password:''});
+    const [errors, setErrors] = useState({ phoneOrusernameOremail: '', password: '' });
 
     const validateForm = () => {
-        const errors = {phoneOrusernameOremail:'',password:''};
+        const errors = { phoneOrusernameOremail: '', password: '' };
         let returnData = true
         // Validate the 'phoneOrusernameOremail' field
         if (!formData.phoneOrusernameOremail) {
             errors.phoneOrusernameOremail = "Please enter a phone number, username, or email.";
             returnData = false
         }
-        
+
         // Validate the 'password' field
         if (!formData.password) {
             errors.password = "Please enter a password.";
@@ -45,10 +45,44 @@ export const Login = () => {
                     dispatch(addUserData(response.data.data))
                     dispatch(loginCheck(true))
                     navigate('/')
+                    
+                    toast.success('successfully login', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
                 }
             })
-                .catch((err: Error) => {
-                    console.log(err);
+                .catch((err: any) => {
+                    if (err.response) {
+
+                        toast.error(err.response.data.message, {
+                            position: "top-center",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                        });
+                    }else{
+                        toast.error('login error', {
+                            position: "top-center",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                        }); 
+                    }
 
                 })
 
@@ -97,7 +131,7 @@ export const Login = () => {
                     </h2>
                 </div>
                 <div className=" max-w-full w-fit ml-auto mt-2  px-1 mr-auto flex-0">
-                    <a onClick={handleGoogleAuth} className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
+                    <a href="http://localhost:3000/api/v1/user/auth/google" className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
                         <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                 <g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">
@@ -127,12 +161,12 @@ export const Login = () => {
                                     name="phoneOrusernameOremail"
                                     type="text"
                                     autoComplete="phone email username"
-                                    
+
                                     value={formData.phoneOrusernameOremail}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
-                              { errors?.phoneOrusernameOremail && <p className="text-red-500 text-sm mt-1">{errors.phoneOrusernameOremail}</p>}
+                                {errors?.phoneOrusernameOremail && <p className="text-red-500 text-sm mt-1">{errors.phoneOrusernameOremail}</p>}
                             </div>
                         </div>
 
@@ -153,12 +187,12 @@ export const Login = () => {
                                     name="password"
                                     type="password"
                                     autoComplete="current-password"
-                                    
+
                                     value={formData.password}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                    { errors?.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                                />
+                                {errors?.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                             </div>
                         </div>
 

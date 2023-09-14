@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { useEffect, useState, useCallback, memo } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Notifications, Search, Uploader } from "../../../Components"
 import { useDispatch, useSelector } from "react-redux"
-import { CgDetailsMore } from 'react-icons/cg'
+import { CgDetailsMore, CgProfile } from 'react-icons/cg'
 import { BiSearchAlt } from 'react-icons/bi'
 import { AiTwotoneMessage } from 'react-icons/ai'
 import { loginCheck, messagesIndication } from "../../../redux/userSlice"
 import api from "../../../services/api"
 import { socket } from "../../../services/socketIo"
 import { increaseMessageCount } from "../../../redux/messageSlice"
+import { addAns, addVideoCall } from "../../../redux/callSlice"
+import webRTC from "../../../services/webRTC"
+import { toast } from "react-toastify"
+import { MdExplore, MdUploadFile } from "react-icons/md"
+import { IoMdNotifications } from 'react-icons/io'
 
 
 export const NavSideBar = () => {
@@ -18,20 +23,50 @@ export const NavSideBar = () => {
     const [search, setSearch] = useState(false)
     const dispatch = useDispatch()
     const messageIndication = useSelector((state: any) => state.message?.messages_count)
+    const videoCall = useSelector((state: any) => state.video_call.videoCall)
     const [notifications, setNotifications] = useState(false)
+    const navigate = useNavigate()
+    const [selectedItem, setSelectedItem] = useState('home')
+
+
     const logout = () => {
         api.logoutUser().then((response) => {
+            console.log(response, '//////');
+
             if (response.data.success) {
                 dispatch(loginCheck(false))
+                toast.success('successfully logout', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
             }
+        }).catch((err) => {
+            console.log(err);
+
+            toast.error(err.message, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
         })
     }
     const [more, setMore] = useState(false)
-const [messagesCount, setMessagesCount] = useState(0)
+    const [messagesCount, setMessagesCount] = useState(0)
     useEffect(() => {
         socket.emit('auth', userData._id)
         socket.on('private_message', (data) => {
-            
+
             console.log(data, '//////messagingHome//////');
             if (data != '') {
                 console.log(data);
@@ -40,17 +75,42 @@ const [messagesCount, setMessagesCount] = useState(0)
             }
         })
 
-        
+
+        socket.on('incommingCall', handleIncommingCall)
+
     }, [userData])
 
+    const handleIncommingCall = useCallback(async (data) => {
+        dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
+        const ans = await webRTC.getAnswer(data.offer)
+        console.log(ans);
+
+        dispatch(addAns(ans))
+
+    }, [])
+
     useEffect(() => {
-        setMessagesCount(messageIndication.reduce((total,message)=>total +message.count,0))
+        setMessagesCount(messageIndication.reduce((total, message) => total + message.count, 0))
 
     }, [messageIndication])
-    
+
+    useEffect(() => {
+
+        if (videoCall.join) {
+
+            console.log(videoCall, 'videocall');
+            navigate('/video_call')
+        }
+
+
+
+    }, [videoCall.join])
+
+
+
     return (
         <>
-            <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
+            <aside className="max-w-62.5 ease-nav-brand z-990 fixed  inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-soft-xl transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
                 <div className="h-19.5">
                     <i className="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden" sidenav-close></i>
                     <a className="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700" href="javascript:;" target="_blank">
@@ -63,9 +123,9 @@ const [messagesCount, setMessagesCount] = useState(0)
 
                 <div className="items-center block w-auto max-h-screen  grow basis-full">
                     <ul className="flex flex-col pl-0 mb-0">
-                        <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors" to="/">
-                                <div className="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                        <li onClick={() => setSelectedItem('home')} className="mt-0.5 w-full">
+                            <Link className={selectedItem == 'home' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/">
+                                <div className={selectedItem == 'home' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
                                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Dashboard</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -90,50 +150,32 @@ const [messagesCount, setMessagesCount] = useState(0)
                             </Link>
                         </li>
 
-                        <li className="mt-0.5 w-full cursor-pointer" onClick={() => setSearch(!search)}>
-                            <div className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" >
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <BiSearchAlt>
+                        <li className="mt-0.5 w-full cursor-pointer" onClick={() => { setSearch(!search); setSelectedItem('search') }}>
+                            <div className={selectedItem == 'search' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} >
+                                <div className={selectedItem == 'search' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <BiSearchAlt className={selectedItem == 'search' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
 
 
                                         <title>Search</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
+
 
                                     </BiSearchAlt>
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Search</span>
                             </div>
                         </li>
-                        <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/explore">
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                        <title>Audience</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('explore')}>
+                            <Link className={selectedItem == 'explore' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/explore">
+                                <div className={selectedItem == 'explore' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <MdExplore className={selectedItem == 'explore' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                                        <title>Explore</title>
+                                    </MdExplore>
+
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Explore</span>
                             </Link>
                         </li>
-                        <li className="mt-0.5 w-full">
+                        {/*   <li className="mt-0.5 w-full">
                             <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/videos">
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
@@ -153,26 +195,17 @@ const [messagesCount, setMessagesCount] = useState(0)
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Videos</span>
                             </Link>
                         </li>
-
-                        <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/messages">
-                                <div className="relative shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <AiTwotoneMessage >
+ */}
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('message')}>
+                            <Link className={selectedItem == 'message' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/messages">
+                                <div className={selectedItem == 'message' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <AiTwotoneMessage className={selectedItem == 'message' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
                                         <title>Message</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
+        
                                     </AiTwotoneMessage>
-                                       {messagesCount>0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
+                                    {messagesCount > 0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
                                         {messagesCount}
-                                        </span>}
+                                    </span>}
 
 
 
@@ -183,84 +216,47 @@ const [messagesCount, setMessagesCount] = useState(0)
                             </Link>
                         </li>
 
-                        <li className="mt-0.5 w-full">
-                            <a className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" onClick={()=>setNotifications(!notifications)}>
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                        <title>Audience</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('notifications')}>
+                            <a className={selectedItem == 'notifications' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} onClick={() => setNotifications(!notifications)}>
+                                <div className={selectedItem == 'notifications' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <IoMdNotifications className={selectedItem == 'notifications' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                                        <title>Notifications</title>
+                                    </IoMdNotifications>
+
+
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Notifications</span>
                             </a>
                         </li>
-                        <li className="mt-0.5 w-full cursor-pointer" onClick={() => setUploader(!uploader)}>
-                            <div className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" >
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                        <title>Audience</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
+                        <li className="mt-0.5 w-full cursor-pointer" onClick={() => { setUploader(!uploader); setSelectedItem('create') }}>
+                            <div className={selectedItem == 'create' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} >
+                                <div className={selectedItem == 'create' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <MdUploadFile className={selectedItem == 'create' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                                        <title>Create</title>
+                                    </MdUploadFile>
+
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Create</span>
                             </div>
                         </li>
 
-                        <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to={'/' + username}>
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                        <title>Audience</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('profile')}>
+                            <Link className={selectedItem == 'profile' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to={'/' + username}>
+                                <div className={selectedItem == 'profile' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <CgProfile className={selectedItem == 'profile' ? 'fill-white' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                                        <title>Profile</title>
+                                    </CgProfile>
+
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Profile</span>
                             </Link>
                         </li>
 
-                        <li className="mt-0.5 w-full">
-                            <a onClick={() => setMore(!more)} className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" >
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                                    <CgDetailsMore>
-                                        <title>Audience</title>
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                <g transform="translate(1716.000000, 291.000000)">
-                                                    <g transform="translate(153.000000, 2.000000)">
-                                                        <path className="fill-slate-800 opacity-60" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                        <path className="fill-slate-800" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('more')}>
+                            <a onClick={() => setMore(!more)} className={selectedItem == 'more' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} >
+                                <div className={selectedItem == 'more' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <CgDetailsMore className={selectedItem == 'more' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                                        <title>More</title>
                                     </CgDetailsMore>
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">More</span>
@@ -286,13 +282,12 @@ const [messagesCount, setMessagesCount] = useState(0)
                     </ul>
                 </div>
 
-
             </aside>
-            {uploader &&<Uploader upload={uploader} setUpload={setUploader} />}
-            {search && <Search open={search} setOpen={setSearch} username={username} />}
-            {notifications &&<Notifications open={notifications} setOpen={setNotifications} />}
+            {<Uploader upload={uploader} setUpload={setUploader} />}
+            <Search open={search} setOpen={setSearch} username={username} />
+            {<Notifications open={notifications} setOpen={setNotifications} />}
         </>
     )
 }
 
-export default NavSideBar
+export default memo(NavSideBar) 

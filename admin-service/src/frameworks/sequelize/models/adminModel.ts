@@ -1,5 +1,4 @@
 import { Admin } from "../../../entities/adminEntity";
-import { sequelize } from "../../../config/connections";
 import { DataTypes, Sequelize,Model } from "sequelize";
 
 interface AdminModel extends Model<Admin>,Admin{}

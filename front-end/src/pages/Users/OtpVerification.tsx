@@ -4,6 +4,7 @@ import { useLocation,useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useDispatch } from 'react-redux';
 import userSlice, {addUserData, loginCheck} from '../../redux/userSlice'
+import {toast} from 'react-toastify'
 export const OtpVerification = () => {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [phone, setPhone] = useState('')
@@ -38,11 +39,31 @@ export const OtpVerification = () => {
             if(response.data.success){
                 dispatch(loginCheck(true))
                 dispatch((addUserData(response.data.data)))
+                toast.success('successfully login', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    });
                 navigate('/')
 
             }
             
         }).catch((err)=>{
+            toast.error('wrong otp', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                });
             console.log(err,'///////e');
             
         })

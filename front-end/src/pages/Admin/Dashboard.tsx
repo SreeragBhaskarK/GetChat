@@ -1,11 +1,129 @@
+import api from "../../services/api"
+import { postSocket, socket } from "../../services/socketIo"
 import { Footer, NavSideBar, NavTopBar } from "../../widgets/layout/admin"
+import { useEffect, useState, useCallback } from 'react'
+import Chart from 'chart.js/auto';
+import { LinearScale, CategoryScale } from 'chart.js';
+import { chart2 } from '../../assets/Admin/chart2'
+import { chart1 } from '../../assets/Admin/chart1'
+import { PostOverview, PostReportOverview, UserOverview } from "../../Components/dashboad";
+
+// Register the scale types
+Chart.register(LinearScale, CategoryScale);
 
 export const Dashboard = () => {
+    const [activeUser, setActiveUser] = useState(0)
+    const [newUsers, setNewUsers] = useState(0)
+    const [newReports, setNewReports] = useState(0)
+    const [popularUsers, setPopularUsers] = useState([])
+    const [newPost, setNewPost] = useState(0)
+
+
+    useEffect(() => {
+        setInterval(() => {
+            socket.emit('userActiveAdmin', socket.id)
+            socket.emit('admin')
+        }, 10000)
+        socket.on('userActiveAdmin', handleActiveUser)
+        postSocket.on('postDashboard', handlePost)
+        console.log(postSocket.id, '////////////sockkdkkffj');
+
+        postSocket.emit('postDashboard', { type: 'day', socketId: postSocket.id })
+
+        return (() => {
+            socket.off('userActiveAdmin', handleActiveUser)
+            postSocket.off('postDashboard', handlePost)
+        })
+
+    }, [socket, postSocket])
+
+
+
+    useEffect(() => {
+        api.getUserDashboard('day', 'day').then((response) => {
+            if (response.data.success) {
+
+                setNewUsers(response.data.data)
+            }
+        }).catch((err) => {
+            console.log(err);
+
+        })
+        api.getPostReportsDashboard('day', 'day').then((response) => {
+            if (response.data.success) {
+
+                setNewReports(response.data.data)
+            }
+        }).catch((err) => {
+            console.log(err);
+
+        })
+
+        api.getPopularUsersDashboard().then((response) => {
+            if (response.data.success) {
+
+                setPopularUsers(response.data.data)
+            }
+        }).catch((err) => {
+            console.log(err);
+
+        })
+
+    }, [])
+
+    useEffect(() => {
+
+        try {
+
+
+
+           /*  const ctx = document.getElementById("chart-bars")
+            chart1(ctx) */
+
+
+
+        } catch (error) {
+            console.log(error);
+
+        }
+        /*    if (canvas) {
+             const ctx = canvas.getContext('2d');
+       
+             if (ctx) {
+               new Chart(ctx, {
+                 type: 'line',
+                 data: data,
+                 options: options,
+               });
+             }
+           } */
+    }, [chart2]);
+
+    const handlePost = useCallback((data) => {
+        setNewPost(data.result)
+    }, [])
+
+
+
+
+
+
+
+
+    const handleActiveUser = useCallback((data) => {
+        console.log(data, 'admin');
+
+        setActiveUser(data.count)
+    }, [])
+
+
+
+
     return (
         <>
-        <NavSideBar/>
+            <NavSideBar />
             <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
-                <NavTopBar navLocation='Dashboard'/>
+                <NavTopBar navLocation='Dashboard' />
                 <div className="w-full px-6 py-6 mx-auto">
                     <div className="flex flex-wrap -mx-3">
 
@@ -15,9 +133,9 @@ export const Dashboard = () => {
                                     <div className="flex flex-row -mx-3">
                                         <div className="flex-none w-2/3 max-w-full px-3">
                                             <div>
-                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Today's Money</p>
+                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Active Users</p>
                                                 <h5 className="mb-0 font-bold">
-                                                    $53,000
+                                                    {activeUser}
                                                     <span className="leading-normal text-sm font-weight-bolder text-lime-500">+55%</span>
                                                 </h5>
                                             </div>
@@ -39,9 +157,9 @@ export const Dashboard = () => {
                                     <div className="flex flex-row -mx-3">
                                         <div className="flex-none w-2/3 max-w-full px-3">
                                             <div>
-                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Today's Users</p>
+                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Today's New Users</p>
                                                 <h5 className="mb-0 font-bold">
-                                                    2,300
+                                                    {newUsers}
                                                     <span className="leading-normal text-sm font-weight-bolder text-lime-500">+3%</span>
                                                 </h5>
                                             </div>
@@ -63,9 +181,9 @@ export const Dashboard = () => {
                                     <div className="flex flex-row -mx-3">
                                         <div className="flex-none w-2/3 max-w-full px-3">
                                             <div>
-                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">New Clients</p>
+                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Today's New Posts</p>
                                                 <h5 className="mb-0 font-bold">
-                                                    +3,462
+                                                    {newPost}
                                                     <span className="leading-normal text-red-600 text-sm font-weight-bolder">-2%</span>
                                                 </h5>
                                             </div>
@@ -87,9 +205,9 @@ export const Dashboard = () => {
                                     <div className="flex flex-row -mx-3">
                                         <div className="flex-none w-2/3 max-w-full px-3">
                                             <div>
-                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Sales</p>
+                                                <p className="mb-0 font-sans font-semibold leading-normal text-sm">Today's Reports</p>
                                                 <h5 className="mb-0 font-bold">
-                                                    $103,430
+                                                    {newReports}
                                                     <span className="leading-normal text-sm font-weight-bolder text-lime-500">+5%</span>
                                                 </h5>
                                             </div>
@@ -105,51 +223,6 @@ export const Dashboard = () => {
                         </div>
                     </div>
 
-
-                    <div className="flex flex-wrap mt-6 -mx-3">
-                        <div className="w-full px-3 mb-6 lg:mb-0 lg:w-7/12 lg:flex-none">
-                            <div className="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
-                                <div className="flex-auto p-4">
-                                    <div className="flex flex-wrap -mx-3">
-                                        <div className="max-w-full px-3 lg:w-1/2 lg:flex-none">
-                                            <div className="flex flex-col h-full">
-                                                <p className="pt-2 mb-1 font-semibold">Built by developers</p>
-                                                <h5 className="font-bold">Soft UI Dashboard</h5>
-                                                <p className="mb-12">From colors, cards, typography to complex elements, you will find the full documentation.</p>
-                                                <a className="mt-auto mb-0 font-semibold leading-normal text-sm group text-slate-500" href="javascript:;">
-                                                    Read More
-                                                    <i className="fas fa-arrow-right ease-bounce text-sm group-hover:translate-x-1.25 ml-1 leading-normal transition-all duration-200"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div className="max-w-full px-3 mt-12 ml-auto text-center lg:mt-0 lg:w-5/12 lg:flex-none">
-                                            <div className="h-full bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl">
-                                                <img src="../assets/img/shapes/waves-white.svg" className="absolute top-0 hidden w-1/2 h-full lg:block" alt="waves" />
-                                                <div className="relative flex items-center justify-center h-full">
-                                                    <img className="relative z-20 w-full pt-6" src="../assets/img/illustrations/rocket-white.png" alt="rocket" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="w-full max-w-full px-3 lg:w-5/12 lg:flex-none">
-                            <div className="border-black/12.5 shadow-soft-xl relative flex h-full min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border p-4">
-                                <div className="relative h-full overflow-hidden bg-cover rounded-xl" style={{ backgroundImage: "url('../assets/img/ivancik.jpg')" }}>
-                                    <span className="absolute top-0 left-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-gray-900 to-slate-800 opacity-80"></span>
-                                    <div className="relative z-10 flex flex-col flex-auto h-full p-4">
-                                        <h5 className="pt-2 mb-6 font-bold text-white">Work with the rockets</h5>
-                                        <p className="text-white">Wealth creation is an evolutionarily recent positive-sum game. It is all about who take the opportunity first.</p>
-                                        <a className="mt-auto mb-0 font-semibold leading-normal text-white group text-sm" href="javascript:;">
-                                            Read More
-                                            <i className="fas fa-arrow-right ease-bounce text-sm group-hover:translate-x-1.25 ml-1 leading-normal transition-all duration-200"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
 
@@ -187,9 +260,9 @@ export const Dashboard = () => {
                                                 </div>
                                                 <h4 className="font-bold">36K</h4>
                                                 <div className="text-xs h-0.75 flex w-3/4 overflow-visible rounded-lg bg-gray-200">
-                                                    {/*  <div className="duration-600 ease-soft -mt-0.38 -ml-px flex h-1.5 w-3/5 flex-col justify-center overflow-hidden whitespace-nowrap rounded-lg bg-slate-700 text-center text-white transition-all" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                                                    {/*    <div className="duration-600 ease-soft -mt-0.38 -ml-px flex h-1.5 w-3/5 flex-col justify-center overflow-hidden whitespace-nowrap rounded-lg bg-slate-700 text-center text-white transition-all" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
 
-                                                </div> */}
+                                                    </div> */}
                                                 </div>
                                             </div>
                                             <div className="flex-none w-1/4 max-w-full py-4 pl-0 pr-3 mt-0">
@@ -275,22 +348,11 @@ export const Dashboard = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full max-w-full px-3 mt-0 lg:w-7/12 lg:flex-none">
-                            <div className="border-black/12.5 shadow-soft-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
-                                <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
-                                    <h6>Sales overview</h6>
-                                    <p className="leading-normal text-sm">
-                                        <i className="fa fa-arrow-up text-lime-500"></i>
-                                        <span className="font-semibold">4% more</span> in 2021
-                                    </p>
-                                </div>
-                                <div className="flex-auto p-4">
-                                    <div>
-                                        <canvas id="chart-line" height="300"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <UserOverview />
+                        <PostReportOverview />
+                        <PostOverview  />
+
+
                     </div>
 
 
@@ -303,7 +365,7 @@ export const Dashboard = () => {
                                 <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
                                     <div className="flex flex-wrap mt-0 -mx-3">
                                         <div className="flex-none w-7/12 max-w-full px-3 mt-0 lg:w-1/2 lg:flex-none">
-                                            <h6>Projects</h6>
+                                            <h6>Popular Users</h6>
                                             <p className="mb-0 leading-normal text-sm">
                                                 <i className="fa fa-check text-cyan-500"></i>
                                                 <span className="ml-1 font-semibold">30 done</span>
@@ -337,304 +399,49 @@ export const Dashboard = () => {
                                         <table className="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
                                             <thead className="align-bottom">
                                                 <tr>
-                                                    <th className="px-6 py-3 font-bold tracking-normal text-left uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">Companies</th>
-                                                    <th className="px-6 py-3 pl-2 font-bold tracking-normal text-left uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">Members</th>
-                                                    <th className="px-6 py-3 font-bold tracking-normal text-center uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">Budget</th>
+                                                    <th className="px-6 py-3 font-bold tracking-normal text-left uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">Usersname</th>
+                                                    <th className="px-6 py-3 pl-2 font-bold tracking-normal text-left uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">followers</th>
+                                                    <th className="px-6 py-3 font-bold tracking-normal text-center uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">following</th>
                                                     <th className="px-6 py-3 font-bold tracking-normal text-center uppercase align-middle bg-transparent border-b letter border-b-solid text-xxs whitespace-nowrap border-b-gray-200 text-slate-400 opacity-70">Completion</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="flex px-2 py-1">
-                                                            <div>
-                                                                <img src="../assets/img/small-logos/logo-xd.svg" className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="xd" />
-                                                            </div>
-                                                            <div className="flex flex-col justify-center">
-                                                                <h6 className="mb-0 leading-normal text-sm">Soft UI XD Version</h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="mt-2 avatar-group">
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-1.jpg" className="w-full rounded-full" alt="team1" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Ryan Tompson
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-2.jpg" className="w-full rounded-full" alt="team2" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Romina Hadid
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-3.jpg" className="w-full rounded-full" alt="team3" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Alexander Smith
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-4.jpg" className="w-full rounded-full" alt="team4" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Jessica Doe
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">
-                                                        <span className="font-semibold leading-tight text-xs"> $14,000 </span>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="w-3/4 mx-auto">
-                                                            <div>
-                                                                <div>
-                                                                    <span className="font-semibold leading-tight text-xs">60%</span>
+
+                                                {popularUsers.map((user, index) => {
+                                                    return (
+                                                        <tr key={index}>
+                                                            <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
+                                                                <div className="flex px-2 py-1">
+                                                                    <div>
+                                                                        <img src={user.profile_pic} className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="xd" />
+                                                                    </div>
+                                                                    <div className="flex flex-col justify-center">
+                                                                        <h6 className="mb-0 leading-normal text-sm">{user.username}</h6>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
-                                                                {/*  <div className="duration-600 ease-soft bg-gradient-to-tl from-blue-600 to-cyan-400 -mt-0.38 -ml-px flex h-1.5 w-3/5 flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div> */}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="flex px-2 py-1">
-                                                            <div>
-                                                                <img src="../assets/img/small-logos/logo-atlassian.svg" className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="atlassian" />
-                                                            </div>
-                                                            <div className="flex flex-col justify-center">
-                                                                <h6 className="mb-0 leading-normal text-sm">Add Progress Track</h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="mt-2 avatar-group">
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-2.jpg" className="w-full rounded-full" alt="team5" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Romina Hadid
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-4.jpg" className="w-full rounded-full" alt="team6" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Jessica Doe
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">
-                                                        <span className="font-semibold leading-tight text-xs"> $3,000 </span>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="w-3/4 mx-auto">
-                                                            <div>
-                                                                <div>
-                                                                    <span className="font-semibold leading-tight text-xs">10%</span>
+                                                            </td>
+                                                            <td className="p-2 align-middle  bg-transparent border-b whitespace-nowrap">
+                                                                <span className="font-semibold leading-tight text-xs">{user.followers.length} </span>
+                                                            </td>
+                                                            <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">
+                                                                <span className="font-semibold leading-tight text-xs"> {user.following.length} </span>
+                                                            </td>
+                                                            <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
+                                                                <div className="w-3/4 mx-auto">
+                                                                    <div>
+                                                                        <div>
+                                                                            <span className="font-semibold leading-tight text-xs">60%</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
+                                                                        {/*  <div className="duration-600 ease-soft bg-gradient-to-tl from-blue-600 to-cyan-400 -mt-0.38 -ml-px flex h-1.5 w-3/5 flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div> */}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
-                                                                {/*  <div className="duration-600 ease-soft bg-gradient-to-tl from-blue-600 to-cyan-400 -mt-0.38 w-1/10 -ml-px flex h-1.5 flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div> */}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="flex px-2 py-1">
-                                                            <div>
-                                                                <img src="../assets/img/small-logos/logo-slack.svg" className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="team7" />
-                                                            </div>
-                                                            <div className="flex flex-col justify-center">
-                                                                <h6 className="mb-0 leading-normal text-sm">Fix Platform Errors</h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="mt-2 avatar-group">
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-3.jpg" className="w-full rounded-full" alt="team8" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Romina Hadid
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-1.jpg" className="w-full rounded-full" alt="team9" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Jessica Doe
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">
-                                                        <span className="font-semibold leading-tight text-xs"> Not set </span>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="w-3/4 mx-auto">
-                                                            <div>
-                                                                <div>
-                                                                    <span className="font-semibold leading-tight text-xs">100%</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
-                                                                {/*  <div className="duration-600 ease-soft bg-gradient-to-tl from-green-600 to-lime-400 -mt-0.38 -ml-px flex h-1.5 w-full flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div> */}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="flex px-2 py-1">
-                                                            <div>
-                                                                <img src="../assets/img/small-logos/logo-spotify.svg" className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="spotify" />
-                                                            </div>
-                                                            <div className="flex flex-col justify-center">
-                                                                <h6 className="mb-0 leading-normal text-sm">Launch our Mobile App</h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="mt-2 avatar-group">
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-4.jpg" className="w-full rounded-full" alt="user1" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Ryan Tompson
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-3.jpg" className="w-full rounded-full" alt="user2" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Romina Hadid
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-4.jpg" className="w-full rounded-full" alt="user3" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Alexander Smith
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-1.jpg" className="w-full rounded-full" alt="user4" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Jessica Doe
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">
-                                                        <span className="font-semibold leading-tight text-xs"> $20,500 </span>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="w-3/4 mx-auto">
-                                                            <div>
-                                                                <div>
-                                                                    <span className="font-semibold leading-tight text-xs">100%</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
-                                                                {/* <div className="duration-600 ease-soft bg-gradient-to-tl from-green-600 to-lime-400 -mt-0.38 -ml-px flex h-1.5 w-full flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div> */}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="flex px-2 py-1">
-                                                            <div>
-                                                                <img src="../assets/img/small-logos/logo-jira.svg" className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="jira" />
-                                                            </div>
-                                                            <div className="flex flex-col justify-center">
-                                                                <h6 className="mb-0 leading-normal text-sm">Add the New Pricing Page</h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="mt-2 avatar-group">
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-4.jpg" className="w-full rounded-full" alt="user5" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Ryan Tompson
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 leading-normal text-center align-middle bg-transparent border-b text-sm whitespace-nowrap">
-                                                        <span className="font-semibold leading-tight text-xs"> $500 </span>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap">
-                                                        <div className="w-3/4 mx-auto">
-                                                            <div>
-                                                                <div>
-                                                                    <span className="font-semibold leading-tight text-xs">25%</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
-                                                                {/*  <div className="duration-600 ease-soft bg-gradient-to-tl from-blue-600 to-cyan-400 -mt-0.38 -ml-px flex h-1.5 w-1/4 flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="25"></div> */}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="p-2 align-middle bg-transparent border-0 whitespace-nowrap">
-                                                        <div className="flex px-2 py-1">
-                                                            <div>
-                                                                <img src="../assets/img/small-logos/logo-invision.svg" className="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="invision" />
-                                                            </div>
-                                                            <div className="flex flex-col justify-center">
-                                                                <h6 className="mb-0 leading-normal text-sm">Redesign New Online Shop</h6>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-0 whitespace-nowrap">
-                                                        <div className="mt-2 avatar-group">
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-1.jpg" className="w-full rounded-full" alt="user6" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Ryan Tompson
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                            <a href="javascript:;" className="relative z-20 inline-flex items-center justify-center w-6 h-6 -ml-4 text-white transition-all duration-200 border-2 border-white border-solid rounded-full ease-soft-in-out text-xs hover:z-30" data-target="tooltip_trigger" data-placement="bottom">
-                                                                <img src="../assets/img/team-4.jpg" className="w-full rounded-full" alt="user7" />
-                                                            </a>
-                                                            <div data-target="tooltip" className="hidden px-2 py-1 text-white bg-black rounded-lg text-sm" role="tooltip">
-                                                                Jessica Doe
-                                                                <div className="invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-['']" data-popper-arrow></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2 leading-normal text-center align-middle bg-transparent border-0 text-sm whitespace-nowrap">
-                                                        <span className="font-semibold leading-tight text-xs"> $2,000 </span>
-                                                    </td>
-                                                    <td className="p-2 align-middle bg-transparent border-0 whitespace-nowrap">
-                                                        <div className="w-3/4 mx-auto">
-                                                            <div>
-                                                                <div>
-                                                                    <span className="font-semibold leading-tight text-xs">40%</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-xs h-0.75 w-30 m-0 flex overflow-visible rounded-lg bg-gray-200">
-                                                                {/*  <div className="duration-600 ease-soft bg-gradient-to-tl from-blue-600 to-cyan-400 -mt-0.38 -ml-px flex h-1.5 w-2/5 flex-col justify-center overflow-hidden whitespace-nowrap rounded bg-fuchsia-500 text-center text-white transition-all" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="40"></div> */}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                })}
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -647,7 +454,7 @@ export const Dashboard = () => {
                         <div className="w-full max-w-full px-3 md:w-1/2 md:flex-none lg:w-1/3 lg:flex-none">
                             <div className="border-black/12.5 shadow-soft-xl relative flex h-full min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
                                 <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
-                                    <h6>Orders overview</h6>
+                                    <h6>Notifications overview</h6>
                                     <p className="leading-normal text-sm">
                                         <i className="fa fa-arrow-up text-lime-500"></i>
                                         <span className="font-semibold">24%</span> this month
@@ -717,7 +524,7 @@ export const Dashboard = () => {
 
 
                 </div>
-                <Footer/>
+                <Footer />
             </main>
         </>
     )

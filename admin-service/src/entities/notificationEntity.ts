@@ -4,5 +4,6 @@ export interface Notification {
     type:string
     duration:string
     user_type:string
+    seen_username?:string
     
 }

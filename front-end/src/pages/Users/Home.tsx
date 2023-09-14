@@ -2,7 +2,8 @@ import { useSelector } from "react-redux"
 import api from "../../services/api"
 import { PostCards } from "../../widgets/cards"
 import { NavRightSide, NavSideBar } from "../../widgets/layout/user"
-import { useEffect, useState } from 'react'
+import { useEffect, useState,memo } from 'react'
+import {toast} from 'react-toastify'
 export const Home = () => {
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(false);
@@ -41,8 +42,31 @@ export const Home = () => {
                 }
             }
         }
-        catch (error) {
-            console.error('Error fetching posts:', error);
+        catch (err:any) {
+            if (err.response) {
+
+                toast.error(err.response.data.message, {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+            }else{
+                toast.error('signup error', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                }); 
+            }
         }
         finally {
             setLoading(false);
@@ -66,7 +90,7 @@ export const Home = () => {
     
     return (
         <>
-            <NavSideBar />
+                <NavSideBar/>
             <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className="w-full px-6 py-6 mx-auto">
                     <div className="flex justify-around flex-wrap -mx-3">
@@ -127,4 +151,4 @@ export const Home = () => {
     )
 }
 
-export default Home
+export default memo(Home) 
