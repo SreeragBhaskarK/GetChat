@@ -1,3 +1,4 @@
 export * from './UserOverview'
 export * from './PostReportOverview'
-export * from './PostOverview'
+export * from './AdvertisingOverview'
+export * from './WeekNotifications'

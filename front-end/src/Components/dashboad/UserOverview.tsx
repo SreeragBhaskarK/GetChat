@@ -5,10 +5,10 @@ export const UserOverview = () => {
     const [type, setType] = useState('month')
     const chartRef = useRef(null);
     useEffect(() => {
-        testUserOverView()
+        testUserOverView(type)
     }, [type])
 
-    const testUserOverView = useCallback(async () => {
+    const testUserOverView = useCallback(async (type) => {
         if (chartRef.current) {
             chartRef.current.destroy();
         }
@@ -63,10 +63,10 @@ export const UserOverview = () => {
                 <div className="border-black/12.5 shadow-soft-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
                     <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
                         <h6>Users overview</h6>
-                        <p className="leading-normal text-sm">
+                      {/*   <p className="leading-normal text-sm">
                             <i className="fa fa-arrow-up text-lime-500"></i>
                             <span className="font-semibold">4% more</span> in 2021
-                        </p>
+                        </p> */}
                     </div>
                     <div className="w-full lg:w-11/12 flex  justify-end">
                         <select onChange={(e) => setType(e.target.value)} value={type} choices-select="month" name="userFilter">

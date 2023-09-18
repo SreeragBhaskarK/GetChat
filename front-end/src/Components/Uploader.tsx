@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment, useRef } from 'react';
 
 
 
 import { useSelector, useDispatch } from 'react-redux';
 import api from '../services/api';
 import { addPost } from '../redux/userSlice';
+import { Dialog, Transition } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 
 export const Uploader = ({ upload, setUpload }) => {
@@ -12,6 +14,7 @@ export const Uploader = ({ upload, setUpload }) => {
     const [formDataPost, setformData] = useState({
         caption: ''
     })
+    const fileRef = useRef(null)
     const userData = useSelector((state: any) => state.user.userData)
     const dispatch = useDispatch()
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,51 +106,90 @@ export const Uploader = ({ upload, setUpload }) => {
         }
     };
 
+    const handleButtonClick = () => {
+        fileRef.current.click();
+    };
+
     return (
         <>
-            {upload && (
-                <div  className="fixed top-0 left-0 right-0 z-50 m-auto w-fit p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full  transition-opacity duration-500 ease-in-out">
-                    <div className="relative w-full max-w-2xl max-h-full">
-                        <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                            <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Create new post
-                                </h3>
-                                <button
-                                    type="button"
-                                    onClick={() => setUpload(!upload)}
-                                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            <Transition.Root show={upload} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={setUpload}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-in-out duration-500"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in-out duration-500"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                    </Transition.Child>
+                    <div className="fixed inset-0 overflow-hidden ">
+                        <div className="absolute flex justify-center inset-0 overflow-hidden">
+                            <div className="pointer-events-none fixed inset-y-0 w-full h-full justify-center  items-center flex max-w-full ">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="transform transition ease-in-out duration-500 sm:duration-700"
+                                    enterFrom="translate-y-full"
+                                    enterTo="translate-y-0"
+                                    leave="transform transition ease-in-out duration-500 sm:duration-700"
+                                    leaveFrom="translate-y-0"
+                                    leaveTo="translate-y-full"
                                 >
-                                    <svg
-                                        className="w-3 h-3"
-                                        aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 14 14"
-                                    >
-                                        <path
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                        />
-                                    </svg>
-                                    <span className="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                            <div className="p-6 space-y-6">
-                                <div>
-                                    <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
-                                    <input type="text" name='caption' value={formDataPost.caption} placeholder='caption' onChange={handleFileChange} />
+                                    <Dialog.Panel className="pointer-events-auto relative w-full items-center flex  h-full max-w-md">
 
-                                    <button className='bg-blue-400' onClick={handleImageUpload}>submit</button>
-                                </div>
+                                        <div className=" z-50 w-fit p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(80%-1rem)] max-h-full  transition-opacity duration-500 ease-in-out">
+                                            <div className="relative w-full h-full aspect-[1/1] max-w-3xl max-h-3xl">
+                                                <div className="relative bg-white h-full rounded-lg shadow dark:bg-gray-700">
+                                                    <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                                            Create new post
+                                                        </h3>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setUpload(!upload)}
+                                                            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                                        >
+                                                            <svg
+                                                                className="w-3 h-3"
+                                                                aria-hidden="true"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                fill="none"
+                                                                viewBox="0 0 14 14"
+                                                            >
+                                                                <path
+                                                                    stroke="currentColor"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                                                />
+                                                            </svg>
+                                                            <span className="sr-only">Close modal</span>
+                                                        </button>
+                                                    </div>
+                                                    <div className="h-full w-full justify-center items-center flex">
+                                                        <div>
+                                                            <input className='hidden ' type="file" accept="image/*,video/*" ref={fileRef} onChange={handleFileChange} />
+                                                            {/* <input  type="text" name='caption' value={formDataPost.caption} placeholder='caption' onChange={handleFileChange} /> */}
+                                                            <button onClick={handleButtonClick} className='bg-sky-400 rounded cursor-pointer p-2 text-white font-serif'>selected from post</button>
+                                                            {/* <button className='bg-blue-400' onClick={handleImageUpload}>submit</button> */}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </Dialog.Panel>
+                                </Transition.Child>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+
+
+                </Dialog>
+            </Transition.Root>
         </>
     );
 };

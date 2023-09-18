@@ -6,7 +6,8 @@ import { HiSquares2X2 } from 'react-icons/hi2'
 import { useSelector, useDispatch } from 'react-redux'
 import api from '../../services/api'
 import { addUserData } from '../../redux/userSlice'
-
+import ShimmerProfilePost from '../../widgets/shimmerEffects/ShimmerProfilePost'
+import { toast } from 'react-toastify'
 
 export const Profile = () => {
 
@@ -20,6 +21,7 @@ export const Profile = () => {
 
   const [type, setType] = useState('')
   const dispatch = useDispatch()
+  const [isLoading, setIsLoading] = useState(false)
 
   const handlePostView = async (index, likedByUsername) => {
     console.log(index, '/////index');
@@ -41,11 +43,37 @@ export const Profile = () => {
 
     api.getProfile({ username: userData.username }).then((response) => {
       console.log(response, '///////userpro');
+
       if (response.data.success) {
         dispatch(addUserData(response.data.data))
       }
+
     }).catch((err) => {
-      console.log(err);
+
+      if (err.response.data.message) {
+
+        toast.error(err.response.data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } else {
+        toast.error('server error', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
 
     })
 
@@ -53,14 +81,40 @@ export const Profile = () => {
   }, [])
 
   useEffect(() => {
+    setIsLoading(true)
     api.getPost(1, userData.username).then((response) => {
       console.log(response);
-
+      setIsLoading(false)
       if (response.data.success) {
         setPostData(response.data.data)
       }
     }).catch((err) => {
-      console.log(err);
+      console.log(err,'profile error');
+      
+      if (err.response.data.message) {
+
+        toast.error(err.response.data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } else {
+        toast.error('server error', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
     })
   }, [userData])
   const handleFollow = (type) => {
@@ -196,7 +250,14 @@ export const Profile = () => {
 
               <div className="flex flex-wrap -mx-px md:-mx-3">
 
-                {postData.map((post, index) => {
+                {isLoading ? (<>
+                  <ShimmerProfilePost />
+                  <ShimmerProfilePost />
+                  <ShimmerProfilePost />
+                  <ShimmerProfilePost />
+                  <ShimmerProfilePost />
+                  <ShimmerProfilePost />
+                </>) : (postData.map((post, index) => {
                   return (
                     <div key={index} className="w-1/3 p-px md:px-3">
 
@@ -229,7 +290,7 @@ export const Profile = () => {
                     </div>
 
                   )
-                })
+                }))
                 }
 
 

@@ -43,7 +43,7 @@ console.log(canvas,dataLabel,type,'///////chart2');
     dataLabels = [dataLabel[2018], dataLabel[2019], dataLabel[2020], dataLabel[2021], dataLabel[2022], dataLabel[2023]]
   }
 
-  console.log(dataLabel, 'data');
+  console.log(dataLabels, 'data');
 
   return new Chart(ctx2, {
     type: "line",

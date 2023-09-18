@@ -23,10 +23,10 @@ export const VideoCall = () => {
 
     useEffect(() => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((response) => {
-            console.log(response, 'streamData');
+
 
             setStreamData(response)
-            
+
         })
         socket.emit('auth', userDetails._id)
         socket.on('incommingCall', handleIncommingCall)
@@ -48,7 +48,7 @@ export const VideoCall = () => {
 
     useEffect(() => {
         webRTC.peer.addEventListener('negotiationneeded', async () => {
-            console.log(videoCallData, 'evvvvvvvent');
+
 
             const offer = await webRTC.getOffer()
             socket.emit('peerNegoNeeded', { offer, userData: videoCallData.userData })
@@ -65,12 +65,12 @@ export const VideoCall = () => {
     }, [])
 
     useEffect(() => {
-        console.log(remoteStream,'/////');
-        
+
+
         webRTC.peer.addEventListener('track', async ev => {
-            console.log('/////s');
+
             const remoteStream = await ev.streams
-            console.log(remoteStream, '//////stream');
+
 
             setRemoteStream(remoteStream[0])
         })
@@ -81,23 +81,23 @@ export const VideoCall = () => {
 
     const handleCallAccepted = useCallback(async (data) => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        console.log('accepted request', data);
+
         await webRTC.setLocalDescription(data.ans)
-        console.log(stream, 'gett tracl');
 
 
+        dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
         for (const track of stream.getTracks()) {
             await webRTC.peer.addTrack(track, stream)
         }
-        console.log(videoCallData, 'videoooooooooo');
-
-        dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
         dispatch(joinVideoCall(true))
+
+
+
 
     }, [streamData, webRTC])
 
     const handleNegotiationDone = useCallback(async (data) => {
-        console.log('negooodonen', data);
+
 
         await webRTC.setLocalDescription(data.ans)
 
@@ -105,7 +105,7 @@ export const VideoCall = () => {
 
     const handleNegotiation = useCallback(async (data) => {
 
-        console.log(data, 'negoooooooo');
+
         const ans = await webRTC.getAnswer(data.offer)
         socket.emit('peerNegoDone', { ans, userData: videoCallData.userData })
     }, [socket, videoCallData])
@@ -114,21 +114,18 @@ export const VideoCall = () => {
 
     const handleIncommingCall = useCallback(async (data) => {
         dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
-        console.log(data, "🥰🥰🥰🥰");
 
-        const ans = await webRTC.getAnswer(data.offer)
-        console.log(ans, '//////🔥🔥🔥🔥🔥');
 
-        dispatch(addAns(ans))
+        dispatch(addAns(await webRTC.getAnswer(data.offer)))
 
-    }, [webRTC])
+    }, [])
 
 
     /* functions */
 
     const handleCall = async () => {
         setCalling('calling...')
-        console.log(videoCallData.userData, 'videocallhandlecall');
+
 
         const offer = await webRTC.getOffer()
         socket.emit('calling', { userData: videoCallData.userData, offer })
@@ -137,10 +134,10 @@ export const VideoCall = () => {
 
     const joinCall = async () => {
 
-        console.log(videoCallData, 'joinned');
+
 
         if (videoCallData.ans.type && streamData.active) {
-            console.log(streamData.active, '/////active');
+
 
             socket.emit('callAccepted', { userData: videoCallData.userData, ans: videoCallData.ans })
             for (const track of streamData.getTracks()) {

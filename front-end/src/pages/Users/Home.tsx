@@ -2,47 +2,62 @@ import { useSelector } from "react-redux"
 import api from "../../services/api"
 import { PostCards } from "../../widgets/cards"
 import { NavRightSide, NavSideBar } from "../../widgets/layout/user"
-import { useEffect, useState,memo } from 'react'
-import {toast} from 'react-toastify'
+import { useEffect, useState, memo, useCallback } from 'react'
+import { toast } from 'react-toastify'
+import { AdsCard } from '../../widgets/cards/AdsCard'
+import { ShimmerPosts } from "../../widgets/shimmerEffects"
 export const Home = () => {
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-
     const userData = useSelector((state: any) => state.user.userData)
+
     let page = 0
     useEffect(() => {
         console.log(userData, '////////');
         loadPost()
 
     }, [userData])
-    const loadPost = async () => {
+    const loadPost = useCallback(async() => {
         try {
-           console.log(page);
-           
-            if(page===0)return page=1 
+            console.log(page);
+
+            if (page === 0) return page = 1
             if (!hasMore || loading) return;
             setLoading(true);
             const formData = {
                 page,
                 username: userData.following,
-                type:'home'
+                type: 'home'
             }
             const response = await api.getPosts(formData)
 
             if (response.data.success) {
                 const newPosts = response.data.data;
+
+
                 if (newPosts.length === 0) {
                     setHasMore(false);
                 } else {
-                    setPosts((prePost) => [...prePost, ...newPosts]);
-                    page += 1
-                    console.log(page, '//////////////');
+                    const ads = await api.getAdvertisingUser('homePage', page)
+                    console.log(ads, 'aaaaaaadasddfdfdf');
+
+                    if (ads.data.success && ads.data.data.length > 0) {
+                        setPosts((prePost) => [...prePost, ...newPosts, ...ads.data.data]);
+                        page += 1
+                        console.log(page, '//////////////');
+                        setLoading(false);
+                    } else {
+                        setPosts((prePost) => [...prePost, ...newPosts]);
+                        page += 1
+                        console.log(page, '//////////////');
+                        setLoading(false);
+                    }
 
                 }
             }
         }
-        catch (err:any) {
+        catch (err: any) {
             if (err.response) {
 
                 toast.error(err.response.data.message, {
@@ -55,8 +70,8 @@ export const Home = () => {
                     progress: undefined,
                     theme: "light",
                 });
-            }else{
-                toast.error('signup error', {
+            } else {
+                toast.error('server error', {
                     position: "top-center",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -65,14 +80,14 @@ export const Home = () => {
                     draggable: true,
                     progress: undefined,
                     theme: "light",
-                }); 
+                });
             }
         }
         finally {
-            setLoading(false);
+            /* setLoading(false); */
         };
 
-    }
+    },[])
     const handleScroll = () => {
         const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
         if (scrollTop + clientHeight >= scrollHeight - 20) {
@@ -87,10 +102,10 @@ export const Home = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, [hasMore]);
-    
+
     return (
         <>
-                <NavSideBar/>
+            <NavSideBar />
             <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className="w-full px-6 py-6 mx-auto">
                     <div className="flex justify-around flex-wrap -mx-3">
@@ -138,12 +153,23 @@ export const Home = () => {
                         Posts
 
                     </div>
-                    {posts.map((post, index) => {
-                        return (
-                            <PostCards key={index} username={userData.username} post={post} />
-                        )
-                    })}
-                    {loading && <div className="loader">Loading...</div>}
+                    {loading ? (
+                        <>
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                        </>) :
+                        (posts.map((post, index) => {
+                            return !post.placed_area ? (
+                                <PostCards key={index} username={userData.username} post={post} />
+                            ) : (
+                                <>
+                                    <AdsCard ads={post} />
+                                </>
+                            )
+                        }))}
                 </div>
             </main >
             <NavRightSide />

@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux'
 import { updatePost } from '../../redux/userSlice'
 import { PostMoreMenu } from '.'
 import { Link } from 'react-router-dom'
+import { MdDelete } from 'react-icons/md'
 
 
 export const PostDetail = ({ post, username, likedBy }) => {
@@ -19,6 +20,7 @@ export const PostDetail = ({ post, username, likedBy }) => {
     const [more, setMore] = useState(false)
     const [postData, setPostData] = useState(post)
     const [user, setUser] = useState(false)
+    const [usernameComment, setUsernameComment] = useState(username)
     const [formData, setFormData] = useState({
         comment: '',
         username: username,
@@ -56,15 +58,15 @@ export const PostDetail = ({ post, username, likedBy }) => {
     };
     useEffect(() => {
         setUser(username == post.username)
-        api.getComment(post.id).then((response)=>{
+        api.getComment(post.id).then((response) => {
             console.log(response);
-            
-            if(response.data.success){
+
+            if (response.data.success) {
                 setComments(response.data.data)
             }
-        }).catch((err)=>{
+        }).catch((err) => {
             console.log(err);
-            
+
         })
     }, [])
     const handleUnlike = async () => {
@@ -97,14 +99,19 @@ export const PostDetail = ({ post, username, likedBy }) => {
         event.preventDefault()
         api.addComment(formData).then((response) => {
             console.log(response);
-            if(response.data.success){
-                setComments([response.data.data,...comments])
-                formData.comment =''
+            if (response.data.success) {
+                setComments([response.data.data, ...comments])
+                formData.comment = ''
             }
         }).catch((err) => {
             console.log(err);
 
         })
+    }
+
+    const handleDeleteComment = (comment) => {
+        console.log(comment,'deletedd,');
+        
     }
     return (
         <div className='flex flex-col gap-2 h-full bg-white rounded-xl border border-slate-200'>
@@ -155,13 +162,14 @@ export const PostDetail = ({ post, username, likedBy }) => {
 
             <div className='m-5 h-[600px] overflow-y-scroll overflow-x-hidden'>
                 {
-                    comments.map(({ text, username }) => {
+                    comments.map((comment) => {
                         return (
                             <div className={'flex w-full mt-3 flex-row items-center gap-4 '}>
+                                {usernameComment === username && <div onClick={() => handleDeleteComment(comment)} className='cursor-pointer '> <MdDelete /></div>}
                                 <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'
                                     className='h-10 w-10 rounded-full object-cover' />
-                                <h2>{username}</h2>
-                                <p onClick={() => setCommentFlow(!commentFlow)} className={commentFlow ? 'break-words max-w-[330px] overflow-hidden cursor-pointer' : 'max-w-[330px] overflow-hidden cursor-pointer  text-ellipsis'}>{text}</p>
+                                <h2>{comment.username}</h2>
+                                <p onClick={() => setCommentFlow(!commentFlow)} className={commentFlow ? 'break-words max-w-[330px] overflow-hidden cursor-pointer' : 'max-w-[330px] overflow-hidden cursor-pointer  text-ellipsis'}>{comment.text}</p>
                             </div>
 
                         )

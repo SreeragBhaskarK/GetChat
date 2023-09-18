@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 
 // Create an instance of Axios with custom configuration
+const {VITE_BASE_URL}=import.meta.env
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api/v1', // Replace with your API base URL
+    baseURL:VITE_BASE_URL, // Replace with your API base URL
     /* timeout: 5000, */
     withCredentials: true
 });
@@ -19,7 +20,7 @@ const api = axios.create({
 //             return error
 //             // Handle network errors
 //             window.location.href ='/500'
-        
+
 //         }
 //     }
 // )
@@ -30,6 +31,7 @@ const apiMethods = {
     loginUser: (formData: object) => api.post('/user/login', formData),
     signupUser: (formData: object) => api.post('/user/signup', formData),
     forgotPasswordUser: (formData: object) => api.post('/user/forgot-password', formData),
+    setNewPassword:(formData:object)=>api.patch('/user/new-password',formData),
     logoutUser: () => api.delete('/user/logout'),
     verification: (formData) => api.post('/user/email-verification', formData),
     otpVerification: (formData) => api.post('/user/otp-verification', formData),
@@ -50,6 +52,8 @@ const apiMethods = {
     deleteMessage: (id) => api.delete(`/user/delete-message/${id}`),
     deleteChat: (id) => api.delete(`/user/delete-chat/${id}`),
     getNotifications: (username) => api.get(`/user/notifications?username=${username}`),
+    getAdvertisingUser:(type,page) => api.get(`/user/advertising?type=${type}&&page=${page}`),
+    getGoogleUser:(username) => api.get(`/user/auth/google-get-user?username=${username}`),
 
     /* admin */
     logoutAdmin: () => api.delete('/admin/logout'),
@@ -59,15 +63,17 @@ const apiMethods = {
     editAudienceAdmin: (formData) => api.patch('/admin/audience', formData),
     getPostsAdmin: () => api.get('/admin/posts'),
     deletePostsAdmin: (id) => api.delete(`/admin/posts/${id}`),
-    sendNotificationAdmin:(formData)=>api.post('/admin/send-notification',formData),
-    getNotificationsAdmin:()=>api.get('/admin/notifications'),
-    getUserDashboard:(type,target)=>api.get(`/admin/users?type=${type}&&target=${target}`),
-    getPostReportsDashboard:(type,target)=>api.get(`/admin/post-reports?type=${type}&&target=${target}`),
-    getPopularUsersDashboard:()=>api.get('/admin/popular-users'),
-    addAdvertising:(formData)=>api.post('/admin/advertising',formData),
-    getAdvertising:()=>api.get('/admin/advertising'),
-    updateAdvertising:(formData)=>api.patch('/admin/advertising',formData),
-    deleteAdvertising:(id)=>api.delete(`/admin/advertising/'${id}`,),
+    sendNotificationAdmin: (formData) => api.post('/admin/send-notification', formData),
+    getNotificationsAdmin: () => api.get('/admin/notifications'),
+    getUserDashboard: (type, target) => api.get(`/admin/users?type=${type}&&target=${target}`),
+    getPostReportsDashboard: (type, target) => api.get(`/admin/post-reports?type=${type}&&target=${target}`),
+    getPopularUsersDashboard: () => api.get('/admin/popular-users'),
+    addAdvertising: (formData) => api.post('/admin/advertising', formData),
+    getAdvertising: () => api.get('/admin/advertising'),
+    updateAdvertising: (formData) => api.patch('/admin/advertising', formData),
+    deleteAdvertising: (id) => api.delete(`/admin/advertising/'${id}`,),
+    getAdvertisingDashboard: (type, target) => api.get(`/admin/advertising-overview?type=${type}&&target=${target}`),
+    getNotificationWeek: () => api.get('/admin/notifications-week'),
 
     /* posts */
 

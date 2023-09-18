@@ -3,20 +3,24 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import api from '../services/api'
 import { Link } from 'react-router-dom'
+import { ShimmerSearch } from '../widgets/shimmerEffects'
 
 export const Search = ({ open, setOpen, username }) => {
 
     const [searchKey, setSearchKey] = useState('')
     const [suggestions, setSuggestions] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
     useEffect(() => {
         if (searchKey) {
-
+            setIsLoading(true)
             api.userSearch(searchKey, username).then((response) => {
+                setIsLoading(false)
                 console.log(response, 'search');
                 if (response.data.success) {
                     setSuggestions(response.data.data)
                 }
             }).catch((err) => {
+                setIsLoading(false)
                 console.log(err);
 
             })
@@ -32,7 +36,7 @@ export const Search = ({ open, setOpen, username }) => {
     return (
         <>
             <Transition.Root show={open} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={()=>{setOpen(!open);setSearchKey('')}}>
+                <Dialog as="div" className="relative z-10" onClose={() => { setOpen(!open); setSearchKey('') }}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-in-out duration-500"
@@ -71,7 +75,7 @@ export const Search = ({ open, setOpen, username }) => {
                                                 <button
                                                     type="button"
                                                     className="relative rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                                                    onClick={() => {setOpen(!open);setSearchKey('')}}
+                                                    onClick={() => { setOpen(!open); setSearchKey('') }}
                                                 >
                                                     <span className="absolute -inset-2.5" />
                                                     <span className="sr-only">Close panel</span>
@@ -100,17 +104,31 @@ export const Search = ({ open, setOpen, username }) => {
                                                         </div>
                                                     </form>
                                                 </div>
-                                                {searchKey && <div className=' w-full border-t'>
+                                                {isLoading ? (<div className=' w-full  mt-3 border-t'>
                                                     <ul>
-                                                        {suggestions.map((suggestion, index) => (
-                                                            <li key={index}><Link onClick={() => { setOpen(!open); setSearchKey(''); setSuggestions([]) }} to={`/${suggestion.username}`}>  <div className='flex flex-row items-center gap-4'>
-                                                                <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
-                                                                    className='h-10 w-10 rounded-full object-cover' />
-                                                                <span>{suggestion.username}</span>
-                                                            </div></Link></li>
-                                                        ))}
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
+                                                        <ShimmerSearch />
                                                     </ul>
-                                                </div>}
+                                                </div>) :
+                                                    (searchKey && <div className=' w-full mt-3 border-t'>
+                                                        <ul>
+                                                            {suggestions.map((suggestion, index) => (
+                                                                <li className='mb-3' key={index}><Link onClick={() => { setOpen(!open); setSearchKey(''); setSuggestions([]) }} to={`/${suggestion.username}`}>  <div className='flex flex-row items-center gap-4'>
+                                                                    <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                                                                        className='h-10 w-10 rounded-full object-cover' />
+                                                                    <span>{suggestion.username}</span>
+                                                                </div></Link></li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>)}
                                             </div>
                                         </div>
                                     </Dialog.Panel>

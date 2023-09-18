@@ -11,7 +11,7 @@ export const AddAdvertising = ({ open, setOpen }) => {
     const [today, setToday] = useState(new Date())
     const [formData, setFormData] = useState({
         adName: '',
-        publishedDate: '',
+        publishedDate: new Date(),
         placedArea: 'homePage',
         adUrl:'https://blog.fractionalcmo.io/hs-fs/hubfs/Moz_Facebook_ad.png?width=473&name=Moz_Facebook_ad.png'
 
@@ -129,7 +129,7 @@ export const AddAdvertising = ({ open, setOpen }) => {
                                                                     <input type="text" onChange={(e) => handleChange(e)} value={formData.adName} name="adName" id="adName" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="new bike ktm rc" required />
                                                                 </div>
                                                             </div>
-                                                            <div className=''>
+                                                         {/*    <div className=''>
                                                                 <div>
 
                                                                     <label htmlFor="publishedDate" id='publishedDate' className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Published Date</label>
@@ -147,7 +147,7 @@ export const AddAdvertising = ({ open, setOpen }) => {
                                                                       
                                                                     />
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
 
                                                             <label htmlFor="placedArea" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placed Area</label>
                                                             <select name='placedArea' onChange={(e) => handleChange(e)} value={formData.placedArea} id='placedArea'>

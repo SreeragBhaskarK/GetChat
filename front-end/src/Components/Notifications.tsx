@@ -5,6 +5,7 @@ import { socket } from '../services/socketIo'
 import api from '../services/api'
 import { useDispatch, useSelector } from 'react-redux'
 import { addUserData } from '../redux/userSlice'
+import { ShimmerNotificationFollow } from '../widgets/shimmerEffects'
 
 
 
@@ -12,23 +13,32 @@ export const Notifications = ({ open, setOpen }) => {
     const [notifications, setNotifications] = useState([])
     const userData = useSelector((state: any) => state.user.userData)
     const dispatch = useDispatch()
+    const [isLoading, setIsLoading] = useState(false)
     useEffect(() => {
-        socket.on('notification', (data) => {
-            console.log(data, '//////data');
-            setNotifications((prevNotification) => [...prevNotification, data])
+        if (open) {
+            console.log(open, 'open,;');
 
-        })
-        api.getNotifications(userData.username).then((response) => {
-            console.log(response);
+            setIsLoading(true)
+            socket.on('notification', (data) => {
+                console.log(data, '//////data');
+                setNotifications((prevNotification) => [...prevNotification, data])
 
-            if (response.data.success) {
-                setNotifications(response.data.data)
-            }
-        }).catch((err) => {
-            console.log(err);
+            })
+            api.getNotifications(userData.username).then((response) => {
+                console.log(response);
+                setIsLoading(false)
 
-        })
-    }, [])
+                if (response.data.success) {
+                    setNotifications(response.data.data)
+                }
+            }).catch((err) => {
+                setIsLoading(false)
+
+                console.log(err);
+
+            })
+        }
+    }, [open])
 
 
     const follow = (username, userId) => {
@@ -112,15 +122,36 @@ export const Notifications = ({ open, setOpen }) => {
                                             </button>
                                         </div>
                                     </Transition.Child>
-                                    <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
+                                    <div className="flex h-screen flex-col overflow-y-scroll bg-white py-6 shadow-xl">
                                         <div className="px-4 sm:px-6">
                                             <Dialog.Title className="text-base font-semibold leading-6 text-gray-900">
                                                 Notifications
                                             </Dialog.Title>
                                         </div>
-                                        <div className="relative mt-6 flex-1 px-4 sm:px-6">
+                                        <div className="relative mt-6 flex-1 px-4 sm:px-6 overflow-auto">
 
-                                            {notifications.map((notification, index) => {
+                                            {isLoading ? (<>
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                                <ShimmerNotificationFollow />
+                                            </>) : (notifications.map((notification, index) => {
                                                 const result = userData.following.some((username) => username == notification.sender_username)
                                                 return (
 
@@ -134,7 +165,7 @@ export const Notifications = ({ open, setOpen }) => {
                                                             <span>{notification.message}</span>
                                                         </div>) : (<div className='gap-4 ml-2 flex text-ellipsis'>
 
-                                                            <span className={notification.type=='warning' ?'text-yellow-500' :'' && notification.type=='success' ?'text-green-500':'' && notification.type=='danger' ?'text-red-500':''}>{notification.message}</span>
+                                                            <span className={notification.type == 'warning' ? 'text-yellow-500' : '' && notification.type == 'success' ? 'text-green-500' : '' && notification.type == 'danger' ? 'text-red-500' : ''}>{notification.message}</span>
                                                         </div>)}
                                                         {notification.type == 'follow' && <div className='gap-4 '>
                                                             {
@@ -147,7 +178,7 @@ export const Notifications = ({ open, setOpen }) => {
 
                                                 )
                                             })
-                                            }
+                                            )}
 
                                         </div>
                                     </div>

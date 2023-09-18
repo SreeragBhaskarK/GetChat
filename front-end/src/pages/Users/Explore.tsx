@@ -1,8 +1,9 @@
 import { useSelector } from "react-redux"
 import api from "../../services/api"
-import { PostCards } from "../../widgets/cards"
+import { AdsCard, PostCards } from "../../widgets/cards"
 import { NavRightSide, NavSideBar } from "../../widgets/layout/user"
 import { useEffect, useState } from 'react'
+import { ShimmerPosts } from "../../widgets/shimmerEffects"
 
 
 export const Explore = () => {
@@ -37,10 +38,20 @@ export const Explore = () => {
                 if (newPosts.length === 0) {
                     setHasMore(false);
                 } else {
-                    setPosts((prePost) => [...prePost, ...newPosts]);
-                    page += 1
-                    console.log(page, '//////////////');
+                    const ads = await api.getAdvertisingUser('homePage', page)
+                    console.log(ads, 'aaaaaaadasddfdfdf');
 
+                    if (ads.data.success && ads.data.data.length > 0) {
+                        setPosts((prePost) => [...prePost, ...newPosts, ...ads.data.data]);
+                        page += 1
+                        console.log(page, '//////////////');
+
+                    } else {
+                        setPosts((prePost) => [...prePost, ...newPosts]);
+                        page += 1
+                        console.log(page, '//////////////');
+
+                    }
                 }
             }
         }
@@ -48,7 +59,7 @@ export const Explore = () => {
             console.error('Error fetching posts:', error);
         }
         finally {
-            setLoading(false);
+            /* setLoading(false); */
         };
 
     }
@@ -117,12 +128,23 @@ export const Explore = () => {
                         Explore
 
                     </div>
-                    {posts.map((post, index) => {
-                        return (
-                            <PostCards key={index} username={userData.username} post={post} />
-                        )
-                    })}
-                    {loading && <div className="loader">Loading...</div>}
+                    {loading ? (
+                        <>
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                            <ShimmerPosts />
+                        </>) :
+                        (posts.map((post, index) => {
+                            return !post.placed_area ? (
+                                <PostCards key={index} username={userData.username} post={post} />
+                            ) : (
+                                <>
+                                    <AdsCard ads={post} />
+                                </>
+                            )
+                        }))}
                 </div>
             </main >
             <NavRightSide />

@@ -1,9 +1,11 @@
-import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import api from '../../services/api'
 import { useDispatch } from 'react-redux'
 import { addUserData, loginCheck } from "../../redux/userSlice"
 import { toast } from "react-toastify"
+import { InfinitySpin } from "react-loader-spinner"
+import { Processing } from "../../widgets/shimmerEffects"
 export const Login = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -11,8 +13,84 @@ export const Login = () => {
         phoneOrusernameOremail: '',
         password: ''
     })
+    const { VITE_USER_SERVICE_URL } = import.meta.env
     const [errors, setErrors] = useState({ phoneOrusernameOremail: '', password: '' });
+    const location = useLocation()
+    const queryParams = new URLSearchParams(location.search)
+    const [error, setError] = useState(queryParams.get('error'))
+    const [username, setUsername] = useState(queryParams.get('username'))
+    const [isLoading, setIsLoading] = useState(false)
+    useEffect(() => {
+        if (username) {
+            navigate({
+                pathname: location.pathname
+            })
+            setIsLoading(true)
+            api.getGoogleUser(username).then((response) => {
+                console.log(response, '///////userpro');
+                setIsLoading(false)
+                if (response.data.success) {
+                    dispatch(addUserData(response.data.data))
+                    dispatch(loginCheck(true))
+                    navigate('/')
+                    toast.success('successfully login', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+                }
+            }).catch((err) => {
+                setIsLoading(false)
+                if (err.response) {
 
+                    toast.error(err.response.data.message, {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
+                } else {
+                    toast.error('login error', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
+                }
+
+            })
+        }
+    }, [username])
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate({
+                pathname: location.pathname
+            })
+        }
+    }, [error])
     const validateForm = () => {
         const errors = { phoneOrusernameOremail: '', password: '' };
         let returnData = true
@@ -38,14 +116,15 @@ export const Login = () => {
         const isValid = await validateForm();
 
         if (isValid) {
+            setIsLoading(true)
             api.loginUser(formData).then((response) => {
                 console.log(response);
-
+                setIsLoading(false)
                 if (response.data.success) {
                     dispatch(addUserData(response.data.data))
                     dispatch(loginCheck(true))
                     navigate('/')
-                    
+
                     toast.success('successfully login', {
                         position: "top-center",
                         autoClose: 5000,
@@ -59,6 +138,7 @@ export const Login = () => {
                 }
             })
                 .catch((err: any) => {
+                    setIsLoading(false)
                     if (err.response) {
 
                         toast.error(err.response.data.message, {
@@ -71,7 +151,7 @@ export const Login = () => {
                             progress: undefined,
                             theme: "light",
                         });
-                    }else{
+                    } else {
                         toast.error('login error', {
                             position: "top-center",
                             autoClose: 5000,
@@ -81,7 +161,7 @@ export const Login = () => {
                             draggable: true,
                             progress: undefined,
                             theme: "light",
-                        }); 
+                        });
                     }
 
                 })
@@ -89,6 +169,8 @@ export const Login = () => {
         }
 
     }
+
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, name } = e.target as HTMLInputElement
         setFormData((prevFormData) => ({
@@ -97,28 +179,9 @@ export const Login = () => {
         }))
     }
 
-    const handleGoogleAuth = () => {
-        api.loginGoogle().then((response) => {
-            console.log(response, '////////');
-            /*   if(response.data.success){ */
-            /*   axios.get(response.data.data).then((response)=>{
-                  console.log(response,'///////');
-                  
-              }).catch((err)=>{
-                  console.log(err);
-                  
-              }) */
-            /* window.location.href=response.data.data */
-            /*  } */
-
-        }).catch((err) => {
-            console.log(err, '///////');
-
-        })
-    }
     return (
         <div>
-
+            {isLoading && <Processing />}
             <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
@@ -131,7 +194,7 @@ export const Login = () => {
                     </h2>
                 </div>
                 <div className=" max-w-full w-fit ml-auto mt-2  px-1 mr-auto flex-0">
-                    <a href="http://localhost:3000/api/v1/user/auth/google" className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
+                    <a href={`${VITE_USER_SERVICE_URL}/auth/google`} className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
                         <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                 <g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">

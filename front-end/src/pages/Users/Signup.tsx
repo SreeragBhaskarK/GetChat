@@ -2,11 +2,12 @@ import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from '../../services/api'
 import { toast } from "react-toastify"
+import { Processing } from "../../widgets/shimmerEffects"
 export const Signup = () => {
     const navigate = useNavigate()
     const [success, setSuccess] = useState(false)
     const [otp, setOtp] = useState(false)
-
+    const [isLoading, setIsLoading] = useState(false)
     const [formData, setFormData] = useState({
         phoneOrEmail: '',
         fullName: '',
@@ -24,6 +25,7 @@ export const Signup = () => {
         // Validate the 'phoneOrusernameOremail' field
         if (!formData.phoneOrEmail) {
             errors.phoneOrEmail = "Please enter a phone number or email.";
+            returnData = false
         }
 
         // Validate the 'password' field
@@ -50,13 +52,13 @@ export const Signup = () => {
         const isValid = await validateForm();
 
         if (isValid) {
-
+            setIsLoading(true)
             if (formData.phoneOrEmail && formData.fullName && formData.username && formData.password) {
 
 
                 api.signupUser(formData).then((response) => {
                     console.log(response);
-
+                    setIsLoading(false)
                     if (response.data.success) {
 
                         if (response.data.message === 'OTP sent successfully.') {
@@ -88,6 +90,7 @@ export const Signup = () => {
                     }
                 })
                     .catch((err: any) => {
+                        setIsLoading(false)
                         console.log(err,'////////');
                         if (err.response) {
 
@@ -102,7 +105,7 @@ export const Signup = () => {
                                 theme: "light",
                             });
                         }else{
-                            toast.error('signup error', {
+                            toast.error('server error', {
                                 position: "top-center",
                                 autoClose: 5000,
                                 hideProgressBar: false,
@@ -127,7 +130,7 @@ export const Signup = () => {
     }
     return (
         <div>
-
+           {isLoading&& <Processing/>}
             <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img

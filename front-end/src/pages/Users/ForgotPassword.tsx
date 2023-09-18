@@ -2,13 +2,14 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from "../../services/api";
 import { toast } from "react-toastify"
+import { Processing } from "../../widgets/shimmerEffects";
 
 export const ForgotPassword = () => {
   const [formData, setFormData] = useState({
     phoneOrusernameOremail: '',
   })
 
-
+  const [isLoading, setIsLoading] = useState(false)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement
     setFormData((preFormData) => ({
@@ -43,9 +44,10 @@ export const ForgotPassword = () => {
     console.log(isValid,'///////');
     
     if (isValid) {
+      setIsLoading(true)
       api.forgotPasswordUser(formData).then((response) => {
         console.log(response);
-        
+        setIsLoading(false)
         if (response.data.message === 'OTP sent successfully.') {
           navigate('/otp-verification', { state: { phone: formData.phoneOrusernameOremail } })
         } else {
@@ -63,11 +65,31 @@ export const ForgotPassword = () => {
         }
       })
         .catch((err: any) => {
-          console.log(err,'err');
-          /* onsole.log(error,'error');
-          const error = errors.error=err.response.data.message
-          
-          setErrors(error) */
+          setIsLoading(false)
+          if (err.response) {
+
+            toast.error(err.response.data.message, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }else{
+            toast.error('server error', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            }); 
+        }
         })
     }
   }
@@ -75,7 +97,7 @@ export const ForgotPassword = () => {
   return (
 
     <div>
-
+      {isLoading &&<Processing/>}
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center ">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img

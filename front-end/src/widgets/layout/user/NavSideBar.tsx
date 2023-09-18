@@ -26,8 +26,15 @@ export const NavSideBar = () => {
     const videoCall = useSelector((state: any) => state.video_call.videoCall)
     const [notifications, setNotifications] = useState(false)
     const navigate = useNavigate()
-    const [selectedItem, setSelectedItem] = useState('home')
-
+    const location = useLocation()
+    const [selectedItem, setSelectedItem] = useState(location.pathname.split('/').pop())
+    useEffect(() => {
+        console.log(location.pathname.split('/').pop(), '////////');
+        const routename = location.pathname.split('/').pop()
+        if (selectedItem == routename) {
+            setSelectedItem(routename)
+        }
+    }, [selectedItem])
 
     const logout = () => {
         api.logoutUser().then((response) => {
@@ -84,7 +91,16 @@ export const NavSideBar = () => {
         dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
         const ans = await webRTC.getAnswer(data.offer)
         console.log(ans);
-
+        toast.info('video calling....', {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
         dispatch(addAns(ans))
 
     }, [])
@@ -123,9 +139,9 @@ export const NavSideBar = () => {
 
                 <div className="items-center block w-auto max-h-screen  grow basis-full">
                     <ul className="flex flex-col pl-0 mb-0">
-                        <li onClick={() => setSelectedItem('home')} className="mt-0.5 w-full">
-                            <Link className={selectedItem == 'home' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/">
-                                <div className={selectedItem == 'home' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                        <li onClick={() => setSelectedItem('')} className="mt-0.5 w-full">
+                            <Link className={selectedItem == '' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/">
+                                <div className={selectedItem == '' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
                                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Dashboard</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -196,12 +212,12 @@ export const NavSideBar = () => {
                             </Link>
                         </li>
  */}
-                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('message')}>
-                            <Link className={selectedItem == 'message' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/messages">
-                                <div className={selectedItem == 'message' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
-                                    <AiTwotoneMessage className={selectedItem == 'message' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('messages')}>
+                            <Link className={selectedItem == 'messages' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to="/messages">
+                                <div className={selectedItem == 'messages' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5 relative' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center  relative justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <AiTwotoneMessage className={selectedItem == 'messages' ? 'fill-white ' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
                                         <title>Message</title>
-        
+
                                     </AiTwotoneMessage>
                                     {messagesCount > 0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
                                         {messagesCount}
@@ -240,10 +256,10 @@ export const NavSideBar = () => {
                             </div>
                         </li>
 
-                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem('profile')}>
-                            <Link className={selectedItem == 'profile' ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to={'/' + username}>
-                                <div className={selectedItem == 'profile' ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
-                                    <CgProfile className={selectedItem == 'profile' ? 'fill-white' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
+                        <li className="mt-0.5 w-full" onClick={() => setSelectedItem(`${userData.username}`)}>
+                            <Link className={selectedItem == `${userData.username}` ? 'py-2.7 shadow-soft-xl rounded-lg bg-white text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors' : 'py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors'} to={'/' + username}>
+                                <div className={selectedItem == `${userData.username}` ? 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl from-purple-700 to-pink-500  h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5' : 'shadow-soft-2xl mr-2 flex bg-gradient-to-tl hover:from-purple-700 hover:to-pink-500 hover:translate-y-1 h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5'}>
+                                    <CgProfile className={selectedItem == `${userData.username}` ? 'fill-white' : 'transition ease-in-out delay-150 hover:translate-y-1 hover:fill-white hover:scale-110 duration-300 '}>
                                         <title>Profile</title>
                                     </CgProfile>
 
