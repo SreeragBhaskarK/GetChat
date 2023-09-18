@@ -12,6 +12,6 @@ export * from './EditPost'
 export * from './Notifications'
 export * from './CallScreen'
 export * from './AddAdvertising'
-export * from './editAdvertising'
+export * from './EditAdvertising'
 
 

@@ -75,7 +75,7 @@ export const Audience = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {audiences && audiences.map((audience, index) => {
+                        {audiences && audiences.map((audience:any, index) => {
 
                           return (
                             <tr  key={index}>
