@@ -5,13 +5,13 @@ import AddAdvertising from "../../useCases/advertising/addAdvertising"
 import UpdatingAdvertising from "../../useCases/advertising/updatingAdvertising"
 import GetAdvertising from "../../useCases/advertising/getAdvertising"
 import DeleteAdvertising from "../../useCases/advertising/deleteAdvertising"
-
+import sanitize from "mongo-sanitize"
 const advertisingRepository = new AdvertisingRepository(sequelize)
 
 class AdvertisingController {
     static async addAdvertising(req: Request, res: Response) {
         try {
-            const { adName, publishedDate, placedArea, adUrl } = req.body
+            const { adName, publishedDate, placedArea, adUrl } = await sanitize(req.body) 
             if (!adName || !publishedDate || !placedArea || !adUrl) throw new Error('data missing')
             const addAdvertising = new AddAdvertising(advertisingRepository)
             const result = await addAdvertising.execute(adName, publishedDate, placedArea, adUrl)
@@ -29,7 +29,7 @@ class AdvertisingController {
     }
     static async updatingAdvertising(req: Request, res: Response) {
         try {
-            const { adName, publishedDate, placedArea, adUrl, id } = req.body
+            const { adName, publishedDate, placedArea, adUrl, id } = await sanitize(req.body) 
             if (!adName || !publishedDate || !placedArea || !adUrl || !id) throw new Error('data missing')
             const updateAdvertising = new UpdatingAdvertising(advertisingRepository)
             const result = await updateAdvertising.execute(id, adName, publishedDate, placedArea, adUrl)
@@ -64,7 +64,7 @@ class AdvertisingController {
     }
     static async deleteAdvertising(req: Request, res: Response) {
         try {
-            const { id } =req.params as { id: string }
+            const { id } =await sanitize(req.params)  as { id: string }
             if(!id)throw new Error('missing id')
             const deleteAdvertising = new DeleteAdvertising(advertisingRepository)
             const result = await deleteAdvertising.execute(id)

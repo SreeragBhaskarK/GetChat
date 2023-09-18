@@ -5,9 +5,11 @@ class AdvertisingRepository {
     }
 
 
-    async getAdvertising(){
+    async getAdvertising(type:string,page:string){
         try {
-            return await this.advertisingModel.findAll()
+            const pageNum:number = Number(page)
+            const skip = (pageNum-1)*1
+            return await this.advertisingModel.find({placed_area:type}).skip(skip).limit(1)
             
         } catch (err) {
             throw err

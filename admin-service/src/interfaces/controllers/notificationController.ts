@@ -3,6 +3,7 @@ import NotificationRepository from "../repositories/notificationRepository";
 import { sequelize } from "../../config/connections";
 import SendNotification from "../../useCases/notification/sendNotification";
 import GetNotifications from "../../useCases/notification/getNotifications";
+import sanitize from "mongo-sanitize";
 const notificationRepository = new NotificationRepository(sequelize)
 class NotificationController {
 
@@ -13,7 +14,7 @@ class NotificationController {
             const {message,
             type,
             duration,
-            userType} = req.body
+            userType} = await sanitize(req.body) 
             if(!message || !type || !duration || !userType)throw new Error('not found data')
             const sendNotification = new SendNotification(notificationRepository)
             const result = await sendNotification.execute(message,type,duration,userType)

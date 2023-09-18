@@ -12,16 +12,23 @@ import { otpCheck } from "../../utils/check";
 import VerificationEmail from "../../useCases/userUseCase/verifyEmail";
 import StatusChange from "../../useCases/userUseCase/statusChange";
 import passport from "passport";
+import sanitize from "mongo-sanitize";
+import GetUser from "../../useCases/userUseCase/getUser";
+import UserRepository from "../repositories/userRepository";
+import userModel from "../../frameworks/mongoose/models/userModel";
+import messageModel from "../../frameworks/mongoose/models/messageModel";
+import SetNewPassword from "../../useCases/userUseCase/setNewPassword";
+const userRepository = new UserRepository(userModel, messageModel)
 const userAuthRepository = new UserAuthRepository();
 class UserAuthController {
     static async postLogin(req: Request, res: Response) {
-        const { phoneOrusernameOremail, password } = req.body
+        const { phoneOrusernameOremail, password } = await sanitize(req.body)
         try {
             if (!phoneOrusernameOremail || !password) throw new Error('incomplete details')
             const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             let userData: User | undefined = await checkUserUseCase.execute(phoneOrusernameOremail)
             let result = await bcryptCheck(userData?.password, password)
-            if(userData?.google_auth)throw new Error('already login in google auth')
+            if (userData?.google_auth) throw new Error('already login in google auth')
             if (result && userData) {
                 userData.password = undefined
 
@@ -46,7 +53,7 @@ class UserAuthController {
     static async postSignup(req: Request, res: Response) {
 
 
-        const { phoneOrEmail, fullName, username, password } = req.body
+        const { phoneOrEmail, fullName, username, password } = await sanitize(req.body)
 
         try {
             if (!phoneOrEmail || !fullName || !username || !password) throw new Error('incomplete details')
@@ -95,7 +102,7 @@ class UserAuthController {
     }
 
     static async postForgotPassword(req: Request, res: Response) {
-        const { phoneOrusernameOremail } = req.body
+        const { phoneOrusernameOremail } = await sanitize(req.body)
 
         console.log(phoneOrusernameOremail, '///////');
 
@@ -128,7 +135,7 @@ class UserAuthController {
         try {
             console.log('//////email', req.body);
 
-            const { token, email, type } = req.body
+            const { token, email, type } = await sanitize(req.body)
             if (!token || !email || !type) throw new Error('invalid url')
             const verificationEmail = new VerificationEmail(userAuthRepository)
             let userData = await verificationEmail.execute(email as string, token as string, type as string)
@@ -146,7 +153,7 @@ class UserAuthController {
 
     static async postSignupVerification(req: Request, res: Response) {
         try {
-            const { mobileOrEmail, token, otp } = req.body
+            const { mobileOrEmail, token, otp } = await sanitize(req.body)
             console.log('//////////////', req.body);
             if (!mobileOrEmail) throw new Error('signup error')
 
@@ -186,7 +193,7 @@ class UserAuthController {
     }
 
     static async postOtpVerification(req: Request, res: Response) {
-        const { phone, otp } = req.body
+        const { phone, otp } = await sanitize(req.body)
         console.log(req.body);
 
         try {
@@ -214,8 +221,32 @@ class UserAuthController {
 
     static async getGoogleCallBack(req: Request, res: Response) {
         try {
+            const { FRONTEND_URL } = process.env
             const userData: any = req.user
-            console.log('////////////callback', userData);
+            if (userData) {
+                res.redirect(`${FRONTEND_URL}/login?username=${userData.username}`)
+
+            } else {
+                const error = 'failed google authentication'
+
+                res.redirect(`${FRONTEND_URL}/login?error=${error}`)
+            }
+
+        } catch (err: any) {
+            const { FRONTEND_URL } = process.env
+            console.log(err);
+            res.redirect(`${FRONTEND_URL}/login?error=${err}`)
+
+        }
+    }
+    static async getGoogle(req: Request, res: Response) {
+        try {
+            console.log('///////////////////🥰🥰🥰🥰🥰');
+
+            const { username } = await sanitize(req.query) as { username: string }
+            if (!username) throw new Error('missing in Fusername')
+            const getUser = new GetUser(userRepository)
+            const userData = await getUser.execute(username)
             if (userData) {
                 const userId: mongoose.Types.ObjectId = userData?._id
                 let token = await tokenGenerate(userId)
@@ -224,15 +255,13 @@ class UserAuthController {
                     httpOnly: true,
                     maxAge: maxAge
                 })
-              /*   res.redirect('http://localhost:5173/') */
+                /*   res.redirect('http://localhost:5173/') */
                 res.status(200).json({ message: 'success', success: true, data: userData, token: token })
             } else {
 
                 res.status(400).json({ message: 'incorrect auth in google', success: false })
 
             }
-
-
         } catch (err: any) {
             console.log(err);
 
@@ -240,20 +269,23 @@ class UserAuthController {
 
         }
     }
-    static async getGoogle(req: Request, res: Response) {
+
+    static async setNewPassword (req:Request,res:Response){
         try {
-            /* const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' +
-                'response_type=code&' +
-                `client_id=${process.env.GOOGLE_AUTH_CLIENT_ID}&` +
-                'redirect_uri=http://localhost:3000/api/v1/user/auth/google/callback&' +
-                'scope=profile%20email';
-
-                res.status(200).json({success:true,message:'successfully',data:authUrl}) */
-        } catch (err: any) {
-            console.log(err);
-
-            res.status(400).json({ success: false, message: err.message })
-
+            const {email,newPassword,confirmPassword} = await sanitize(req.body)
+            if(!email||!newPassword||!confirmPassword)throw new Error('not found data')
+            const setNewPassword = new SetNewPassword(userAuthRepository)
+            const result = await setNewPassword.execute(email,newPassword,confirmPassword)
+            if(result){
+                res.status(200).json({success:true,message:'successfully'})
+            }else{
+                res.status(400).json({success:false,message:'failed'})
+            }
+            
+        } catch (err:any) {
+            res.status(400).json({success:false,message:err.message})
+           
+            
         }
     }
 }

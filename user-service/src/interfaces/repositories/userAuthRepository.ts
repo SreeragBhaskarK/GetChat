@@ -2,6 +2,7 @@ import { User } from "../../entities/userEntity";
 import userModel from "../../frameworks/mongoose/models/userModel"
 import verifyModel from "../../frameworks/mongoose/models/verifyModel";
 import { userProducer } from "../messageBrokers/userProducer";
+import bcrypt from 'bcryptjs'
 class UserAuthRepository {
 
     async findUser(phoneOrusernameOremail: string) {
@@ -173,6 +174,33 @@ class UserAuthRepository {
             throw err
 
         }
+    }
+
+    async setNewPassword(email:string,newPassword:string,confirmPassword:string){
+        try {
+            if(newPassword!=confirmPassword){
+                throw new Error('Please check password and confirm password not match')
+            }
+            const salt = 10
+            const password = await bcrypt.hashSync(newPassword, salt)
+            console.log(password,'password');
+            
+            const result:any = await userModel.updateOne({email},{$set:{password}})
+            console.log(result,'serer🥰🥰🥰',email);
+            
+            if (result.modifiedCount === 1) {
+               return true
+              } else if (result.modifiedCount === 0) {
+                return false
+              } else {
+                throw new Error('Update operation did not modify any document.')
+              }
+            
+        } catch (err) {
+            throw err
+            
+        }
+
     }
 
 

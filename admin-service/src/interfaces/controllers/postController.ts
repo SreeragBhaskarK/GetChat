@@ -5,6 +5,7 @@ import AddPost from "../../useCases/post/addPost"
 import UpdatePost from "../../useCases/post/updatePost"
 import DeletePost from "../../useCases/post/deletePost"
 import { sequelize } from "../../config/connections"
+import sanitize from "mongo-sanitize"
 const postRepository = new PostRepository(sequelize)
 class postController {
     static getPost = async (req:Request,res:Response) => {
@@ -51,7 +52,7 @@ class postController {
 
     static deletePost = async (req:Request,res:Response) => {
         try{
-            const {id}= req.params
+            const {id}= await sanitize(req.params) 
             if(!id)throw new Error('not found id')
             const deletePost = new DeletePost(postRepository)
             const result = await deletePost.execute(id)

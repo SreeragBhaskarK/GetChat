@@ -8,6 +8,7 @@ router.post('/login',UserAuthController.postLogin)
 router.post('/signup',UserAuthController.postSignup)
 router.delete('/logout',UserAuthController.deleteLogout)
 router.post('/forgot-password',UserAuthController.postForgotPassword)
+router.patch('/new-password',UserAuthController.setNewPassword)
 
 /* router.post('/signup-verification',UserController.postSignupVerification) */
 
@@ -19,5 +20,6 @@ router.post('/otp-verification',UserAuthController.postOtpVerification)
 /* google auth */
 router.get('/auth/google',passport.authenticate('google', { scope: ['profile', 'email'] }))
 router.get('/auth/google/callback',passport.authenticate('google', { session: false }),UserAuthController.getGoogleCallBack)
+router.get('/auth/google-get-user',UserAuthController.getGoogle)
 
 export default router

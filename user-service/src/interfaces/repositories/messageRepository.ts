@@ -94,8 +94,11 @@ class MessageRepository {
         try {
             console.log(data, 'advertising');
             const advertisingData = new this.advertisingModel(data)
+            console.log(advertisingData,'advertisingdata');
+            
             await advertisingData.save()
         } catch (err) {
+            console.log(err,'advertisingdata');
             throw err
 
         }

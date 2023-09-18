@@ -5,9 +5,9 @@ class GetAdvertising {
         this.advertisingRepository =advertisingRepository
 
     }
-    async execute(){
+    async execute(type:string,page:string){
         try {
-            return await this.advertisingRepository.getAdvertising()
+            return await this.advertisingRepository.getAdvertising(type,page)
             
         } catch (err) {
             throw err

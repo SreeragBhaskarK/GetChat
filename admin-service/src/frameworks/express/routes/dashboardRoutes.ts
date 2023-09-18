@@ -6,4 +6,5 @@ router.get('/users',DashboardController.getUsers)
 router.get('/post-reports',DashboardController.getPostReports)
 router.get('/popular-users',DashboardController.getPopularUsers)
 router.get('/notifications-week',DashboardController.getNotifications)
+router.get('/advertising-overview',DashboardController.getAdvertisingOverview)
 export default router

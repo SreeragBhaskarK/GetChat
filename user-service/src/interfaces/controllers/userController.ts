@@ -26,6 +26,7 @@ import RemoveFollowers from "../../useCases/userUseCase/removeFollowers"
 import GetAdvertising from "../../useCases/userUseCase/getAdvertising"
 import AdvertisingRepository from "../repositories/advertisingRepository"
 import advertisingModel from "../../frameworks/mongoose/models/advertisingModel"
+import sanitize from "mongo-sanitize"
 
 const userRepository = new UserRepository(userModel, messageModel)
 const chatRepository = new ChatRepository(chatModel, messageModel)
@@ -37,7 +38,7 @@ class UserController {
         try {
             console.log(req.body, '///////////');
 
-            const { username } = req.body
+            const { username } = await sanitize(req.body) 
             if (!username) throw new Error("not found user name");
             new Error('not found username')
             const getUser = new GetUser(userRepository)
@@ -63,7 +64,7 @@ class UserController {
             console.log(req.body, '///////////');
             console.log('🔥🔥🔥');
 
-            const { username, bio, gender, profilePic } = req.body
+            const { username, bio, gender, profilePic } = await sanitize(req.body) 
             if (!username || !bio || !gender) throw new Error("not found user name");
 
             const updateUser = new UpdateUser(userRepository);
@@ -86,7 +87,7 @@ class UserController {
     static async searchUser(req: Request, res: Response) {
         try {
 
-            const { search, username } = req.query as { search: string, username: string }
+            const { search, username } = await sanitize(req.query)  as { search: string, username: string }
             if (!search || !username) throw new Error("not found search key");
 
             const searchUser = new SearchUser(userRepository);
@@ -110,7 +111,7 @@ class UserController {
         try {
             console.log(req.body);
 
-            const { followUserName, user } = req.body
+            const { followUserName, user } = await sanitize(req.body) 
             if (!followUserName || !user) throw new Error("not found follow id or user id");
 
             const followUser = new FollowUser(userRepository);
@@ -134,7 +135,7 @@ class UserController {
         try {
             console.log(req.body);
 
-            const { followUserName, user } = req.body
+            const { followUserName, user } = await sanitize(req.body) 
             if (!followUserName || !user) throw new Error("not found unfollow id or user id");
 
             const unFollowUser = new UnFollowUser(userRepository);
@@ -157,7 +158,7 @@ class UserController {
     static async getMessages(req: Request, res: Response) {
         try {
 
-            const { chatId } = req.body
+            const { chatId } = await sanitize(req.body) 
             if (!chatId) throw new Error("not found user id");
 
             const getMessages = new GetMessages(userRepository);
@@ -182,7 +183,7 @@ class UserController {
         try {
             console.log(req.params, '/////');
 
-            const { userId } = req.params
+            const { userId } = await sanitize(req.params) 
             const getChatUser = new GetChatUser(chatRepository)
             const result = await getChatUser.execute(userId)
             if (result) {
@@ -198,7 +199,7 @@ class UserController {
     }
     static async createChat(req: Request, res: Response) {
         try {
-            const { firstId, secondId } = req.body
+            const { firstId, secondId } = await sanitize(req.body) 
             if (!firstId || !secondId) throw new Error('id is missing')
             const createChatUser = new CreateChatUser(chatRepository)
             const result = await createChatUser.execute(firstId, secondId)
@@ -217,7 +218,7 @@ class UserController {
     }
     static async changeSeen(req: Request, res: Response) {
         try {
-            const { messageId } = req.body
+            const { messageId } = await sanitize(req.body) 
             if (!messageId) throw new Error('id is missing')
             const changeSeen = new ChangeSeen(chatRepository)
             const result = await changeSeen.execute(messageId)
@@ -236,7 +237,7 @@ class UserController {
     }
     static async getFollows(req: Request, res: Response) {
         try {
-            const { userId, type } = req.body
+            const { userId, type } = await sanitize(req.body) 
             console.log(req.body);
 
             if (!userId || !type) throw new Error('id or type is missing')
@@ -257,7 +258,7 @@ class UserController {
     }
     static async deleteMessage(req: Request, res: Response) {
         try {
-            const { id } = req.params as { id: string }
+            const { id } = await sanitize(req.params)  as { id: string }
             console.log(req.body);
 
             if (!id) throw new Error('id  is missing')
@@ -278,7 +279,7 @@ class UserController {
     }
     static async deleteChat(req: Request, res: Response) {
         try {
-            const { id } = req.params as { id: string }
+            const { id } = await sanitize(req.params)  as { id: string }
             console.log(req.body);
 
             if (!id) throw new Error('id  is missing')
@@ -299,8 +300,8 @@ class UserController {
     }
     static async getNotifications(req: Request, res: Response) {
         try {
-            const { username } = req.query as{username:string}
-            if(!username)throw new Error('username is missing')
+            const { username } = await sanitize(req.query)  as { username: string }
+            if (!username) throw new Error('username is missing')
             const getNotifications = new GetNotifications(notificationRepository)
             const result = await getNotifications.execute(username)
 
@@ -317,10 +318,10 @@ class UserController {
     }
     static async removeFollow(req: Request, res: Response) {
         try {
-            const { followersUsername,followingUsername } = req.body
-            if(!followersUsername||!followingUsername)throw new Error('username is missing')
+            const { followersUsername, followingUsername } = await sanitize(req.body) 
+            if (!followersUsername || !followingUsername) throw new Error('username is missing')
             const removeFollow = new RemoveFollowers(userRepository)
-            const result = await removeFollow.execute(followersUsername,followingUsername)
+            const result = await removeFollow.execute(followersUsername, followingUsername)
 
             if (result) {
                 res.status(200).json({ success: true, message: 'successfully', data: result })
@@ -335,9 +336,11 @@ class UserController {
     }
     static async getAdvertising(req: Request, res: Response) {
         try {
-           
+
+            const { type,page } = await sanitize(req.query)  as { type: string,page:string }
+
             const getAdvertising = new GetAdvertising(advertisingRepository)
-            const result = await getAdvertising.execute()
+            const result = await getAdvertising.execute(type,page)
 
             if (result) {
                 res.status(200).json({ success: true, message: 'successfully', data: result })
@@ -352,7 +355,7 @@ class UserController {
     }
 
 
-    
+
 
 
 

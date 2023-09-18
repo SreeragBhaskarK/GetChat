@@ -15,13 +15,14 @@ import DeletePost from "../../usecases/post/deletePost"
 import DeleteComment from "../../usecases/comment/deleteComment"
 import CommentRepository from "../repositories/commentRepository"
 import GetComment from "../../usecases/comment/getComment"
+import sanitize from "mongo-sanitize"
 /* import setImage from '../../utils/setImage' */
 const postRepository = new PostRepository(sequelize)
 const commentRepository = new CommentRepository(sequelize)
 class PostController {
     static getPosts = async (req: Request, res: Response) => {
         try {
-            const { page, username,type } = req.body
+            const { page, username,type } = await sanitize(req.body) 
             console.log(req.body, '🚀🚀🚀🚀');
             if(!page||!username||!type)throw new Error('missing')
             const getPosts = new GetPosts(postRepository)
@@ -42,7 +43,7 @@ class PostController {
         /*   const image = await setImage(req.file) */
         console.log(req.body,'🚀🚀🚀🚀');
 
-        const { originalname, mimetype, type } = req.body
+        const { originalname, mimetype, type } = await sanitize(req.body) 
         try {
             if (!originalname || !mimetype) throw new Error('not found data')
             const url = await putObject(originalname, mimetype, type)
@@ -62,7 +63,7 @@ class PostController {
         try {
             console.log('//////', req.body);
 
-            const { url, username, caption } = req.body
+            const { url, username, caption } = await sanitize(req.body) 
             if (!url || !username || !caption) throw new Error('not found url')
             const addPosts = new AddPosts(postRepository)
             const result = await addPosts.execute(url, username, caption)
@@ -80,7 +81,7 @@ class PostController {
 
     static async postLike(req: Request, res: Response) {
         try {
-            const { id, username } = req.body
+            const { id, username } = await sanitize(req.body) 
             if (!id || !username) throw new Error('not found')
             const likePost = new LikePost(postRepository)
 
@@ -98,7 +99,7 @@ class PostController {
     }
     static async postUnLike(req: Request, res: Response) {
         try {
-            const { id, username } = req.body
+            const { id, username } = await sanitize(req.body) 
             if (!id || !username) throw new Error('not found')
             const unLikePost = new UnLikePost(postRepository)
 
@@ -117,7 +118,7 @@ class PostController {
 
     static async postReport(req: Request, res: Response) {
         try {
-            const { id, type } = req.body
+            const { id, type } = await sanitize(req.body) 
             if (!id || !type) throw new Error('not found')
             const reportPost = new ReportPost(postRepository)
 
@@ -136,7 +137,7 @@ class PostController {
 
     static async getProfilePost(req: Request, res: Response) {
         try {
-            let { username,page }  = req.query as {username:string,page:string|number}
+            let { username,page }  = await sanitize(req.query)  as {username:string,page:string|number}
             page = Number(page)
             if (!username) throw new Error('not found')
             const getPostsDetails = new GetPostDetails(postRepository)
@@ -156,7 +157,7 @@ class PostController {
 
     static async addComment(req:Request,res:Response){
         try {
-            let { id,comment,username }  = req.body
+            let { id,comment,username }  = await sanitize(req.body) 
             console.log(req.body);
              
             if (!id ||!comment||!username) throw new Error('not found')
@@ -176,7 +177,7 @@ class PostController {
     }
     static async editPost(req:Request,res:Response){
         try {
-            let { id,caption }  = req.body
+            let { id,caption }  = await sanitize(req.body) 
             console.log(req.body);
              
             if (!id ||!caption) throw new Error('not found')
@@ -196,7 +197,7 @@ class PostController {
     }
     static async deletePost(req:Request,res:Response){
         try {
-            const { id }  = req.query as {id:string}
+            const { id }  = await sanitize(req.query)  as {id:string}
             console.log(req.body,'😁😁😁');
              
             if (!id ) throw new Error('not found')
@@ -216,7 +217,7 @@ class PostController {
     }
     static async deleteComment(req:Request,res:Response){
         try {
-            let { id,comment }  = req.body
+            let { id,comment }  = await sanitize(req.body) 
             console.log(req.body);
              
             if (!id||!comment ) throw new Error('not found')
@@ -237,7 +238,7 @@ class PostController {
     
     static async getComment(req:Request,res:Response){
         try {
-            const {post_id} = req.query as {post_id:string}
+            const {post_id} = await sanitize(req.query)  as {post_id:string}
             console.log(post_id,'//////');
             
             const getComment = new GetComment(commentRepository)

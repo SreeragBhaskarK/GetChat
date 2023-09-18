@@ -6,6 +6,7 @@ import UpdateAudience from "../../useCases/audience/updateAudience"
 import DeleteAudience from "../../useCases/audience/deleteAudience"
 import { sequelize } from "../../config/connections"
 import BlockAudience from "../../useCases/audience/blockAudience"
+import sanitize from "mongo-sanitize"
 
 
 const audienceRepository = new AudienceRepository(sequelize)
@@ -28,7 +29,7 @@ class AudienceController {
 
     static addAudience = async (req:Request,res:Response) => {
         try{
-            const {mobileOrEmail,username,fullName,password}=req.body
+            const {mobileOrEmail,username,fullName,password}=await sanitize(req.body) 
             if(!mobileOrEmail||!username||!fullName||!password)throw new Error('user details incomplete')
             const addAudience = new AddAudience(audienceRepository)
             const result = await addAudience.execute(mobileOrEmail,username,fullName,password)
@@ -44,7 +45,7 @@ class AudienceController {
 
     static updateAudience = async (req:Request,res:Response) => {
         try{
-            const {phoneOrEmail,username,fullName}=req.body
+            const {phoneOrEmail,username,fullName}=await sanitize(req.body) 
             if(!phoneOrEmail||!username||!fullName)throw new Error("update incomplete filling")
             const updateAudience = new UpdateAudience(audienceRepository)
             const result = await updateAudience.execute(phoneOrEmail,username,fullName)
@@ -60,7 +61,7 @@ class AudienceController {
 
     static deleteAudience = async (req:Request,res:Response) => {
         try{
-            const {userId} =req.params
+            const {userId} =await sanitize(req.params) 
             if(!userId)throw new Error("user id missing")
             const deleteAudience = new DeleteAudience(audienceRepository)
             const result = await deleteAudience.execute(userId)
@@ -75,8 +76,8 @@ class AudienceController {
     }
 
     static async blockAndUnblockAudience(req:Request,res:Response){
-        const {userId} = req.params
-        const status= req.query.status as string
+        const {userId} = await sanitize(req.params) 
+        const {status}= await sanitize(req.params)  as{status:string} 
         console.log(status,userId);
         
         try {

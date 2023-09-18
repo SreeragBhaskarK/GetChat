@@ -4,10 +4,11 @@ import CheckAdmin from "../../useCases/adminUseCase/checkAdmin";
 import { bcryptCheck } from "../../utils/bcryptCheck";
 import { tokenGenerate } from "../../utils/tokenGenerate";
 import { sequelize } from "../../config/connections";
+import sanitize from "mongo-sanitize";
 const adminRepository = new AdminRepository(sequelize)
 class AdminController {
     static async postLogin(req: Request, res: Response) {
-        const { email, password } = req.body
+        const { email, password } = await sanitize(req.body) 
         try {
             const checkAdmin = new CheckAdmin(adminRepository)
             let adminData:any = await checkAdmin.execute(email)
