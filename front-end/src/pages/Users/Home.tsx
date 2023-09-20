@@ -1,10 +1,10 @@
 import { useSelector } from "react-redux"
 import api from "../../services/api"
-import { PostCards } from "../../widgets/cards"
+import { AdsCard, PostCards } from "../../widgets/cards"
 import { NavRightSide, NavSideBar } from "../../widgets/layout/user"
 import { useEffect, useState, memo, useCallback } from 'react'
 import { toast } from 'react-toastify'
-import { AdsCard } from '../../widgets/cards/AdsCard'
+
 import { ShimmerPosts } from "../../widgets/shimmerEffects"
 export const Home = () => {
     const [posts, setPosts] = useState([])
