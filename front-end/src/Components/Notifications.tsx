@@ -32,7 +32,7 @@ export const Notifications = ({ open, setOpen }) => {
                     setNotifications(response.data.data)
                 }
             }).catch((err) => {
-                setIsLoading(false)
+
 
                 console.log(err);
 
@@ -131,31 +131,43 @@ export const Notifications = ({ open, setOpen }) => {
                                         <div className="relative mt-6 flex-1 px-4 sm:px-6 overflow-auto">
 
                                             {isLoading ? (<>
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
-                                                <ShimmerNotificationFollow />
+                                                {Array.from({ length: 20 }).map((_, index) => (
+
+                                                    <ShimmerNotificationFollow />
+
+                                                ))}
                                             </>) : (notifications.map((notification, index) => {
                                                 const result = userData.following.some((username) => username == notification.sender_username)
+                                                let notificationDate: string
+                                                // date 
+                                                const date = new Date(notification.createdAt);
+                                                const today = new Date();
+                                                const yesterday = new Date(today);
+                                                yesterday.setDate(today.getDate() - 1);
+
+                                                if (date.toDateString() === today.toDateString()) {
+                                                    notificationDate = 'today';
+                                                } else if (date.toDateString() === yesterday.toDateString()) {
+                                                    notificationDate = 'yesterday';
+                                                } else if (date >= today) {
+                                                    notificationDate = 'today';
+                                                } else if (date >= yesterday) {
+                                                    notificationDate = 'yesterday';
+                                                } else if (date >= new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6)) {
+                                                    notificationDate = 'this week';
+                                                } else if (
+                                                    date.getMonth() === today.getMonth() &&
+                                                    date.getFullYear() === today.getFullYear()
+                                                ) {
+                                                    notificationDate = 'this month';
+                                                } else {
+                                                    notificationDate = 'day ago';
+                                                }
+
                                                 return (
 
                                                     <div key={index} className='flex flex-row items-center overflow-hidden m-4 '>
+                                                        <span>{notificationDate}</span>
                                                         <div className=' gap-4'>
                                                             <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
                                                                 className='h-10 w-10 rounded-full object-cover' />

@@ -110,8 +110,18 @@ export const PostDetail = ({ post, username, likedBy }) => {
     }
 
     const handleDeleteComment = (comment) => {
-        console.log(comment,'deletedd,');
-        
+        console.log(comment, 'deletedd,');
+        api.deleteComment(comment.comment_id).then((response) => {
+            console.log(response);
+            if (response.data.success) {
+                setComments((prevComment) => prevComment.filter((comt) => comt.comment_id != comment.comment_id))
+            }
+
+        }).catch((err) => {
+            console.log(err);
+
+        })
+
     }
     return (
         <div className='flex flex-col gap-2 h-full bg-white rounded-xl border border-slate-200'>
@@ -160,12 +170,13 @@ export const PostDetail = ({ post, username, likedBy }) => {
             <div className='border'>
             </div>
 
-            <div className='m-5 h-[600px] overflow-y-scroll overflow-x-hidden'>
+            <div className='m-5 h-[600px] overflow-y-auto no-scrollbar '>
                 {
                     comments.map((comment) => {
+
                         return (
-                            <div className={'flex w-full mt-3 flex-row items-center gap-4 '}>
-                                {usernameComment === username && <div onClick={() => handleDeleteComment(comment)} className='cursor-pointer '> <MdDelete /></div>}
+                            <div className={'flex w-full mt-3 flex-row items-center gap-4 group'}>
+                                {usernameComment === username && <div onClick={() => handleDeleteComment(comment)} className='cursor-pointer opacity-0 group-hover:opacity-100 '> <MdDelete /></div>}
                                 <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'
                                     className='h-10 w-10 rounded-full object-cover' />
                                 <h2>{comment.username}</h2>

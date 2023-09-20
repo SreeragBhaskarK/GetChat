@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, memo } from 'react'
 import { ChatBox } from '../../Components'
 import { NavRightSide, NavSideBar } from '../../widgets/layout/user'
 
@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux'
 import api from '../../services/api'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
+import { socket } from '../../services/socketIo'
+import { ShimmerMessage, ShimmerSearch } from '../../widgets/shimmerEffects'
 
 
 export const Messages = () => {
@@ -13,7 +15,8 @@ export const Messages = () => {
     const [chatUser, setChatUser] = useState([])
     const [userData, setUserData] = useState()
     const userDetail = useSelector((state: any) => state.user.userData)
-
+    const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingSearch, setisLoadingSearch] = useState(false)
     const location = useLocation();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
@@ -36,9 +39,11 @@ export const Messages = () => {
     }
 
     useEffect(() => {
+        setisLoadingSearch(true)
         api.userSearch(searchKey, userDetail.username).then((response) => {
             console.log(response, 'search');
             if (response.data.success) {
+                setisLoadingSearch(false)
                 setSuggestions(response.data.data)
             }
         }).catch((err) => {
@@ -49,26 +54,32 @@ export const Messages = () => {
     }, [searchKey, userDetail])
 
     useEffect(() => {
+        socket.on('onlineStatus', handleUserOnlineStatus)
+
+    }, [socket])
+
+    useEffect(() => {
         setMessageInd(messageCount[0])
     }, [messageCount])
     useEffect(() => {
-
+        setIsLoading(true)
         if (paramValue) {
+            console.log(paramValue, 'params🚀🚀🚀🚀');
+            navigate({
+                pathname: location.pathname
+            })
+            searchParams.delete('userId');
             api.chatCreate({ firstId: paramValue, secondId: userDetail._id }).then((response) => {
                 console.log(response, '////skjdsdh');
 
-                searchParams.delete('userId');
 
-                navigate({
-                    pathname: window.location.pathname, // Keep the same pathname
-                    search: searchParams.toString(), // Set the updated search query
-                });
 
                 api.getChats(userDetail._id).then((response) => {
 
                     console.log(response, '/////////messages');
                     if (response.data.success) {
                         setChatUser(response.data.data)
+                        setIsLoading(false)
                         if (paramValue) {
                             const result = response.data.data.findIndex(item => item.members.some(member => member === paramValue))
                             if (result !== -1) {
@@ -85,6 +96,7 @@ export const Messages = () => {
                     }
 
                 }).catch((err) => {
+
                     console.log(err);
 
                 })
@@ -97,6 +109,7 @@ export const Messages = () => {
                     console.log(response, '/////////messages');
                     if (response.data.success) {
                         setChatUser(response.data.data)
+                        setIsLoading(false)
                         if (paramValue) {
                             const result = response.data.data.findIndex(item => item.members.some(member => member === paramValue))
                             if (result !== -1) {
@@ -112,6 +125,8 @@ export const Messages = () => {
                         }
                     }
 
+
+
                 }).catch((err) => {
                     console.log(err);
 
@@ -122,9 +137,10 @@ export const Messages = () => {
         } else {
             api.getChats(userDetail._id).then((response) => {
 
-                console.log(response, '/////////messages');
+                console.log(response, '/////////messages🚀🚀🚀🚀');
                 if (response.data.success) {
                     setChatUser(response.data.data)
+                    setIsLoading(false)
                     if (paramValue) {
                         const result = response.data.data.findIndex(item => item.members.some(member => member === paramValue))
                         if (result !== -1) {
@@ -135,6 +151,7 @@ export const Messages = () => {
                             setUserData(response.data.data[0])
                         }
                     } else {
+
 
                         setUserData(response.data.data[0])
                     }
@@ -152,6 +169,25 @@ export const Messages = () => {
 
     }, [userDetail, paramValue])
 
+    const handleUserOnlineStatus = useCallback((data) => {
+        console.log(data, 'online status');
+        setChatUser((prevChat) =>
+            prevChat.map((chat) => {
+                const recipientId =
+                    chat?.memberDetails[0]._id === userDetail._id
+                        ? chat?.memberDetails[1]._id
+                        : chat?.memberDetails[0]._id;
+                if (recipientId === data.userId) {
+                    // Create a new chat object with the updated status
+                    if (chat.status != data.status) {
+                        return { ...chat, status: data.status };
+                    }
+                }
+                // Return the original chat object if it doesn't need to be updated
+                return chat;
+            })
+        );
+    }, []);
     const previousMessageTime = useCallback((data) => {
         if (data) {
             console.log(data, '/callback');
@@ -174,14 +210,16 @@ export const Messages = () => {
     }, [])
 
 
+
+
     return (
         <>
 
             <NavSideBar />
-            <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
-                <div className="container mx-auto">
-                    <div className="min-w-full border rounded lg:grid lg:grid-cols-3">
-                        <div className="border-r border-gray-300 lg:col-span-1">
+            <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-screen  max-h-screen rounded-xl min-h-screen transition-all duration-200">
+                <div className="container mx-auto h-full ">
+                    <div className="min-w-full border h-full rounded lg:grid lg:grid-cols-3">
+                        <div className="border-r h-screen overflow-y-auto no-scrollbar border-gray-300 lg:col-span-1">
                             <div className="mx-3 my-3">
                                 <div className="relative text-gray-600">
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -193,24 +231,44 @@ export const Messages = () => {
                                     <input type="search" value={searchKey} onChange={(e) => setSearchKey(e.target.value)} className="block w-full py-2 pl-10 bg-gray-100 rounded outline-none" name="search"
                                         placeholder="Search" required />
                                 </div>
-                                {searchKey && <div className=' w-full border-t relative z-10  '>
-                                    <ul className='absolute w-full bg-gray-600 rounded-lg'>
-                                        {suggestions.map((suggestion, index) => (
-                                            <li key={index}><Link onClick={() => { setSearchKey(''); setSuggestions([]) }} to={`/messages?userId=${suggestion._id}`}>  <div className='flex flex-row items-center gap-4'>
-                                                <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
-                                                    className='h-10 w-10 rounded-full object-cover' />
-                                                <span className='text-white'>{suggestion.username}</span>
-                                            </div></Link></li>
-                                        ))}
-                                    </ul>
-                                </div>}
+                                {
+
+                                    searchKey && isLoadingSearch ? <>
+                                        <div className=' w-full border-t relative z-10  '>
+                                            <ul className='absolute w-full my-2   '>
+                                                {Array.from({ length: 6 }).map((_, index) => (
+                                                    <li className='my-2 pt-2 pl-2 flex border rounded-lg bg-gray-400 flex-row items-center gap-4' >
+                                                        <ShimmerSearch />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </> : searchKey && <div className=' w-full border-t relative z-10  '>
+                                        <ul className='absolute w-full  bg-gray-600 rounded-lg'>
+                                            {suggestions.map((suggestion, index) => (
+                                                <li key={index}><Link onClick={() => { setSearchKey(''); setSuggestions([]) }} to={`/messages?userId=${suggestion._id}`}>  <div className='flex flex-row items-center gap-4'>
+                                                    <img src={suggestion.profile_pic ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                                                        className='h-10 w-10 rounded-full object-cover' />
+                                                    <span className='text-white'>{suggestion.username}</span>
+                                                </div></Link></li>
+                                            ))}
+                                        </ul>
+                                    </div>}
                             </div>
 
-                            <ul className="overflow-auto h-[32rem]">
+                            <ul className=" ">
                                 <h2 className="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
-                                <li>
-                                    {chatUser?.map((user, index) => {
-                                        console.log(user, 'uuuuuuuuuuser', userDetail);
+
+                                {isLoading ? <>
+                                    {Array.from({ length: 20 }).map((_, index) => (
+                                        <li key={index}>
+                                            <ShimmerMessage />
+                                        </li>
+                                    ))}
+                                </> :
+
+                                    chatUser?.map((user, index) => {
+                                        console.log(user, 'uuuuuuuuuuser',);
 
                                         const recipientId = user?.memberDetails[0]._id === userDetail._id ? user?.memberDetails[1]._id : user?.memberDetails[0]._id
                                         console.log(messageInd, 'message');
@@ -222,39 +280,49 @@ export const Messages = () => {
                                         }
                                         console.log(count, result, 'count');
 
-                                        return (
+                                        setInterval(() => {
+                                            socket.emit('onlineStatusCheck', { userId: recipientId, socketId: socket.id })
+                                        }, 10 * 1000)
+                                        let checkDeleteMessage = false
+                                        if (user.delete_user_id) {
 
-                                            <a onClick={() => handleClick(index, user)}
-                                                className={`flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer  ${indexUser == index ? 'bg-gray-100' : 'hover:bg-gray-100'} focus:outline-none`}>
-                                                <div className="relative flex items-center p-3  border-gray-300">
-                                                    <img className="object-cover w-10 h-10 rounded-full"
-                                                        src={user.memberDetails[0].username === userDetail.username
-                                                            ? user.memberDetails[1].profile_pic
-                                                            : user.memberDetails[0].profile_pic} alt="username" />
-                                                    <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
-                                                    </span>
-                                                </div>
-                                                <div className="w-full pb-2">
-                                                    <div className="flex justify-between">
-                                                        <span className="block ml-2 font-semibold text-gray-600">
-                                                            {user.memberDetails[0].username === userDetail.username
-                                                                ? user.memberDetails[1].username
-                                                                : user.memberDetails[0].username}
-                                                        </span>
-                                                        <span className="block ml-2 text-sm text-gray-600">{timeAgo}</span>
-                                                    </div>
-                                                    <div className='relative'>
-                                                        <span className="block ml-2 text-sm text-gray-600">{lastMessage}</span>
-                                                        {count > 0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
-                                                            {count}
+                                            checkDeleteMessage = user.delete_user_id.some((userId) => userId == userDetail._id)
+                                        }
+                                        return !checkDeleteMessage && (
+                                            <li >
+                                                <a onClick={() => handleClick(index, user)}
+                                                    className={`flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer  ${indexUser == index ? 'bg-gray-100' : 'hover:bg-gray-100'} focus:outline-none`}>
+                                                    <div className="relative flex items-center p-3  border-gray-300">
+                                                        <img className="object-cover w-10 h-10 rounded-full"
+                                                            src={user.memberDetails[0].username === userDetail.username
+                                                                ? user.memberDetails[1].profile_pic
+                                                                : user.memberDetails[0].profile_pic} alt="username" />
+                                                        {user.status ? <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
+                                                        </span> : <span className="absolute w-3 h-3 bg-red-600 rounded-full left-10 top-3">
                                                         </span>}
                                                     </div>
-                                                </div>
-                                            </a>
+                                                    <div className="w-full pb-2">
+                                                        <div className="flex justify-between">
+                                                            <span className="block ml-2 font-semibold text-gray-600">
+                                                                {user.memberDetails[0].username === userDetail.username
+                                                                    ? user.memberDetails[1].username
+                                                                    : user.memberDetails[0].username}
+                                                            </span>
+                                                            <span className="block ml-2 text-sm text-gray-600">{timeAgo}</span>
+                                                        </div>
+                                                        <div className='relative'>
+                                                            <span className="block ml-2 text-sm text-gray-600">{lastMessage}</span>
+                                                            {count > 0 && <span className="inline-flex absolute  items-center justify-center   ml-2 text-[8px] text-white font-semibold   w-3 h-3 bg-rose-600 rounded-full left-4 top-0">
+                                                                {count}
+                                                            </span>}
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
                                         )
                                     })
-                                    }
-                                </li>
+                                }
+
                             </ul>
                         </div>
                         {chatUser.length > 0 && <ChatBox userData={userData} timeAgoCallBack={previousMessageTime} senderId={userDetail._id} setChat={setChatUser} />}
@@ -267,4 +335,4 @@ export const Messages = () => {
     )
 }
 
-export default Messages
+export default memo(Messages)

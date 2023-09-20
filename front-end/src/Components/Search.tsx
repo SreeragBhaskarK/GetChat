@@ -11,8 +11,8 @@ export const Search = ({ open, setOpen, username }) => {
     const [suggestions, setSuggestions] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     useEffect(() => {
+        setIsLoading(true)
         if (searchKey) {
-            setIsLoading(true)
             api.userSearch(searchKey, username).then((response) => {
                 setIsLoading(false)
                 console.log(response, 'search');
@@ -20,7 +20,6 @@ export const Search = ({ open, setOpen, username }) => {
                     setSuggestions(response.data.data)
                 }
             }).catch((err) => {
-                setIsLoading(false)
                 console.log(err);
 
             })
@@ -104,21 +103,16 @@ export const Search = ({ open, setOpen, username }) => {
                                                         </div>
                                                     </form>
                                                 </div>
-                                                {isLoading ? (<div className=' w-full  mt-3 border-t'>
+                                                {searchKey &&isLoading  ? <div className=' w-full  mt-3 border-t'>
                                                     <ul>
+                                                    {Array.from({ length: 20}).map((_, index) => (
+                                                    <li className='my-2 pt-2 pl-2 flex border rounded-lg bg-gray-400 flex-row items-center gap-4' >
                                                         <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
-                                                        <ShimmerSearch />
+                                                    </li>
+                                                ))}
                                                     </ul>
-                                                </div>) :
-                                                    (searchKey && <div className=' w-full mt-3 border-t'>
+                                                </div> :
+                                                    searchKey && <div className=' w-full mt-3 border-t'>
                                                         <ul>
                                                             {suggestions.map((suggestion, index) => (
                                                                 <li className='mb-3' key={index}><Link onClick={() => { setOpen(!open); setSearchKey(''); setSuggestions([]) }} to={`/${suggestion.username}`}>  <div className='flex flex-row items-center gap-4'>
@@ -128,7 +122,7 @@ export const Search = ({ open, setOpen, username }) => {
                                                                 </div></Link></li>
                                                             ))}
                                                         </ul>
-                                                    </div>)}
+                                                    </div>}
                                             </div>
                                         </div>
                                     </Dialog.Panel>

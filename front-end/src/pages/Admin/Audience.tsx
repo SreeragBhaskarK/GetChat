@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import api from '../../services/api'
 import { NavTopBar, NavSideBar, Footer } from '../../widgets/layout/admin';
 import { DeleteModal, EditAudienceAdmin } from '../../Components'
-
 export const Audience = () => {
   interface Audience {
     user_id: string;
@@ -34,22 +33,45 @@ export const Audience = () => {
     })
   }, [])
 
-  
+
 
   const handleDelete = (index) => {
     setDeleteModal(!deleteModal)
     setDeleteIndex(index)
   }
 
-  const handleEdit = (index)=>{
+  const handleEdit = (index) => {
     setEditProfile(!editProfile)
     setDeleteIndex(index)
+  }
+
+  const handleStatusChange = (e, userId) => {
+    const { value } = e.target
+    console.log(value, userId, '///////');
+    api.updateUserStatus({ userId: userId, status: value }).then((response) => {
+      console.log(response);
+
+      if (response.data.success) {
+        setAudiences((prevAudience) => prevAudience.map((user:any) => {
+          if (user.user_id == userId) {
+            return { ...user, status: value };
+          }
+          return user
+        }))
+      }
+
+    }).catch((err) => {
+      console.log(err);
+
+    })
+
+
   }
 
 
   return (
     <>
-     <NavSideBar/>
+      <NavSideBar />
       <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
         <NavTopBar navLocation='Audience' />
         <div className="w-full px-6 py-6 mx-auto">
@@ -75,10 +97,10 @@ export const Audience = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {audiences && audiences.map((audience:any, index) => {
+                        {audiences && audiences.map((audience: any, index) => {
 
                           return (
-                            <tr  key={index}>
+                            <tr key={index}>
                               <td className="px-6">
                                 {index + 1}
                               </td>
@@ -105,15 +127,30 @@ export const Audience = () => {
 
                               </td>
                               <td className="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <span className={audience?.status =='inactive'?'bg-gradient-to-tl  from-yellow-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white':"bg-gradient-to-tl  from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white"}>{audience?.status =='inactive'?'processing':'active' }</span>
+                                <span className={`bg-gradient-to-tl px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white ${audience.status === 'processing' ? 'from-yellow-600 to-lime-400' :
+                                  audience.status === 'active' ? 'from-green-600 to-lime-400' :
+                                    audience.status === 'block' ? 'from-red-600 to-lime-400' : ''
+                                  }`}>
+                                  {audience?.status}
+                                </span>
+
+
                               </td>
                               <td className="px-6 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                 <div className='flex justify-center'>
 
-                                  <a onClick={() => handleEdit(index) } className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Edit </a>
-                                  <a onClick={() => handleDelete(index)} className="text-xs mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
+                                  <a onClick={() => handleEdit(index)} className="text-xs flex items-center mx-2 font-semibold leading-tight text-slate-400"> Edit </a>
+                                  <a onClick={() => handleDelete(index)} className="text-xs flex items-center mx-2 font-semibold leading-tight text-slate-400"> Delete </a>
+                                  <div className="w-32 ml-5">
+                                    <select onChange={(e) => handleStatusChange(e, audience.user_id)} name='type' defaultValue={audience.status} className="block w-full px-4 py-2 mt-2  text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring">
+                                      <option className='text-red-500' value='block'>block</option>
+                                      <option className='text-green-500' value='active'>active</option>
+                                      <option className='text-yellow-500' value='processing'>processing</option>
+
+                                    </select>
+                                  </div>
                                 </div>
-                                {deleteModal && deleteIndex == index && <DeleteModal setItems={setAudiences} items={audiences} deleteItem={audience} deleteModal={deleteModal}  setDeleteModal={setDeleteModal} type={'user'} />}
+                                {deleteModal && deleteIndex == index && <DeleteModal setItems={setAudiences} items={audiences} deleteItem={audience} deleteModal={deleteModal} setDeleteModal={setDeleteModal} type={'user'} />}
                                 {editProfile && deleteIndex == index && < EditAudienceAdmin editProfile={editProfile} userData={audience} setEditProfile={setEditProfile} />}
 
                               </td>

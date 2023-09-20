@@ -15,6 +15,7 @@ export const Explore = () => {
     let page = 0
     useEffect(() => {
         console.log(userData, '////////');
+        setLoading(true);
         loadPost()
 
     }, [userData])
@@ -24,7 +25,7 @@ export const Explore = () => {
 
             if (page === 0) return page = 1
             if (!hasMore || loading) return;
-            setLoading(true);
+           
             const formData = {
                 page,
                 username: userData,
@@ -35,6 +36,7 @@ export const Explore = () => {
             
             if (response?.data.success) {
                 const newPosts = response.data.data;
+                setLoading(false);
                 if (newPosts.length === 0) {
                     setHasMore(false);
                 } else {

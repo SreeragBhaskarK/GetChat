@@ -49,8 +49,8 @@ const apiMethods = {
     getChats: (userId) => api.get(`/user/find-user-chat/${userId}`),
     changeSeen: (messageId) => api.post('/user/change-seen', messageId),
     getFollowData: (formData) => api.post('/user/get-follows', formData),
-    deleteMessage: (id) => api.delete(`/user/delete-message/${id}`),
-    deleteChat: (id) => api.delete(`/user/delete-chat/${id}`),
+    deleteMessage: (id,userId) => api.delete(`/user/delete-message/${id}/${userId}`),
+    deleteChat: (id,userId) => api.delete(`/user/delete-chat/${id}/${userId}`),
     getNotifications: (username) => api.get(`/user/notifications?username=${username}`),
     getAdvertisingUser:(type,page) => api.get(`/user/advertising?type=${type}&&page=${page}`),
     getGoogleUser:(username) => api.get(`/user/auth/google-get-user?username=${username}`),
@@ -74,6 +74,7 @@ const apiMethods = {
     deleteAdvertising: (id) => api.delete(`/admin/advertising/'${id}`,),
     getAdvertisingDashboard: (type, target) => api.get(`/admin/advertising-overview?type=${type}&&target=${target}`),
     getNotificationWeek: () => api.get('/admin/notifications-week'),
+    updateUserStatus:(formData)=> api.patch('/admin/audience-status',formData),
 
     /* posts */
 
@@ -86,7 +87,7 @@ const apiMethods = {
     postDelete: (id) => api.delete(`/post/delete-post?id=${id}`),
     getPost: (page, username) => api.get(`/post/post?page=${page}&&username=${username}`),
     addComment: (formData) => api.post('/post/comment', formData),
-    deleteComment: (formData) => api.delete('/post/delete-comment', formData),
+    deleteComment: (commentId) => api.delete(`/post/delete-comment/${commentId}`),
     editPost: (formData) => api.patch('/post/edit-post', formData),
     getComment: (postId) => api.get(`/post/comment?post_id=${postId}`)
 

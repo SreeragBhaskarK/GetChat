@@ -78,7 +78,7 @@ export const NavSideBar = () => {
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Posts</span>
                             </Link>
                         </li>
-                        <li className="mt-0.5 w-full">
+                      {/*   <li className="mt-0.5 w-full">
                             <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/analystics">
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
@@ -97,7 +97,7 @@ export const NavSideBar = () => {
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Analytics</span>
                             </Link>
-                        </li>
+                        </li> */}
                         <li className="mt-0.5 w-full">
                             <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/audience">
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
@@ -118,7 +118,7 @@ export const NavSideBar = () => {
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Audience</span>
                             </Link>
                         </li>
-                        <li className="mt-0.5 w-full">
+                       {/*  <li className="mt-0.5 w-full">
                             <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/messages">
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
@@ -137,7 +137,7 @@ export const NavSideBar = () => {
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Messages</span>
                             </Link>
-                        </li>
+                        </li> */}
                         <li className="mt-0.5 w-full">
                             <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/notifications">
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">

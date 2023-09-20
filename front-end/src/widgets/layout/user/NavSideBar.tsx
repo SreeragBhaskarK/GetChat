@@ -14,6 +14,8 @@ import webRTC from "../../../services/webRTC"
 import { toast } from "react-toastify"
 import { MdExplore, MdUploadFile } from "react-icons/md"
 import { IoMdNotifications } from 'react-icons/io'
+import { UploadPost } from "../../../Components/uploadPost"
+
 
 
 export const NavSideBar = () => {
@@ -299,7 +301,8 @@ export const NavSideBar = () => {
                 </div>
 
             </aside>
-            {<Uploader upload={uploader} setUpload={setUploader} />}
+            
+            {<UploadPost upload={uploader} setUpload={setUploader} />}
             <Search open={search} setOpen={setSearch} username={username} />
             {<Notifications open={notifications} setOpen={setNotifications} />}
         </>

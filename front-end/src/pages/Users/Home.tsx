@@ -16,15 +16,15 @@ export const Home = () => {
     useEffect(() => {
         console.log(userData, '////////');
         loadPost()
-
+        setLoading(true);
     }, [userData])
-    const loadPost = useCallback(async() => {
+    const loadPost = useCallback(async () => {
         try {
             console.log(page);
 
             if (page === 0) return page = 1
             if (!hasMore || loading) return;
-            setLoading(true);
+
             const formData = {
                 page,
                 username: userData.following,
@@ -35,7 +35,7 @@ export const Home = () => {
             if (response.data.success) {
                 const newPosts = response.data.data;
 
-
+                setLoading(false);
                 if (newPosts.length === 0) {
                     setHasMore(false);
                 } else {
@@ -46,12 +46,12 @@ export const Home = () => {
                         setPosts((prePost) => [...prePost, ...newPosts, ...ads.data.data]);
                         page += 1
                         console.log(page, '//////////////');
-                        setLoading(false);
+
                     } else {
                         setPosts((prePost) => [...prePost, ...newPosts]);
                         page += 1
                         console.log(page, '//////////////');
-                        setLoading(false);
+
                     }
 
                 }
@@ -87,7 +87,7 @@ export const Home = () => {
             /* setLoading(false); */
         };
 
-    },[])
+    }, [])
     const handleScroll = () => {
         const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
         if (scrollTop + clientHeight >= scrollHeight - 20) {

@@ -2,9 +2,9 @@ import React from 'react'
 import api from '../../services/api'
 
 
-export const DeleteChatBox = ({setDeleteChat,deleteChat,chatId,setChat}) => {
+export const DeleteChatBox = ({setDeleteChat,deleteChat,chatId,userId,setChat}) => {
     const handleDeleteChat = ()=>{
-        api.deleteChat(chatId).then((response)=>{
+        api.deleteChat(chatId,userId).then((response)=>{
             console.log(response);
             if(response.data.success){
                 setChat((prevChat)=>prevChat.filter((chat=>chat._id!=chatId)))

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { NavSideBar } from '../../widgets/layout/user'
 import { FollowList, ViewPost } from '../../Components'
 import { Link } from 'react-router-dom'
-import { HiSquares2X2 } from 'react-icons/hi2'
+import { LuLayoutDashboard } from 'react-icons/lu'
 import { useSelector, useDispatch } from 'react-redux'
 import api from '../../services/api'
 import { addUserData } from '../../redux/userSlice'
@@ -89,8 +89,8 @@ export const Profile = () => {
         setPostData(response.data.data)
       }
     }).catch((err) => {
-      console.log(err,'profile error');
-      
+      console.log(err, 'profile error');
+
       if (err.response.data.message) {
 
         toast.error(err.response.data.message, {
@@ -202,43 +202,17 @@ export const Profile = () => {
             </header>
             {follow && <FollowList follow={follow} setFollow={setFollow} userId={userData._id} user={true} type={type} />}
             <div className="px-px md:px-3">
-
-
-              <ul className="flex md:hidden justify-around space-x-8 border-t 
-          text-center p-2 text-gray-600 leading-snug text-sm">
-                <li>
-                  <span className="font-semibold text-gray-800 block">6</span>
-                  posts
-                </li>
-
-                <li>
-                  <span className="font-semibold text-gray-800 block">50.5k</span>
-                  followers
-                </li>
-                <li>
-                  <span className="font-semibold text-gray-800 block">10</span>
-                  following
-                </li>
-              </ul>
-              <br />
-              <br />
-
               <ul className="flex items-center justify-around md:justify-center space-x-12  
               uppercase tracking-widest font-semibold text-xs text-gray-600
               border-t">
 
                 <li className="md:border-t md:border-gray-700 md:-mt-px md:text-gray-700">
-                  <a className="inline-block p-3" href="#">
-                    <HiSquares2X2 className='text-xl w-fit md:text-xs' />
+                  <a className=" p-3 flex " >
+                    <LuLayoutDashboard className='text-xl mr-2 h-full w-fit md:text-xs' />
                     <span className="hidden md:inline">post</span>
                   </a>
                 </li>
-                <li>
-                  <a className="inline-block p-3" href="#">
-                    <i className="far fa-square text-xl md:text-xs"></i>
-                    <span className="hidden md:inline">videos</span>
-                  </a>
-                </li>
+
                 <li>
                   <a className="inline-block p-3" href="#">
                     <i className="fas fa-user border border-gray-500
@@ -251,12 +225,11 @@ export const Profile = () => {
               <div className="flex flex-wrap -mx-px md:-mx-3">
 
                 {isLoading ? (<>
-                  <ShimmerProfilePost />
-                  <ShimmerProfilePost />
-                  <ShimmerProfilePost />
-                  <ShimmerProfilePost />
-                  <ShimmerProfilePost />
-                  <ShimmerProfilePost />
+                  {Array.from({ length: 6 }).map((_, index) => (
+
+                    <ShimmerProfilePost />
+
+                  ))}
                 </>) : (postData.map((post, index) => {
                   return (
                     <div key={index} className="w-1/3 p-px md:px-3">
