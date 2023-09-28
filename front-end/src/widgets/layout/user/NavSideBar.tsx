@@ -30,6 +30,7 @@ export const NavSideBar = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const [selectedItem, setSelectedItem] = useState(location.pathname.split('/').pop())
+  
     useEffect(() => {
         console.log(location.pathname.split('/').pop(), '////////');
         const routename = location.pathname.split('/').pop()
@@ -79,7 +80,7 @@ export const NavSideBar = () => {
             console.log(data, '//////messagingHome//////');
             if (data != '') {
                 console.log(data);
-                dispatch(increaseMessageCount(data.senderId))
+                dispatch(increaseMessageCount({recipientId:data.senderId,message:data}))
 
             }
         })
@@ -124,11 +125,12 @@ export const NavSideBar = () => {
 
     }, [videoCall.join])
 
+ 
 
 
     return (
         <>
-            <aside className="max-w-62.5 ease-nav-brand z-990 fixed  inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-soft-xl transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
+            <aside className="max-w-62.5 ease-nav-brand z-990 fixed overflow-auto no-scrollbar inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-soft-xl transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
                 <div className="h-19.5">
                     <i className="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden" sidenav-close></i>
                     <a className="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700" href="javascript:;" target="_blank">
@@ -301,7 +303,7 @@ export const NavSideBar = () => {
                 </div>
 
             </aside>
-            
+
             {<UploadPost upload={uploader} setUpload={setUploader} />}
             <Search open={search} setOpen={setSearch} username={username} />
             {<Notifications open={notifications} setOpen={setNotifications} />}

@@ -4,11 +4,14 @@ interface MessageCount {
     messages_count: {
         recipientId: string
         count: number
+        message:{}
     }[]
+    notification_indication: boolean
 
 }
 const initialState: MessageCount = {
-    messages_count: []
+    messages_count: [],
+    notification_indication: false
 }
 
 const messageSlice = createSlice({
@@ -18,13 +21,14 @@ const messageSlice = createSlice({
         increaseMessageCount(state, actions) {
             console.log(actions.payload, '///////in');
 
-            const result = state.messages_count.findIndex((message) => message.recipientId == actions.payload)
+            const result = state.messages_count.findIndex((message) => message.recipientId == actions.payload.recipientId)
             console.log(result);
 
             if (result != -1) {
                 state.messages_count[result].count += 1
+                state.messages_count[result].message =actions.payload.message
             } else {
-                state.messages_count.push({ recipientId: actions.payload, count: 1 })
+                state.messages_count.push({ recipientId: actions.payload.recipientId, count: 1,message:actions.payload.message })
             }
 
         },
@@ -34,10 +38,18 @@ const messageSlice = createSlice({
 
             if (result != -1) {
                 state.messages_count[result].count = 0
+          /*       state.messages_count[result].message=actions.payload.message */
             }
+        },
+        addNotification(state, actions) {
+            state.notification_indication = true
+        },
+        watchNotification(state, actions) {
+            state.notification_indication = actions.payload
         }
+
     }
 })
 
-export const { increaseMessageCount, decreamentMessageCount } = messageSlice.actions
+export const { increaseMessageCount, decreamentMessageCount,addNotification,watchNotification } = messageSlice.actions
 export default messageSlice.reducer

@@ -6,7 +6,9 @@ import api from '../services/api'
 import { useDispatch, useSelector } from 'react-redux'
 import { addUserData } from '../redux/userSlice'
 import { ShimmerNotificationFollow } from '../widgets/shimmerEffects'
-
+import { isToday, isThisWeek, isThisMonth, parseISO } from 'date-fns';
+import { watchNotification } from '../redux/messageSlice'
+import { MdDelete } from 'react-icons/md'
 
 
 export const Notifications = ({ open, setOpen }) => {
@@ -15,6 +17,7 @@ export const Notifications = ({ open, setOpen }) => {
     const dispatch = useDispatch()
     const [isLoading, setIsLoading] = useState(false)
     useEffect(() => {
+        dispatch(watchNotification(false))
         if (open) {
             console.log(open, 'open,;');
 
@@ -66,6 +69,22 @@ export const Notifications = ({ open, setOpen }) => {
 
             if (response.data.success) {
                 dispatch(addUserData(response.data.data))
+            }
+
+        }).catch((err) => {
+            console.log(err);
+
+        })
+    }
+
+    const deleteNotification = (id) => {
+        console.log(id, 'deleted');
+
+        api.deleteNotification(id, userData.username).then((response) => {
+            console.log(response);
+
+            if (response.data.success) {
+                setNotifications((prevNotification) => prevNotification.filter((noti) => noti.notification_id != id))
             }
 
         }).catch((err) => {
@@ -138,56 +157,75 @@ export const Notifications = ({ open, setOpen }) => {
                                                 ))}
                                             </>) : (notifications.map((notification, index) => {
                                                 const result = userData.following.some((username) => username == notification.sender_username)
-                                                let notificationDate: string
-                                                // date 
-                                                const date = new Date(notification.createdAt);
-                                                const today = new Date();
-                                                const yesterday = new Date(today);
-                                                yesterday.setDate(today.getDate() - 1);
 
-                                                if (date.toDateString() === today.toDateString()) {
-                                                    notificationDate = 'today';
-                                                } else if (date.toDateString() === yesterday.toDateString()) {
-                                                    notificationDate = 'yesterday';
-                                                } else if (date >= today) {
-                                                    notificationDate = 'today';
-                                                } else if (date >= yesterday) {
-                                                    notificationDate = 'yesterday';
-                                                } else if (date >= new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6)) {
-                                                    notificationDate = 'this week';
-                                                } else if (
-                                                    date.getMonth() === today.getMonth() &&
-                                                    date.getFullYear() === today.getFullYear()
-                                                ) {
-                                                    notificationDate = 'this month';
+
+
+                                                const dateStringToCheck = notification.createdAt
+
+                                                const dateToCheck = parseISO(dateStringToCheck);
+
+
+                                                // Categorize the date
+                                                let day = ''
+                                                if (isToday(dateToCheck)) {
+                                                    day = 'This day'
+                                                } else if (isThisWeek(dateToCheck)) {
+                                                    day = 'This week'
+                                                } else if (isThisMonth(dateToCheck)) {
+                                                    day = 'This month'
                                                 } else {
-                                                    notificationDate = 'day ago';
+                                                    console.log("Other")
+                                                }
+                                                let preDay = ''
+
+                                                if (index > 0) {
+
+                                                    const dateStringToCheck = notifications[index - 1].createdAt
+
+                                                    const dateToCheck = parseISO(dateStringToCheck);
+
+                                                    if (isToday(dateToCheck)) {
+                                                        preDay = 'This day'
+                                                    } else if (isThisWeek(dateToCheck)) {
+                                                        preDay = 'This week'
+                                                    } else if (isThisMonth(dateToCheck)) {
+                                                        preDay = 'This month'
+                                                    } else {
+                                                        console.log("Other")
+                                                    }
+
                                                 }
 
+                                                let checkDeleteMessage = false
+                                                if (notification.delete_username) {
+
+                                                    checkDeleteMessage = notification.delete_username.some((username) => username == userData.username)
+                                                }
                                                 return (
+                                                    <>
+                                                        {day != preDay && <span>{day}</span>}
+                                                        {!checkDeleteMessage && <div key={index} className='flex flex-row items-center group overflow-hidden m-4 '>
+                                                            <div onClick={() => deleteNotification(notification.notification_id)} className='cursor-pointer opacity-0 group-hover:opacity-100 '> <MdDelete /></div>
+                                                            <div className=' gap-4'>
+                                                                <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
+                                                                    className='h-10 w-10 rounded-full object-cover' />
+                                                            </div>
+                                                            {notification.type == 'follow' ? (<div className='gap-4 ml-2 flex text-ellipsis'>
+                                                                <span>{notification.sender_username}</span>
+                                                                <span>{notification.message}</span>
+                                                            </div>) : (<div className='gap-4 ml-2 flex text-ellipsis'>
 
-                                                    <div key={index} className='flex flex-row items-center overflow-hidden m-4 '>
-                                                        <span>{notificationDate}</span>
-                                                        <div className=' gap-4'>
-                                                            <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGLUCPistBn0PJFcVDwyhZHnyKEzMasUu2kf8EQSDN&s'}
-                                                                className='h-10 w-10 rounded-full object-cover' />
-                                                        </div>
-                                                        {notification.type == 'follow' ? (<div className='gap-4 ml-2 flex text-ellipsis'>
-                                                            <span>{notification.sender_username}</span>
-                                                            <span>{notification.message}</span>
-                                                        </div>) : (<div className='gap-4 ml-2 flex text-ellipsis'>
+                                                                <span className={notification.type == 'warning' ? 'text-yellow-500' : '' && notification.type == 'success' ? 'text-green-500' : '' && notification.type == 'danger' ? 'text-red-500' : ''}>{notification.message}</span>
+                                                            </div>)}
+                                                            {notification.type == 'follow' && <div className='gap-4 '>
+                                                                {
 
-                                                            <span className={notification.type == 'warning' ? 'text-yellow-500' : '' && notification.type == 'success' ? 'text-green-500' : '' && notification.type == 'danger' ? 'text-red-500' : ''}>{notification.message}</span>
-                                                        </div>)}
-                                                        {notification.type == 'follow' && <div className='gap-4 '>
-                                                            {
+                                                                    result ? (<button onClick={() => unfollow(notification.sender_username)} className="bg-slate-100 px-2 py-1  text-black font-semibold text-sm rounded  text-center sm:inline-block block">following</button>) : (<button onClick={() => follow(notification.sender_username, notification.senderId)} className="bg-blue-500 px-2 py-1  text-white font-semibold text-sm rounded  text-center sm:inline-block block">follow</button>)}
+                                                            </div>}
 
-                                                                result ? (<button onClick={() => unfollow(notification.sender_username)} className="bg-slate-100 px-2 py-1  text-black font-semibold text-sm rounded  text-center sm:inline-block block">following</button>) : (<button onClick={() => follow(notification.sender_username, notification.senderId)} className="bg-blue-500 px-2 py-1  text-white font-semibold text-sm rounded  text-center sm:inline-block block">follow</button>)}
                                                         </div>}
 
-                                                    </div>
-
-
+                                                    </>
                                                 )
                                             })
                                             )}

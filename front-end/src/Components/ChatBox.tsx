@@ -1,20 +1,24 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import api from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { MdDelete } from 'react-icons/md'
 import { AiFillInfoCircle } from 'react-icons/ai'
 import { DeleteChatBox } from '../widgets/cards';
-import { BsCameraVideo } from 'react-icons/bs'
+import { BsCameraVideo, BsFillPauseFill, BsFillPlayFill } from 'react-icons/bs'
 
 import { messagesIndication } from '../redux/userSlice';
 import { socket } from '../services/socketIo';
 import { decreamentMessageCount, increaseMessageCount } from '../redux/messageSlice';
 import { useNavigate } from 'react-router-dom';
 import { addCallUser, addVideoCall } from '../redux/callSlice';
+import { CaptureAudio } from '.';
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
+/* import 'emoji-mart/css/emoji-mart.css'; */
 
 
-export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
+export const ChatBox = ({ userData, senderId, setChat }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([])
     /*  const [listen, setListen] = useState(false) */
@@ -23,7 +27,11 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
     const navigate = useNavigate()
     const [incommingCall, setIncommingCall] = useState({ senderId: '' })
     const videoCall = useSelector((state: any) => state.video_call.videoCall)
+    const [recordAudio, setRecordAudio] = useState(false)
+    const fileInputRef = useRef(null);
     const recipientId = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1]._id : userData?.memberDetails[0]._id
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [play, setPlay] = useState({status:false,index:-1})
     const sendMessage = (e) => {
         e.preventDefault()
         if (message.trim() !== '') {
@@ -84,19 +92,13 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
 
     }, [userData])
 
-    useEffect(() => {
-        /* console.log(messages[messages.length-1]?.updatedAt,'/agoo'); */
-
-        timeAgoCallBack(messages[messages.length - 1])
-
-    }, [messages])
 
     useEffect(() => {
 
         const recipientId = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1]._id : userData?.memberDetails[0]._id
         socket.on('private_message', (data) => {
 
-            dispatch(increaseMessageCount(data?.senderId))
+            dispatch(increaseMessageCount({ recipientId: data?.senderId, message: data }))
             if (data != '' && recipientId == data.senderId) {
                 setMessages((prevMessages) => [...prevMessages, data]);
             }
@@ -174,6 +176,42 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
 
     }, [])
 
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+
+
+    const handleEmojiSelect = (emoji) => {
+        setMessage(message + emoji.native);
+        setShowEmojiPicker(false);
+    };
+
+    const handleIconClick = () => {
+        // Trigger the file input when the icon is clicked
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            // Display the selected image as a preview
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result);
+            };
+            reader.readAsDataURL(selectedFile);
+        }
+    };
+
+    const playAudio = (index) => {
+        setPlay({index,status:true})
+    }
+    const stopAudio = (index) => {
+        setPlay({index,status:false})
+
+    }
+
     return (
         <>
             <div className="hidden lg:col-span-2 lg:block h-screen">
@@ -191,7 +229,7 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
                         <AiFillInfoCircle onClick={() => setDeleteChat(!deleteChat)} className='ml-auto w-fit' />
                     </div>
                     {deleteChat && <DeleteChatBox setDeleteChat={setDeleteChat} userId={senderId} chatId={userData._id} deleteChat={deleteChat} setChat={setChat} />}
-                    <div className="relative w-full flex-grow  p-6 overflow-y-auto">
+                    <div className="relative w-full flex-grow  p-6 no-scrollbar overflow-y-auto">
                         <ul className="space-y-2">
                             {messages.map((messageContent, index) => {
 
@@ -202,7 +240,7 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
                                         if (response.data.success) {
                                             let prevMessage = messages
                                             prevMessage[index] = response.data.data
-                                            socket.emit('message_seen', response.data.data)
+                                            //  socket.emit('message_seen', response.data.data)
                                             setMessages(prevMessage)
                                         }
 
@@ -237,8 +275,15 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
                                             <div className='group flex'>
 
                                                 {messageContent?.senderId === senderId && < div onClick={() => messageDelete(messageContent?._id, senderId)} className='cursor-pointer opacity-0 flex items-center mr-2 group-hover:opacity-100'> <MdDelete /></div>}
-                                                <div className="relative cursor-pointer max-w-xl px-4 py-2  text-gray-700 rounded shadow ">
+                                                {/* <div className="relative cursor-pointer max-w-xl px-4 py-2  text-gray-700 rounded shadow ">
                                                     <span className="block">{messageContent?.content}</span>
+                                                </div> */}
+                                                <div className="relative cursor-pointer w-64 h-16 max-w-xl px-4 py-2 bg-[#ECF3FF]  text-gray-700 rounded-2xl shadow ">
+                                                    <div className={`flex items-center h-full ${play.index == index && 'animate-pulse'}`}>
+
+                                                        {!play.status || play.index!=index ? <BsFillPlayFill onClick={() => playAudio(index)} className='bg-white rounded-full w-6 h-6' /> : play.index===index && <BsFillPauseFill onClick={() => stopAudio(index)} className=' bg-white rounded-full w-6 h-6' />}
+                                                        <div className=' w-12 h-6 m-2 ml-auto text-black bg-white rounded-2xl  '><span className='flex h-full justify-center items-center font-semibold text-xs'>0:00</span></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </li>
@@ -248,43 +293,65 @@ export const ChatBox = ({ userData, senderId, setChat, timeAgoCallBack }) => {
                         </ul>
                         {messages[messages.length - 1]?.senderId === senderId && messages[messages.length - 1]?.seen == true && <span className="block mt-2 text-sm float-right">seen</span>}
                     </div>
-                    <div className='h-16'>
-                        <form onSubmit={sendMessage}>
-                            <div className="flex items-center justify-between w-full p-3 border-t border-gray-300">
-                                <button>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </button>
-                                <button>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                    </svg>
-                                </button>
+                    {showEmojiPicker && (
+                        <div className="emoji-picker absolute">
+                            <Picker data={data} onEmojiSelect={(res) => setMessage((prev) => prev + res.native)} />
+                        </div>
+                    )}
+                    <div className=''>
 
-                                <input type="text" placeholder="Message"
-                                    className="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
-                                    name="message" value={message} onChange={(e) => setMessage(e.target.value)} required />
-                                <button>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                    </svg>
-                                </button>
-                                <button type="submit">
-                                    <svg className="w-5 h-5 text-gray-500 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path
-                                            d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                                    </svg>
-                                </button>
+                        {!recordAudio ? <form onSubmit={sendMessage}>
+                            <div className=" items-center justify-between w-full p-3 border-t border-gray-300">
+                                {selectedImage && <img src={selectedImage} className='h-12 rounded-xl m-3' />}
+                                <div className='flex'>
+
+
+                                    <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} className='cursor-pointer flex items-center'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div className='cursor-pointer flex items-center' onClick={handleIconClick}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*" // Specify the file types you want to accept (e.g., images)
+                                        style={{ display: 'none' }}
+                                        ref={fileInputRef}
+                                        onChange={handleFileChange}
+                                    />
+
+                                    <input type="text" placeholder="Message"
+                                        className="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
+                                        name="message" value={message} onChange={(e) => setMessage(e.target.value)} required />
+                                    <div onClick={() => setRecordAudio(!recordAudio)} className='cursor-pointer flex items-center'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                    </div>
+                                    <button type="submit">
+                                        <svg className="w-5 h-5 text-gray-500 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20" fill="currentColor">
+                                            <path
+                                                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </form>
+                            : <CaptureAudio userData={userData} senderId={senderId} recordAudio={recordAudio} setRecordAudio={setRecordAudio} />}
+
+
+
                     </div>
                 </div >
             </div >

@@ -47,6 +47,7 @@ export const FollowList = ({ setFollow, follow, userId, type, user }) => {
             console.log(response, 'uno');
 
             if (response.data.success) {
+                setFollowData((prevFollow)=>prevFollow.filter((user)=>user.username!=username))
                 dispatch(addUserData(response.data.data))
 
             }
@@ -61,6 +62,7 @@ export const FollowList = ({ setFollow, follow, userId, type, user }) => {
         api.removeFollow({ followersUsername: followerUser, followingUsername: userData.username }).then((response) => {
             console.log(response);
             if (response.data.success) {
+                setFollowData((prevFollow)=>prevFollow.filter((user)=>user.username!=followerUser))
                 dispatch(addUserData(response.data.data))
             }
 

@@ -13,5 +13,6 @@ export * from './Notifications'
 export * from './CallScreen'
 export * from './AddAdvertising'
 export * from './EditAdvertising'
+export * from './CaptureAudio'
 
 

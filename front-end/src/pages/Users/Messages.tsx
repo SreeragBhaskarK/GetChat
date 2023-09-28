@@ -24,13 +24,13 @@ export const Messages = () => {
     const paramValue = searchParams.get('userId');
     console.log(paramValue, '////////////jshjdhf');
 
-    const [timeAgo, setTimeAgo] = useState('')
-    const [lastMessage, setLastMessage] = useState('')
 
-    const messageCount = useState(useSelector((state: any) => state.message.messages_count))
-    const [messageInd, setMessageInd] = useState(messageCount[0])
+
+
+    const [messageInd, setMessageInd] = useState(useSelector((state: any) => state.message.messages_count))
     const [searchKey, setSearchKey] = useState('')
     const [suggestions, setSuggestions] = useState([])
+
     const handleClick = (index, user) => {
         console.log(user, 'userrrrrrrrrr🔥🔥🔥🔥');
 
@@ -39,17 +39,19 @@ export const Messages = () => {
     }
 
     useEffect(() => {
-        setisLoadingSearch(true)
-        api.userSearch(searchKey, userDetail.username).then((response) => {
-            console.log(response, 'search');
-            if (response.data.success) {
-                setisLoadingSearch(false)
-                setSuggestions(response.data.data)
-            }
-        }).catch((err) => {
-            console.log(err);
+        if (searchKey && userDetail) {
+            setisLoadingSearch(true)
+            api.userSearch(searchKey, userDetail.username).then((response) => {
+                console.log(response, 'search');
+                if (response.data.success) {
+                    setisLoadingSearch(false)
+                    setSuggestions(response.data.data)
+                }
+            }).catch((err) => {
+                console.log(err);
 
-        })
+            })
+        }
 
     }, [searchKey, userDetail])
 
@@ -58,9 +60,11 @@ export const Messages = () => {
 
     }, [socket])
 
-    useEffect(() => {
+    /* useEffect(() => {
+        console.log('chaindfgkndat');
+
         setMessageInd(messageCount[0])
-    }, [messageCount])
+    }, [messageCount]) */
     useEffect(() => {
         setIsLoading(true)
         if (paramValue) {
@@ -188,26 +192,28 @@ export const Messages = () => {
             })
         );
     }, []);
-    const previousMessageTime = useCallback((data) => {
-        if (data) {
-            console.log(data, '/callback');
-            if (data?.updatedAt && data.senderId != userDetail._id) {
-
-                const parsedTimestamp = new Date(data?.updatedAt);
-                const ago = formatDistanceToNow(parsedTimestamp, { addSuffix: true });
-                setTimeAgo(ago)
-            } else {
-                setTimeAgo('')
+    /*     const previousMessageTime = useCallback((data) => {
+            if (data) {
+                console.log(data, '/callback');
+                if (data?.updatedAt && data.senderId != userDetail._id) {
+    
+                    const parsedTimestamp = new Date(data?.updatedAt);
+                    const ago = formatDistanceToNow(parsedTimestamp, { addSuffix: true });
+                    setTimeAgo(ago)
+                } else {
+                    setTimeAgo('')
+                }
+                if (data.content && data.senderId != userDetail._id) {
+    
+                    setLastMessage(data?.content)
+                } else {
+                    setLastMessage('')
+                }
             }
-            if (data.content && data.senderId != userDetail._id) {
+    
+        }, []) */
 
-                setLastMessage(data?.content)
-            } else {
-                setLastMessage('')
-            }
-        }
 
-    }, [])
 
 
 
@@ -216,7 +222,7 @@ export const Messages = () => {
         <>
 
             <NavSideBar />
-            <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-screen  max-h-screen rounded-xl min-h-screen transition-all duration-200">
+            <main className="ease-soft-in-out xl:ml-68.5  relative h-screen  max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className="container mx-auto h-full ">
                     <div className="min-w-full border h-full rounded lg:grid lg:grid-cols-3">
                         <div className="border-r h-screen overflow-y-auto no-scrollbar border-gray-300 lg:col-span-1">
@@ -273,20 +279,59 @@ export const Messages = () => {
                                         const recipientId = user?.memberDetails[0]._id === userDetail._id ? user?.memberDetails[1]._id : user?.memberDetails[0]._id
                                         console.log(messageInd, 'message');
 
-                                        const result = messageInd?.findIndex((message) => message.recipientId == recipientId)
+                                        const result = messageInd?.findIndex((message) => message?.recipientId == recipientId)
                                         let count = 0
                                         if (result != -1) {
                                             count = messageInd[result]?.count
                                         }
                                         console.log(count, result, 'count');
 
-                                        setInterval(() => {
-                                            socket.emit('onlineStatusCheck', { userId: recipientId, socketId: socket.id })
-                                        }, 10 * 1000)
+                                        /*  setInterval(() => {
+                                               socket.emit('onlineStatusCheck', { userId: recipientId, socketId: socket.id })
+                                           }, 10 * 1000) */
+
                                         let checkDeleteMessage = false
                                         if (user.delete_user_id) {
 
                                             checkDeleteMessage = user.delete_user_id.some((userId) => userId == userDetail._id)
+                                        }
+                                        let timeAgo = ''
+                                        let lastMessage = ''
+
+
+                                        if (messageInd || user.lastMessage) {
+
+
+
+                                            if (messageInd) {
+                                                const findIndex = messageInd.findIndex((message) => message.recipientId == recipientId)
+                                                console.log(messageInd[findIndex], '/callback', findIndex);
+                                                if (messageInd[findIndex]?.message?.updatedAt && messageInd[findIndex]?.message?.senderId != userDetail?._id) {
+                                                    if (messageInd[findIndex]?.message?.updatedAt > user.last_message.updatedAt) {
+
+                                                        const parsedTimestamp = new Date(messageInd[findIndex]?.message?.updatedAt);
+                                                        const ago = formatDistanceToNow(parsedTimestamp, { addSuffix: true });
+                                                        timeAgo = ago
+
+                                                        lastMessage = messageInd[findIndex]?.message?.content
+
+                                                    } else {
+                                                        if (userDetail._id !== user.last_message.senderId) {
+                                                            const parsedTimestamp = new Date(user?.last_message?.updatedAt);
+                                                            const ago = formatDistanceToNow(parsedTimestamp, { addSuffix: true });
+                                                            timeAgo = ago
+                                                            lastMessage = user?.last_message?.content
+                                                        }
+
+                                                    }
+                                                }
+
+                                            }
+
+
+
+
+
                                         }
                                         return !checkDeleteMessage && (
                                             <li >
@@ -325,7 +370,7 @@ export const Messages = () => {
 
                             </ul>
                         </div>
-                        {chatUser.length > 0 && <ChatBox userData={userData} timeAgoCallBack={previousMessageTime} senderId={userDetail._id} setChat={setChatUser} />}
+                        {chatUser.length > 0 && <ChatBox userData={userData} senderId={userDetail._id} setChat={setChatUser} />}
                     </div>
                     {/*  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
                     <button onClick={sendMessage}>Send</button> */}

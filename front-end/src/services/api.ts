@@ -54,6 +54,8 @@ const apiMethods = {
     getNotifications: (username) => api.get(`/user/notifications?username=${username}`),
     getAdvertisingUser:(type,page) => api.get(`/user/advertising?type=${type}&&page=${page}`),
     getGoogleUser:(username) => api.get(`/user/auth/google-get-user?username=${username}`),
+    deleteNotification:(id,username)=>api.delete(`/user/notifications?id=${id}&&username=${username}`),
+    getSuggestion:(username)=>api.get(`/user/suggestion?username=${username}`),
 
     /* admin */
     logoutAdmin: () => api.delete('/admin/logout'),

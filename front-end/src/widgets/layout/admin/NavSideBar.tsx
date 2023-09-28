@@ -4,9 +4,11 @@ import { loginCheckAdmin } from "../../../redux/adminSlice"
 import { useDispatch } from "react-redux"
 import api from "../../../services/api"
 import { CgDetailsMore } from 'react-icons/cg'
+
 export const NavSideBar = () => {
     const [more, setMore] = useState(false)
     const dispatch = useDispatch()
+    const [selectedItem, setSelectedItem] = useState(location.pathname.split('/').pop())
     const logout = () => {
         api.logoutAdmin().then((response) => {
             
@@ -32,8 +34,8 @@ export const NavSideBar = () => {
                 <div className="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
                     <ul className="flex flex-col pl-0 mb-0">
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors" to="/admin">
-                                <div className="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                            <Link className={ ` ${selectedItem=='admin' &&'shadow-soft-xl'} py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors`} to="/admin">
+                                <div className={`${selectedItem=='admin' &&'bg-gradient-to-tl from-purple-700 to-pink-500'} shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5`}>
                                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Dashboard</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -59,8 +61,8 @@ export const NavSideBar = () => {
                         </li>
 
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/posts">
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                            <Link className={ ` ${selectedItem=='posts' &&'shadow-soft-xl'} py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors`} to="/admin/posts">
+                                <div className={`${selectedItem=='posts' &&'bg-gradient-to-tl from-purple-700 to-pink-500'} shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5`}>
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Posts</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -99,8 +101,8 @@ export const NavSideBar = () => {
                             </Link>
                         </li> */}
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/audience">
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                            <Link className={ ` ${selectedItem=='audience' &&'shadow-soft-xl'} py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors`} to="/admin/audience">
+                                <div className={`${selectedItem=='audience' &&'bg-gradient-to-tl from-purple-700 to-pink-500'} shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5`}>
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Audience</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -139,8 +141,8 @@ export const NavSideBar = () => {
                             </Link>
                         </li> */}
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/notifications">
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                            <Link className={ ` ${selectedItem=='notifications' &&'shadow-soft-xl'} py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors`} to="/admin/notifications">
+                                <div className={`${selectedItem=='notifications' &&'bg-gradient-to-tl from-purple-700 to-pink-500'} shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5`}>
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Notifications</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -159,8 +161,8 @@ export const NavSideBar = () => {
                             </Link>
                         </li>
                         <li className="mt-0.5 w-full">
-                            <Link className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" to="/admin/advertising">
-                                <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                            <Link className={ ` ${selectedItem=='advertising' &&'shadow-soft-xl'} py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors`} to="/admin/advertising">
+                                <div className={`${selectedItem=='advertising' &&'bg-gradient-to-tl from-purple-700 to-pink-500'} shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5`}>
                                     <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Advertising</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -183,7 +185,7 @@ export const NavSideBar = () => {
                             <a onClick={() => setMore(!more)} className="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" >
                                 <div className="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                                     <CgDetailsMore>
-                                        <title>Audience</title>
+                                        <title>More</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                             <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
                                                 <g transform="translate(1716.000000, 291.000000)">
@@ -205,13 +207,7 @@ export const NavSideBar = () => {
 
                             <div className="z-10 ml-auto cursor-pointer  bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
 
-                                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformationButton">
-
-                                    <li>
-                                        <Link to={'/settings'} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</Link>
-                                    </li>
-
-                                </ul>
+                              
                                 <div className="py-2">
                                     <a onClick={logout} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
                                 </div>

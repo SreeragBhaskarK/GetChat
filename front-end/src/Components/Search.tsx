@@ -13,6 +13,8 @@ export const Search = ({ open, setOpen, username }) => {
     useEffect(() => {
         setIsLoading(true)
         if (searchKey) {
+          
+            
             api.userSearch(searchKey, username).then((response) => {
                 setIsLoading(false)
                 console.log(response, 'search');
@@ -29,7 +31,19 @@ export const Search = ({ open, setOpen, username }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        if (searchKey) {
 
+            api.userSearch(searchKey, username).then((response) => {
+                setIsLoading(false)
+                console.log(response, 'search');
+                if (response.data.success) {
+                    setSuggestions(response.data.data)
+                }
+            }).catch((err) => {
+                console.log(err);
+
+            })
+        }
     }
 
     return (
@@ -90,7 +104,7 @@ export const Search = ({ open, setOpen, username }) => {
                                             </div>
                                             <div className="relative mt-6 flex-1 px-4 sm:px-6">
                                                 <div>
-                                                    <form onClick={handleSubmit}>
+                                                    <form onSubmit={handleSubmit}>
                                                         <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
                                                         <div className="relative">
                                                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -103,13 +117,13 @@ export const Search = ({ open, setOpen, username }) => {
                                                         </div>
                                                     </form>
                                                 </div>
-                                                {searchKey &&isLoading  ? <div className=' w-full  mt-3 border-t'>
+                                                {searchKey && isLoading ? <div className=' w-full  mt-3 border-t'>
                                                     <ul>
-                                                    {Array.from({ length: 20}).map((_, index) => (
-                                                    <li className='my-2 pt-2 pl-2 flex border rounded-lg bg-gray-400 flex-row items-center gap-4' >
-                                                        <ShimmerSearch />
-                                                    </li>
-                                                ))}
+                                                        {Array.from({ length: 20 }).map((_, index) => (
+                                                            <li className='my-2 pt-2 pl-2 flex border rounded-lg bg-gray-400 flex-row items-center gap-4' >
+                                                                <ShimmerSearch />
+                                                            </li>
+                                                        ))}
                                                     </ul>
                                                 </div> :
                                                     searchKey && <div className=' w-full mt-3 border-t'>

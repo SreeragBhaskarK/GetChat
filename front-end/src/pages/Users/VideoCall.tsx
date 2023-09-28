@@ -132,6 +132,31 @@ export const VideoCall = () => {
 
     }
 
+    useEffect(() => {
+        console.log('reconnected',videoCallData,streamData);
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((response) => {
+
+
+            /* setStreamData(response) */
+            if (videoCallData.ans.type && response.active) {
+                console.log('reconnected2');
+    
+    
+                socket.emit('callAccepted', { userData: videoCallData.userData, ans: videoCallData.ans })
+                for (const track of response.getTracks()) {
+                    webRTC.peer.addTrack(track, response)
+                }
+    
+    
+    
+            }
+
+        })
+
+       
+    }, [videoCallData,streamData])
+
     const joinCall = async () => {
 
 
