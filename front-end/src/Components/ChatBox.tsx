@@ -34,7 +34,7 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [play, setPlay] = useState({ status: false, index: -1 })
     const audioRef = useRef(null);
-    const [fileChat, setFileChat] = useState()
+    const [fileChat, setFileChat] = useState<File>()
     const sendMessage = (e) => {
         e.preventDefault()
         if (message.trim() !== '' || fileChat) {
