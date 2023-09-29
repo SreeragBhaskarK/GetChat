@@ -5,9 +5,9 @@ class DeleteComment {
         this.postRepository =postRepository
     }
 
-    async execute(id:string,comment:string){
+    async execute(commentId:string){
         try {
-            return await this.postRepository.deleteComment(id,comment)
+            return await this.postRepository.deleteComment(commentId)
             
         } catch (err) {
             throw err

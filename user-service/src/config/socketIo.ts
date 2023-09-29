@@ -12,16 +12,25 @@ export const socketIoConnect = (server: any) => {
             },
         })
 
+
+
+        const notificationSend = (data: JSON) => {
+
+            console.log('kdjfkdfj');
+            return true
+
+        }
         const connectedUsers = new Map();
         const connectedAdmin = new Map()
-        let userIdSocket = ''
+        const connectedSocket = new Map()
+
         io.on('connection', (socket) => {
             console.log('user Connected🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀', socket.id);
-   
-     
+
+
             socket.on('auth', userId => {
                 connectedUsers.set(userId, socket)
-                console.log(userId, socket.id, '////////user');
+                connectedSocket.set(socket, userId)
 
             })
             socket.on('admin', () => {
@@ -33,8 +42,6 @@ export const socketIoConnect = (server: any) => {
                 const connectedSocketIds = Array.from(io.sockets.sockets.keys());
                 console.log('Connected Socket IDs:', connectedSocketIds);
                 let count = connectedSocketIds.length
-                console.log(count, 'count');
-                console.log(connectedAdmin, 'admin');
 
                 const size = connectedAdmin.size
                 console.log(size, 'size');
@@ -121,11 +128,47 @@ export const socketIoConnect = (server: any) => {
                 }
             })
 
+            socket.on("message_seen", async (data) => {
+                console.log(data, '/////seen///');
+                const recipientSocket = connectedUsers.get(data.recipientId)
+                if (recipientSocket) {
+
+
+                    recipientSocket.emit('messageSeen', data)
+                }
+
+            })
+
+            socket.on('onlineStatusCheck', async ({ userId, socketId }) => {
+
+                const recipientSocket = connectedUsers.get(userId)
+                if (recipientSocket) {
+                    io.to(socketId).emit('onlineStatus', { status: true, userId })
+                } else {
+                    io.to(socketId).emit('onlineStatus', { status: false, userId })
+
+                }
+
+            })
+
 
             socket.on('disconnect', () => {
                 console.log('user disconnected', socket.id);
                 connectedAdmin.delete(socket.id)
+                const userId = connectedSocket.get(socket)
+                connectedUsers.delete(userId)
+
+
             })
+
+            //testng
+
+
+       
+
+
+
+
         })
     } catch (error) {
         console.log('////', error, '////');
@@ -133,3 +176,5 @@ export const socketIoConnect = (server: any) => {
     }
 
 }
+
+export default socketIoConnect

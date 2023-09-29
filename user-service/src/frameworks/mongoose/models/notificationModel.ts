@@ -30,6 +30,10 @@ const NotificationSchema = new mongoose.Schema<Notification>({
     },
     createdAt: {
         type: String
+    },
+    delete_username:{
+        type:[],
+        default:[]
     }
 
 })

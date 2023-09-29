@@ -8,8 +8,10 @@ import { commentModel } from "../../frameworks/sequelize/models/commentModel"
 
 class PostRepository {
     private postModel
+    private commentModel
     constructor(sequelize: Sequelize) {
         this.postModel = postModel(sequelize)
+        this.commentModel = commentModel(sequelize)
     }
     async getPosts(page: number, username: any, type: string) {
         try {
@@ -148,11 +150,10 @@ class PostRepository {
         }
     }
 
-    async deleteComment(id: string, comment: string) {
+    async deleteComment(commentId: string) {
         try {
 
-            /* const result =await this.postModel.update({comments:sequelize.fn('array_remove',sequelize.col('comments'),comment)},{where:{id},returning:true})
-            return result[1] */
+            await this.commentModel.destroy({where:{comment_id:commentId}})
             return true
         } catch (err) {
             throw err

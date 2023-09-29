@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import  socketIoConnect from "../../config/socketIo";
 
 
 
@@ -83,6 +84,7 @@ class MessageRepository {
             console.log(notification, 'save');
 
             await notification.save()
+          
             console.log(notification, 'saved');
         } catch (err) {
             throw err
@@ -102,6 +104,16 @@ class MessageRepository {
             throw err
 
         }
+    }
+    async updateUserStatus(data:any){
+        try {
+            await this.userModel.updateOne({_id:data.userId},{$set:{status:data.status}})
+            
+        } catch (err) {
+            throw err
+            
+        }
+
     }
 
 

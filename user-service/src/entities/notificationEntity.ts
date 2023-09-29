@@ -9,4 +9,5 @@ export interface Notification {
     seen_username?:[]
     updatedAt:string
     createdAt:string
+    delete_username:[]
 }

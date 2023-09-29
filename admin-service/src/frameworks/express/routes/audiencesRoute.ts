@@ -15,6 +15,6 @@ router.delete('/audience/:userId',auth, Audiences.deleteAudience)
 /* audience updating data */
 router.patch('/audience',auth, Audiences.updateAudience)
 
-router.patch('/audience/block/:userId',auth,Audiences.blockAndUnblockAudience)
+router.patch('/audience-status',auth,Audiences.updateUserStatus)
 
 export default router

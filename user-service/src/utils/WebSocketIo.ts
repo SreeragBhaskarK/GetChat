@@ -1,6 +1,7 @@
 import messageModel from "../frameworks/mongoose/models/messageModel"
 import mongoose from "mongoose"
 import notificationModel from "../frameworks/mongoose/models/notificationModel";
+import chatModel from "../frameworks/mongoose/models/chatModel";
 const ObjectId = mongoose.Types.ObjectId
 export const webSocket = async (data: any) => {
     try {
@@ -11,10 +12,13 @@ export const webSocket = async (data: any) => {
             senderId: new ObjectId(sender),
             recipientId: new ObjectId(recipient),
             content: data.content,
-            chatId: data.chatId
+            chatId: data.chatId,
+            audio:data.audio,
+            image:data.image
         })
 
         await message.save()
+        await chatModel.updateOne({_id:data.chatId},{$set:{last_message:message}})
         return message
 
     } catch (err) {

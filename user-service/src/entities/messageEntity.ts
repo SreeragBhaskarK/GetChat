@@ -8,4 +8,7 @@ export interface Message extends Document {
     chatId: Types.ObjectId
     content: string
     seen:boolean
+    delete_user_id:[]
+    audio:string
+    image:string
 }

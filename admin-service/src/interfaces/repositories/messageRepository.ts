@@ -1,13 +1,16 @@
 import { Sequelize } from "sequelize";
 import userModel from "../../frameworks/sequelize/models/userModel";
 import postModel from "../../frameworks/sequelize/models/postModel";
+import notificationModel from "../../frameworks/sequelize/models/notificationModel";
 
 class MessageRepository{
     private UserModal
     private PostModel
+    private NotificationModel
     constructor (sequelize:Sequelize){
         this.UserModal= userModel(sequelize)
         this.PostModel = postModel(sequelize)
+        this.NotificationModel = notificationModel(sequelize)
     }
     async insertUser (userData:any){
         try{
@@ -39,6 +42,8 @@ class MessageRepository{
         }
 
     }
+
+
 }
 
 export default MessageRepository

@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import userModel from "../../frameworks/mongoose/models/userModel"
 
 const ObjectId = mongoose.Types.ObjectId
 class UserRepository {
@@ -143,16 +144,52 @@ class UserRepository {
     }
     async removeFollow(followersUsername: string, followingUsername: string) {
         try {
-           const followers = await this.userModel.updateOne({username:followersUsername},{$pull:{
-            following:followingUsername
-           }})
+            const followers = await this.userModel.updateOne({ username: followersUsername }, {
+                $pull: {
+                    following: followingUsername
+                }
+            })
 
-           return await this.userModel.findOneAndUpdate({username:followingUsername},{$pull:{
-            followers:followersUsername
-           }},{new:true})
+            return await this.userModel.findOneAndUpdate({ username: followingUsername }, {
+                $pull: {
+                    followers: followersUsername
+                }
+            }, { new: true })
 
         } catch (err) {
             throw err
+        }
+    }
+
+    async getSuggestion(username: string) {
+        try {
+            const users = await this.userModel.findOne({ username })
+            const followingUsers = await this.userModel.find({ username: { $in: users?.following, $ne: username } })
+            console.log(followingUsers, users, 'one');
+            if (followingUsers.length) {
+
+
+                return await this.userModel.find({
+                    $and: [
+                        { $or: followingUsers.map((user: any) => ({ username: user.following })) },
+                        { username: { $ne: username } }, // Exclude the current user
+                        { username: { $nin: users.following } }, // Exclude the current user
+                        // Exclude users in the 'following' array
+                    ]
+                });
+
+            }else{
+                return []
+            }
+
+
+
+            /*     return await this.userModel.find({ username: { $nin: users?.following, $ne: username } }).sort({ createdAt: -1 }).limit(20) */
+
+
+        } catch (err) {
+            throw err
+
         }
     }
 }

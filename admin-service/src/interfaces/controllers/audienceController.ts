@@ -75,13 +75,12 @@ class AudienceController {
         }
     }
 
-    static async blockAndUnblockAudience(req:Request,res:Response){
-        const {userId} = await sanitize(req.params) 
-        const {status}= await sanitize(req.params)  as{status:string} 
+    static async updateUserStatus(req:Request,res:Response){
+        const {status,userId}= await sanitize(req.body) 
         console.log(status,userId);
         
         try {
-            if(!userId||status!=='block'&& status!='active')throw new Error("Missing userId/status or invalid status value")
+            if(!userId||!status)throw new Error("Missing userId/status or invalid status value")
             const blockAudience = new BlockAudience(audienceRepository)
             const result:boolean = await blockAudience.execute(userId,status)
             if(result){

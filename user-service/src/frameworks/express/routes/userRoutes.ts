@@ -12,12 +12,14 @@ router.post('/get-message',UserController.getMessages)
 
 router.get('/find-user-chat/:userId',UserController.getChatUser)
 router.post('/chat-create',UserController.createChat)
-router.get('/find-chat/:firstId/:secondId')
+/* router.get('/find-chat/:firstId/:secondId') */
 router.post('/change-seen',UserController.changeSeen)
 router.post('/get-follows',UserController.getFollows)
-router.delete('/delete-message/:id',UserController.deleteMessage)
-router.delete('/delete-chat/:id',UserController.deleteChat)
+router.delete('/delete-message/:id/:userId',UserController.deleteMessage)
+router.delete('/delete-chat/:id/:userId',UserController.deleteChat)
 router.get('/notifications',UserController.getNotifications)
+router.delete('/notifications',UserController.deleteNotifications)
 router.get('/advertising',UserController.getAdvertising)
+router.get('/suggestion',UserController.getSuggestion)
 
 export default router

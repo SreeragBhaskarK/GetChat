@@ -2,7 +2,7 @@ import { Response, Request } from "express"
 import PostRepository from "../repositories/postRepository"
 import GetPosts from "../../usecases/post/getPosts"
 import { sequelize } from "../../config/connection"
-import { putObject } from "../../utils/s3"
+import { deleteObject, putObject } from "../../utils/s3"
 import AddPosts from "../../usecases/post/addPosts"
 import LikePost from "../../usecases/like/likePost"
 import UnLikePost from "../../usecases/like/unLikePost"
@@ -22,11 +22,11 @@ const commentRepository = new CommentRepository(sequelize)
 class PostController {
     static getPosts = async (req: Request, res: Response) => {
         try {
-            const { page, username,type } = await sanitize(req.body) 
+            const { page, username, type } = await sanitize(req.body)
             console.log(req.body, '🚀🚀🚀🚀');
-            if(!page||!username||!type)throw new Error('missing')
+            if (!page || !username || !type) throw new Error('missing')
             const getPosts = new GetPosts(postRepository)
-            const result = await getPosts.execute(page, username,type)
+            const result = await getPosts.execute(page, username, type)
             if (result) {
                 res.status(200).json({ success: true, message: "successfully fetching posts", data: result })
             } else {
@@ -41,9 +41,9 @@ class PostController {
     static postPosts = async (req: Request, res: Response) => {
 
         /*   const image = await setImage(req.file) */
-        console.log(req.body,'🚀🚀🚀🚀');
+        console.log(req.body, '🚀🚀🚀🚀');
 
-        const { originalname, mimetype, type } = await sanitize(req.body) 
+        const { originalname, mimetype, type } = await sanitize(req.body)
         try {
             if (!originalname || !mimetype) throw new Error('not found data')
             const url = await putObject(originalname, mimetype, type)
@@ -63,7 +63,7 @@ class PostController {
         try {
             console.log('//////', req.body);
 
-            const { url, username, caption } = await sanitize(req.body) 
+            const { url, username, caption } = await sanitize(req.body)
             if (!url || !username || !caption) throw new Error('not found url')
             const addPosts = new AddPosts(postRepository)
             const result = await addPosts.execute(url, username, caption)
@@ -81,7 +81,7 @@ class PostController {
 
     static async postLike(req: Request, res: Response) {
         try {
-            const { id, username } = await sanitize(req.body) 
+            const { id, username } = await sanitize(req.body)
             if (!id || !username) throw new Error('not found')
             const likePost = new LikePost(postRepository)
 
@@ -99,7 +99,7 @@ class PostController {
     }
     static async postUnLike(req: Request, res: Response) {
         try {
-            const { id, username } = await sanitize(req.body) 
+            const { id, username } = await sanitize(req.body)
             if (!id || !username) throw new Error('not found')
             const unLikePost = new UnLikePost(postRepository)
 
@@ -118,7 +118,7 @@ class PostController {
 
     static async postReport(req: Request, res: Response) {
         try {
-            const { id, type } = await sanitize(req.body) 
+            const { id, type } = await sanitize(req.body)
             if (!id || !type) throw new Error('not found')
             const reportPost = new ReportPost(postRepository)
 
@@ -137,12 +137,12 @@ class PostController {
 
     static async getProfilePost(req: Request, res: Response) {
         try {
-            let { username,page }  = await sanitize(req.query)  as {username:string,page:string|number}
+            let { username, page } = await sanitize(req.query) as { username: string, page: string | number }
             page = Number(page)
             if (!username) throw new Error('not found')
             const getPostsDetails = new GetPostDetails(postRepository)
 
-            const result = await getPostsDetails.execute(username,page)
+            const result = await getPostsDetails.execute(username, page)
             if (result) {
                 res.status(200).json({ success: true, message: "successfully", data: result })
             } else {
@@ -155,15 +155,15 @@ class PostController {
         }
     }
 
-    static async addComment(req:Request,res:Response){
+    static async addComment(req: Request, res: Response) {
         try {
-            let { id,comment,username }  = await sanitize(req.body) 
+            let { id, comment, username } = await sanitize(req.body)
             console.log(req.body);
-             
-            if (!id ||!comment||!username) throw new Error('not found')
+
+            if (!id || !comment || !username) throw new Error('not found')
             const addComment = new AddComment(commentRepository)
 
-            const result = await addComment.execute(id,comment,username )
+            const result = await addComment.execute(id, comment, username)
             if (result) {
                 res.status(200).json({ success: true, message: "successfully", data: result })
             } else {
@@ -175,15 +175,15 @@ class PostController {
 
         }
     }
-    static async editPost(req:Request,res:Response){
+    static async editPost(req: Request, res: Response) {
         try {
-            let { id,caption }  = await sanitize(req.body) 
+            let { id, caption } = await sanitize(req.body)
             console.log(req.body);
-             
-            if (!id ||!caption) throw new Error('not found')
+
+            if (!id || !caption) throw new Error('not found')
             const editPost = new EditPost(postRepository)
 
-            const result = await editPost.execute(id,caption )
+            const result = await editPost.execute(id, caption)
             if (result) {
                 res.status(200).json({ success: true, message: "successfully edited", data: result })
             } else {
@@ -195,12 +195,12 @@ class PostController {
 
         }
     }
-    static async deletePost(req:Request,res:Response){
+    static async deletePost(req: Request, res: Response) {
         try {
-            const { id }  = await sanitize(req.query)  as {id:string}
-            console.log(req.body,'😁😁😁');
-             
-            if (!id ) throw new Error('not found')
+            const { id } = await sanitize(req.query) as { id: string }
+            console.log(req.body, '😁😁😁');
+
+            if (!id) throw new Error('not found')
             const deletePost = new DeletePost(postRepository)
 
             const result = await deletePost.execute(id)
@@ -215,15 +215,15 @@ class PostController {
 
         }
     }
-    static async deleteComment(req:Request,res:Response){
+    static async deleteComment(req: Request, res: Response) {
         try {
-            let { id,comment }  = await sanitize(req.body) 
+            let { commentId } = await sanitize(req.params)
             console.log(req.body);
-             
-            if (!id||!comment ) throw new Error('not found')
+
+            if (!commentId) throw new Error('not found')
             const deleteComment = new DeleteComment(postRepository)
 
-            const result = await deleteComment.execute(id,comment )
+            const result = await deleteComment.execute(commentId)
             if (result) {
                 res.status(200).json({ success: true, message: "successfully deleted comment", data: result })
             } else {
@@ -232,29 +232,44 @@ class PostController {
 
         } catch (err: any) {
             res.status(404).json({ success: false, message: err.message })
-            
+
         }
     }
-    
-    static async getComment(req:Request,res:Response){
+
+    static async getComment(req: Request, res: Response) {
         try {
-            const {post_id} = await sanitize(req.query)  as {post_id:string}
-            console.log(post_id,'//////');
-            
+            const { post_id } = await sanitize(req.query) as { post_id: string }
+            console.log(post_id, '//////');
+
             const getComment = new GetComment(commentRepository)
             const result = await getComment.execute(post_id)
-            if(result){
-                res.status(200).json({success:true,message:'successfully',data:result})
-            }else{
-                res.status(404).json({success:false,message:'failed'})
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
             }
-            
-        } catch (err:any) {
-            
+
+        } catch (err: any) {
+
             res.status(404).json({ success: false, message: err.message })
-            
+
         }
 
+    }
+
+    static async deleteAudio(req: Request, res: Response) {
+        try {
+            const {url}=req.query as {url:string}
+
+            await deleteObject(url)
+            res.status(200).json({ success: true, message: 'successfully' })
+
+
+        } catch (err: any) {
+
+            res.status(404).json({ success: false, message: err.message })
+
+        }
     }
 
 }

@@ -18,6 +18,8 @@ export const handleMessage = async (data: JSON, type: string) => {
             await messageRepository.notification(data)
         }else if (type == 'addAdvertising'){
             await messageRepository.advertising(data)
+        }else if(type =='updateUserStatus'){
+            await messageRepository.updateUserStatus(data)
         }
     } catch (error) {
         console.log(error);

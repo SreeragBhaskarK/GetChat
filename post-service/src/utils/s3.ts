@@ -43,6 +43,10 @@ const types = (type:string)=>{
         return 'getchat/posts/'
     }else if(type=='profile'){
         return 'getchat/profile/'
+    }else if(type=='audio'){
+        return 'getchat/chat/audio'
+    }else if('chatImage'){
+        return 'getchat/chat/image'
     }
 }
 

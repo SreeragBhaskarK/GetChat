@@ -91,7 +91,8 @@ const apiMethods = {
     addComment: (formData) => api.post('/post/comment', formData),
     deleteComment: (commentId) => api.delete(`/post/delete-comment/${commentId}`),
     editPost: (formData) => api.patch('/post/edit-post', formData),
-    getComment: (postId) => api.get(`/post/comment?post_id=${postId}`)
+    getComment: (postId) => api.get(`/post/comment?post_id=${postId}`),
+    deleteAudio:(url)=>api.delete(`/post/audio?url=${url}`)
 
 };
 

@@ -11,8 +11,7 @@ const messageSchema = new mongoose.Schema<Message>({
         required:true
     },
     content: {
-        type:String,
-        required:true
+        type:String
     },
     chatId:{
         type:ObjectId,
@@ -20,6 +19,15 @@ const messageSchema = new mongoose.Schema<Message>({
     },
     seen: { 
         type: Boolean, default: false 
+    },
+    delete_user_id:{
+        type:[],
+        default:[]
+    },
+    audio:{
+        type:'string'
+    },image:{
+        type:'string'
     }
 
 }, { timestamps: true })

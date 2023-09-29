@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { FaCirclePlay } from 'react-icons/fa6'
 import { BsPauseCircleFill, BsStopCircleFill } from 'react-icons/bs'
 import { AiFillCloseCircle } from 'react-icons/ai'
-import { current } from '@reduxjs/toolkit'
 import { socket } from '../services/socketIo'
+import api from '../services/api'
+import { isFulfilled } from '@reduxjs/toolkit'
 
 
-export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId }) => {
+export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId,setMessages }) => {
     interface AudioLength {
         seconds: number
         minutes: number
@@ -23,6 +24,7 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId }
     const [audioURL, setAudioURL] = useState(null);
     const audioRef = useRef(null);
     const [audioChunks, setAudioChunks] = useState([]);
+    const [audioFile, setAudioFile] = useState<Blob>()
 
     useEffect(() => {
         if (timeStart) {
@@ -74,10 +76,11 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId }
 
                 recorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                    console.log(audioBlob,'audiooooo.......');
-                    
+                    console.log(audioBlob, 'audiooooo.......');
+
                     const url = URL.createObjectURL(audioBlob);
                     setAudioURL(url);
+                    setAudioFile(audioBlob)
                 };
 
                 recorder.start();
@@ -121,20 +124,57 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId }
     };
 
     const handleSubmit = () => {
-        console.log(audioRef,audioURL,'audio');
-        
-    /*     if (audioLength.seconds>0) {
-            socket.emit('private_message', {
-                recipientId: userData?.memberDetails[0]?._id === senderId
-                    ? userData?.memberDetails[1]._id
-                    : userData?.memberDetails[0]._id,
-                senderId: senderId,
-                content: '',
-                audio: audioRef.current,
-                chatId: userData._id
-            });
+        console.log(audioChunks, 'audio');
+        ; // You can adjust the file extension as needed
+        if (audioLength.seconds > 0) {
+            api.postUpload({ originalname: 'audio', mimetype: 'audio/wav', type: 'audio' }).then(async(response) => {
+                if (response.data.success) {
+                    const preSignedUrl = response.data.data;
+
+                    const result = await fetch(preSignedUrl, {
+                        method: 'PUT',
+                        body: audioFile,
+                        headers: {
+                            'Content-Type': 'audio/wav', // Adjust the content type as needed
+                        },
+                    });
+                    console.log(result);
+
+                    if (result.status == 200) {
+
+                        console.log('//////cors');
+                        const parsedUrl = new URL(result.url);
+                        console.log(parsedUrl, 'parsedUrl');
+                        const postUrl = parsedUrl.origin + parsedUrl.pathname
+                        console.log(postUrl, 'posturl');
+
+                        socket.emit('private_message', {
+                            recipientId: userData?.memberDetails[0]?._id === senderId
+                                ? userData?.memberDetails[1]._id
+                                : userData?.memberDetails[0]._id,
+                            senderId: senderId,
+                            content: '',
+                            audio: postUrl,
+                            chatId: userData._id
+                        });
+
+                        setMessages((prevMessage) => [...prevMessage, {
+                            chatId: userData._id, content: '', recipientId: userData.memberDetails[0]._id === senderId
+                                ? userData.memberDetails[1]._id
+                                : userData.memberDetails[0]._id, senderId, createdAt: new Date(),audio:postUrl
+                        }])
+                        setRecordAudio(false)
+                    }
+                }
+            }).catch((err) => {
+                console.log(err);
+
+            })
+
         }
- */
+
+
+
     }
 
 

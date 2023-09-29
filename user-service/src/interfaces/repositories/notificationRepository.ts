@@ -1,3 +1,6 @@
+import { Producer } from "kafka-node";
+import { userProducer } from "../messageBrokers/userProducer";
+
 class NotificationRepository{
   
     constructor(private notificationModel:any){
@@ -13,6 +16,19 @@ class NotificationRepository{
             throw err
             
         }
+    }
+
+    async deleteNotifications(id:string,username:string){
+        try {
+            
+           return await this.notificationModel.updateOne({notification_id:id},{$push:{delete_username:username}})
+            /*  await userProducer({id,username},'add-admin',"deleteUserNotification") */
+        
+            
+        } catch (err) {
+            
+        }
+
     }
 }
 

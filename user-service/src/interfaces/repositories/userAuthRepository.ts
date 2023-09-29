@@ -1,9 +1,16 @@
 import { User } from "../../entities/userEntity";
-import userModel from "../../frameworks/mongoose/models/userModel"
-import verifyModel from "../../frameworks/mongoose/models/verifyModel";
+import userModel from "../../frameworks/mongoose/models/userModel";
+
 import { userProducer } from "../messageBrokers/userProducer";
 import bcrypt from 'bcryptjs'
 class UserAuthRepository {
+    public userModel
+    private verifyModel
+    constructor (userModel:any,verifyModel:any){
+        this.userModel = userModel
+        this.verifyModel = verifyModel
+
+    }
 
     async findUser(phoneOrusernameOremail: string) {
         try {
@@ -11,7 +18,7 @@ class UserAuthRepository {
             let userData
             // Check if the inputValue is a valid email address
             if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(phoneOrusernameOremail)) {
-                userData = await userModel.find({ email: phoneOrusernameOremail });
+                userData = await this.userModel.find({ email: phoneOrusernameOremail });
                 if (!userData.length) throw new Error('user no found')
                 if (userData[0].verification_status === 'verification processing') throw new Error('not verified account')
                 console.log(userData, '///////');
@@ -23,7 +30,7 @@ class UserAuthRepository {
             else if (/^\d{10}$/.test(phoneOrusernameOremail)) {
                 console.log(phoneOrusernameOremail);
 
-                userData = await userModel.find({ phone: phoneOrusernameOremail });
+                userData = await this.userModel.find({ phone: phoneOrusernameOremail });
                 console.log(userData);
 
                 if (!userData.length) throw new Error('user no found')
@@ -33,7 +40,7 @@ class UserAuthRepository {
 
             // If the above conditions fail, assume it's a username
             else {
-                userData = await userModel.find({ username: phoneOrusernameOremail });
+                userData = await this.userModel.find({ username: phoneOrusernameOremail });
                 if (!userData.length) throw new Error('user no found')
                 if (userData[0].verification_status === 'verification processing') throw new Error('not verified account')
                 return userData.pop()
@@ -50,19 +57,19 @@ class UserAuthRepository {
         console.log(mobileOrEmail);
 
         try {
-            let userData = new userModel({
+            let userData = new this.userModel({
                 full_name: fullName,
                 username: username,
                 password: password
             })
             // Check if mobileOrEmail is a valid email address
             if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mobileOrEmail)) {
-                let check: User[] = await userModel.find({ $or: [{ email: mobileOrEmail }, { username: username }] })
+                let check: User[] = await this.userModel.find({ $or: [{ email: mobileOrEmail }, { username: username }] })
                 console.log(check, '////////');
 
                 if (check.length) {
                     if (check[0].verification_status == 'verification processing') {
-                        await userModel.deleteOne({ _id: check[0]._id })
+                        await this.userModel.deleteOne({ _id: check[0]._id })
                     } else {
 
                         throw new Error(`already signup account ${check[0].email ?? check[0].username}`)
@@ -71,11 +78,11 @@ class UserAuthRepository {
                 userData.email = mobileOrEmail;
 
             } else if (/^\d{10}$/.test(mobileOrEmail)) {
-                let check = await userModel.find({ $or: [{ phone: mobileOrEmail }, { username: username }] })
+                let check = await this.userModel.find({ $or: [{ phone: mobileOrEmail }, { username: username }] })
                 console.log(check, '//////phone');
                 if (check.length) {
                     if (check[0].verification_status == 'verification processing') {
-                        await userModel.deleteOne({ _id: check[0]._id })
+                        await this.userModel.deleteOne({ _id: check[0]._id })
                     } else {
                         throw new Error(`already signup account ${check[0].phone ?? check[0].username}`)
                     }
@@ -96,14 +103,14 @@ class UserAuthRepository {
 
     async verifyToken(email: string, token: string, type: string) {
         try {
-            const result = await verifyModel.find({ email, token })
+            const result = await this.verifyModel.find({ email, token })
             console.log(result);
 
             if (result.length) {
-                await verifyModel.deleteOne({ email })
+                await this.verifyModel.deleteOne({ email })
 
 
-                const updatedDocument = await userModel.findOneAndUpdate(
+                const updatedDocument = await this.userModel.findOneAndUpdate(
                     { email },
                     { $set: { status: 'active', verification_status: 'verified' } },
                     { new: true } // This option returns the updated document
@@ -121,7 +128,7 @@ class UserAuthRepository {
 
     async statusChange(status: string, phone: string) {
         try {
-            const updatedDocument = await userModel.findOneAndUpdate(
+            const updatedDocument = await this.userModel.findOneAndUpdate(
                 { phone },
                 { $set: { status, verification_status: 'verified' } },
                 { new: true } // This option returns the updated document
@@ -185,7 +192,7 @@ class UserAuthRepository {
             const password = await bcrypt.hashSync(newPassword, salt)
             console.log(password,'password');
             
-            const result:any = await userModel.updateOne({email},{$set:{password}})
+            const result:any = await this.userModel.updateOne({email},{$set:{password}})
             console.log(result,'serer🥰🥰🥰',email);
             
             if (result.modifiedCount === 1) {

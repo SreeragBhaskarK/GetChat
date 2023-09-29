@@ -14,6 +14,7 @@ router.get('/post',PostController.getProfilePost)
 router.post('/comment',PostController.addComment)
 router.patch('/edit-post',PostController.editPost)
 router.delete('/delete-post',PostController.deletePost),
-router.delete('/delete-comment',PostController.deleteComment)
+router.delete('/delete-comment/:commentId',PostController.deleteComment)
 router.get('/comment',PostController.getComment)
+router.delete('/audio',PostController.deleteAudio)
 export default router

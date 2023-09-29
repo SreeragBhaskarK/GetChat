@@ -6,9 +6,9 @@ class DeleteChat{
 
     }
 
-    async execute(id:string){
+    async execute(id:string,userId:string){
         try {
-           return await this.chatRepository.deleteChat(id)
+           return await this.chatRepository.deleteChat(id,userId)
             
         } catch (err) {
             throw err

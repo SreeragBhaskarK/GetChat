@@ -18,13 +18,15 @@ import UserRepository from "../repositories/userRepository";
 import userModel from "../../frameworks/mongoose/models/userModel";
 import messageModel from "../../frameworks/mongoose/models/messageModel";
 import SetNewPassword from "../../useCases/userUseCase/setNewPassword";
+import verifyModel from "../../frameworks/mongoose/models/verifyModel";
 const userRepository = new UserRepository(userModel, messageModel)
-const userAuthRepository = new UserAuthRepository();
+const userAuthRepository = new UserAuthRepository(userModel,verifyModel);
 class UserAuthController {
     static async postLogin(req: Request, res: Response) {
         const { phoneOrusernameOremail, password } = await sanitize(req.body)
         try {
             if (!phoneOrusernameOremail || !password) throw new Error('incomplete details')
+
             const checkUserUseCase = new CheckUserUseCase(userAuthRepository)
             let userData: User | undefined = await checkUserUseCase.execute(phoneOrusernameOremail)
             let result = await bcryptCheck(userData?.password, password)

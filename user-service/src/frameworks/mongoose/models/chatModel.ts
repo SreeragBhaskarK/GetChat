@@ -7,6 +7,13 @@ const ChatSchema = new mongoose.Schema<Chat>({
             type: mongoose.Schema.Types.ObjectId,
         }
         ]
+    },
+    delete_user_id: {
+        type: [],
+        default: []
+    },
+    last_message:{
+        type:Object
     }
 }, { timestamps: true })
 

@@ -97,7 +97,10 @@ class AudienceRepository {
             }, {
                 where: { user_id: userId }
             })
+            console.log(result,userId,status);
+            
             if (result[0] === 0) return false
+            await adminProducer({userId,status},'addPostInUser','updateUserStatus')
             return true
         } catch (err) {
             throw err

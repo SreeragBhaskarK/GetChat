@@ -27,6 +27,8 @@ import GetAdvertising from "../../useCases/userUseCase/getAdvertising"
 import AdvertisingRepository from "../repositories/advertisingRepository"
 import advertisingModel from "../../frameworks/mongoose/models/advertisingModel"
 import sanitize from "mongo-sanitize"
+import DeleteNotification from "../../useCases/notifications/deleteNotification"
+import GetSuggestion from "../../useCases/userUseCase/getSuggestion"
 
 const userRepository = new UserRepository(userModel, messageModel)
 const chatRepository = new ChatRepository(chatModel, messageModel)
@@ -258,12 +260,12 @@ class UserController {
     }
     static async deleteMessage(req: Request, res: Response) {
         try {
-            const { id } = await sanitize(req.params)  as { id: string }
+            const { id,userId } = await sanitize(req.params)  as { id: string,userId:string }
             console.log(req.body);
 
-            if (!id) throw new Error('id  is missing')
+            if (!id||!userId) throw new Error('id  is missing')
             const deleteMessage = new DeleteMessage(chatRepository)
-            const result = await deleteMessage.execute(id)
+            const result = await deleteMessage.execute(id,userId)
 
 
             if (result) {
@@ -279,12 +281,12 @@ class UserController {
     }
     static async deleteChat(req: Request, res: Response) {
         try {
-            const { id } = await sanitize(req.params)  as { id: string }
+            const { id,userId } = await sanitize(req.params)  as { id: string,userId:string }
             console.log(req.body);
 
-            if (!id) throw new Error('id  is missing')
+            if (!id||!userId) throw new Error('id  is missing')
             const deleteChat = new DeleteChat(chatRepository)
-            const result = await deleteChat.execute(id)
+            const result = await deleteChat.execute(id,userId)
 
 
             if (result) {
@@ -341,6 +343,44 @@ class UserController {
 
             const getAdvertising = new GetAdvertising(advertisingRepository)
             const result = await getAdvertising.execute(type,page)
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+    static async deleteNotifications(req: Request, res: Response) {
+        try {
+
+            const { id,username } = await sanitize(req.query)  as { id: string,username:string }
+            if(!id||!username)throw new Error('missing for id and username')
+            const deleteNotification = new DeleteNotification(notificationRepository)
+            const result = await deleteNotification.execute(id,username)
+
+            if (result) {
+                res.status(200).json({ success: true, message: 'successfully', data: result })
+            } else {
+                res.status(404).json({ success: false, message: 'failed' })
+            }
+
+        } catch (err: any) {
+            res.status(404).json({ success: false, message: err.message })
+
+        }
+    }
+    static async getSuggestion(req: Request, res: Response) {
+        try {
+
+            const { username } = await sanitize(req.query)  as { username:string }
+            if(!username)throw new Error('missing for username')
+            const getSuggestion = new GetSuggestion(userRepository)
+            const result = await getSuggestion.execute(username)
 
             if (result) {
                 res.status(200).json({ success: true, message: 'successfully', data: result })
