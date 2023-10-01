@@ -4,7 +4,7 @@ import { socket } from '../../services/socketIo'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { CallScreen } from '../../Components'
 import { useDispatch, useSelector } from 'react-redux'
-import { VideoCall } from '.'
+
 import { addConnectedCall, addVideoCall, endVideoCall } from '../../redux/callSlice'
 
 const VideoCallScreen = () => {

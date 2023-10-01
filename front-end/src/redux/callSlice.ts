@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { VideoCall } from "../pages/Users";
 interface VideoCall {
     videoCall: {
         senderId: string
