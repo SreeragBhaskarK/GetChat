@@ -5,9 +5,12 @@ import { adminProducer } from '../interfaces/messageBrokers/kafka/postProducer';
 export const socketIoConnect = (server: any) => {
     console.log('🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀');
     try {
+        const {WEB_SOCKET_CORS_URL} = process.env
+        if(!WEB_SOCKET_CORS_URL)throw new Error('not found cors')
+
         const io = new socketIo.Server(server, {
             cors: {
-                origin: 'http://localhost:5173',
+                origin: WEB_SOCKET_CORS_URL,
                 methods: ['GET', 'POST'],
                 credentials: true,
             },

@@ -11,7 +11,7 @@ import { messagesIndication } from '../redux/userSlice';
 import { socket } from '../services/socketIo';
 import { decreamentMessageCount, increaseMessageCount } from '../redux/messageSlice';
 import { useNavigate } from 'react-router-dom';
-import { addCallUser, addVideoCall } from '../redux/callSlice';
+import {  addVideoCall } from '../redux/callSlice';
 import { CaptureAudio } from '.';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
@@ -213,8 +213,8 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
 
     const handleVideoCall = () => {
         const recipient = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1] : userData?.memberDetails[0]
-        dispatch(addCallUser({ senderId, recipient }))
-        navigate('/video_call')
+        /* dispatch(addCallUser({ senderId, recipient })) */
+        navigate('/video_call',{state:{senderId,recipient}})
     }
 
     const handleChatTime = useCallback((inputTime) => {

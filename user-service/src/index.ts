@@ -13,17 +13,20 @@ import passport from 'passport'
 import { googleAuthMiddleware } from './interfaces/middleware/googleAuth'
 (async () => {
     try {
+        const { SERVER_CORS_URL } = process.env
 
         await connectDB()
         console.log('GetChat Auth Service DB Ready');
         const app = express()
 
         const server = http.createServer(app)
-        app.use(cors({
-            origin: ['http://localhost:5173','https://accounts.google.com/o/oauth2/v2/auth'],
-            credentials: true,
-        }))
-        
+        if (SERVER_CORS_URL) {
+            app.use(cors({
+                origin: [SERVER_CORS_URL, 'https://accounts.google.com/o/oauth2/v2/auth','http://localhost:5173'],
+                credentials: true,
+            }))
+        }
+
         app.use(passport.initialize())
         googleAuthMiddleware()
         await socketIoConnect(server)
@@ -33,7 +36,7 @@ import { googleAuthMiddleware } from './interfaces/middleware/googleAuth'
         app.use('/api/v1/user', userAuthRouter)
         app.use('/api/v1/user', userRouter)
         await server.listen(PORT, () => console.log('started in user-service ' + PORT))
-         await consumeUser()
+        await consumeUser()
     }
     catch (err: any) {
         console.error('Error connecting to MongoDB:', err.message);

@@ -225,7 +225,7 @@ export const VideoCall = () => {
         </>
     ) : (
         <>
-            <CallScreen userData={videoCallData.userData} remoteStream={remoteStream} streamData={streamData} />
+{/*             <CallScreen userData={videoCallData.userData} remoteStream={remoteStream} streamData={streamData} /> */}
         </>
     )
 }

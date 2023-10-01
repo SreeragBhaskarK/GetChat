@@ -4,10 +4,8 @@ interface VideoCall {
     videoCall: {
         senderId: string
         recipientId: string
-        join: boolean
-        ans: object
-        userData:object
-    }
+    },
+    connectedCall:boolean
 
 }
 
@@ -15,10 +13,8 @@ const initialState: VideoCall = {
     videoCall: {
         senderId: '',
         recipientId: '',
-        join: false,
-        ans: {},
-        userData:{}
-    }
+    },
+    connectedCall:false
 }
 
 const videoCallSlice = createSlice({
@@ -31,7 +27,17 @@ const videoCallSlice = createSlice({
             state.videoCall.senderId = action.payload.senderId
             state.videoCall.recipientId = action.payload.recipientId
         },
-        addCallUser(state,action){
+        addConnectedCall(state,action){
+            state.connectedCall=action.payload
+        },
+        endVideoCall(state,action){
+            state.videoCall= {
+                senderId: '',
+                recipientId: '',
+            }
+            state.connectedCall=action.payload
+        }
+       /*  addCallUser(state,action){
             state.videoCall.userData =action.payload
         },
 
@@ -54,10 +60,10 @@ const videoCallSlice = createSlice({
                     userData:{}
                 }
             }
-        }
+        } */
 
     }
 })
 
-export const { addVideoCall, joinVideoCall, addAns, endCall,addCallUser } = videoCallSlice.actions
+export const { addVideoCall,addConnectedCall,endVideoCall} = videoCallSlice.actions
 export default videoCallSlice.reducer

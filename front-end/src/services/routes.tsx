@@ -19,7 +19,7 @@ const Signup = React.lazy(() => import('../pages/Users/Signup'))
 const Verification = React.lazy(() => import('../pages/Users/Verification'))
 const OtpVerification = React.lazy(() => import('../pages/Users/OtpVerification'))
 const ForgotPassword = React.lazy(() => import('../pages/Users/ForgotPassword'))
-const VideoCall = React.lazy(()=> import ('../pages/Users/VideoCall'))
+const VideoCall = React.lazy(()=> import ('../pages/Users/VideoCallScreen'))
 
 /* console.log(user,'//////////'); */
 

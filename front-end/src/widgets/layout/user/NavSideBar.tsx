@@ -9,7 +9,7 @@ import { loginCheck, messagesIndication } from "../../../redux/userSlice"
 import api from "../../../services/api"
 import { socket } from "../../../services/socketIo"
 import { increaseMessageCount } from "../../../redux/messageSlice"
-import { addAns, addVideoCall } from "../../../redux/callSlice"
+import { addVideoCall } from "../../../redux/callSlice"
 import webRTC from "../../../services/webRTC"
 import { toast } from "react-toastify"
 import { MdExplore, MdUploadFile } from "react-icons/md"
@@ -85,15 +85,20 @@ export const NavSideBar = () => {
             }
         })
 
-
-        socket.on('incommingCall', handleIncommingCall)
+        socket.on('incoming_call', handleIncomingCall)
+        return(()=>{
+            socket.off('incoming_call', handleIncomingCall)
+        })
+/*         socket.on('incommingCall', handleIncommingCall) */
 
     }, [userData])
 
-    const handleIncommingCall = useCallback(async (data) => {
-        dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
-        const ans = await webRTC.getAnswer(data.offer)
-        console.log(ans);
+    const handleIncomingCall = useCallback(async (data) => {
+        console.log(data);
+        
+        dispatch(addVideoCall({ senderId: data.senderId, recipientId: data.recipientId }))
+  /*       const ans = await webRTC.getAnswer(data.offer) */
+        console.log('incoming call');
         toast.info('video calling....', {
             position: "top-center",
             autoClose: 5000,
@@ -104,7 +109,7 @@ export const NavSideBar = () => {
             progress: undefined,
             theme: "light",
         });
-        dispatch(addAns(ans))
+/*         dispatch(addAns(ans)) */
 
     }, [])
 

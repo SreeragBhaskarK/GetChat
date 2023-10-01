@@ -11,16 +11,18 @@ import { socketIoConnect } from './config/socketIo'
 
 (async () => {
     try {
-
+        const { SERVER_CORS_URL } = process.env
         await connection()
         const { PORT } = process.env
       
         const app = express()
         const server = http.createServer(app)
-        app.use(cors({
-            origin: 'http://localhost:5173',
-            credentials: true,
-        }));
+        if (SERVER_CORS_URL) {
+            app.use(cors({
+                origin: [SERVER_CORS_URL],
+                credentials: true,
+            }))
+        }
         await socketIoConnect(server)
         app.use(cookieParser())
         app.use(express.json())

@@ -8,7 +8,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { socket } from '../../services/socketIo'
 import { ShimmerMessage, ShimmerSearch } from '../../widgets/shimmerEffects'
-
+import { FcVideoCall } from 'react-icons/fc'
 
 export const Messages = () => {
     const [indexUser, setindexUser] = useState(0)
@@ -30,7 +30,7 @@ export const Messages = () => {
     const [messageInd, setMessageInd] = useState(useSelector((state: any) => state.message.messages_count))
     const [searchKey, setSearchKey] = useState('')
     const [suggestions, setSuggestions] = useState([])
-
+    const videoCall = useSelector((state:any)=>state.video_call.videoCall)
     const handleClick = (index, user) => {
         console.log(user, 'userrrrrrrrrr🔥🔥🔥🔥');
 
@@ -342,9 +342,13 @@ export const Messages = () => {
                                                             src={user.memberDetails[0].username === userDetail.username
                                                                 ? user.memberDetails[1].profile_pic
                                                                 : user.memberDetails[0].profile_pic} alt="username" />
+
+
                                                         {user.status ? <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                                                         </span> : <span className="absolute w-3 h-3 bg-red-600 rounded-full left-10 top-3">
                                                         </span>}
+
+
                                                     </div>
                                                     <div className="w-full pb-2">
                                                         <div className="flex justify-between">
@@ -361,6 +365,9 @@ export const Messages = () => {
                                                                 {count}
                                                             </span>}
                                                         </div>
+                                                    </div>
+                                                    <div>
+                                                  {videoCall.senderId ==recipientId && <FcVideoCall className='animate-pulse'/>}
                                                     </div>
                                                 </a>
                                             </li>

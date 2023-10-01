@@ -18,14 +18,17 @@ import http from 'http'
 
 (async () => {
     try {
+        const { SERVER_CORS_URL } = process.env
         await connect()
         const { PORT } = process.env
         const app = express()
         const server = http.createServer(app)
-        app.use(cors({
-            origin: ["http://localhost:5173"],
-            credentials: true
-        }))
+        if (SERVER_CORS_URL) {
+            app.use(cors({
+                origin: [SERVER_CORS_URL],
+                credentials: true,
+            }))
+        }
         app.use(helmet.contentSecurityPolicy({
             directives: {
                 defaultSrc: ["'self'"],
