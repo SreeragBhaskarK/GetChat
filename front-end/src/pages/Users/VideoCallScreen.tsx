@@ -10,7 +10,7 @@ import { addConnectedCall, addVideoCall, endVideoCall } from '../../redux/callSl
 const VideoCallScreen = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const [recipientUser, setRecipientUser] = useState({})
+    const [recipientUser, setRecipientUser] = useState<any>({})
     const [senderId, setSenderId] = useState()
     const [incomingCall, setIncomingCall] = useState(useSelector((state: any) => state.video_call.videoCall))
     const [connection, setConnection] = useState(useSelector((state: any) => state.video_call.connectedCall))

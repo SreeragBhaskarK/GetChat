@@ -1,3 +1,4 @@
 import io from 'socket.io-client'
-export const socket =  io('http://localhost:3000', { withCredentials: true })
-export const postSocket = io('http://localhost:3001',{withCredentials:true})
+const {VITE_USER_SERVICE_URL,VITE_POST_SERVICE_URL} = import.meta.env
+export const socket =  io(VITE_USER_SERVICE_URL, { withCredentials: true })
+export const postSocket = io(VITE_POST_SERVICE_URL,{withCredentials:true})
