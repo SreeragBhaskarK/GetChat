@@ -10,4 +10,4 @@ export * from './newPassword'
 export * from './Messages'
 export * from './Settings'
 export * from './Explore'
-export * from './VideoCall'
+/* export * from './VideoCall' */
