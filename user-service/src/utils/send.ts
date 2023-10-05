@@ -87,12 +87,12 @@ export const sendOtp = async (phone: string) => {
     const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICES } = process.env
     try {
         if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_SERVICES) throw new Error('otp service credentials are missing.')
-      /*   const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
         const result = await client.verify.v2.services(TWILIO_SERVICES)
             .verifications
             .create({ to: '+91' + phone, channel: 'sms' })
         console.log(result);
- */
+
         return true
     }
     catch (err) {
