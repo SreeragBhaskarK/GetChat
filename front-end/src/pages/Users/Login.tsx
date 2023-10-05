@@ -13,7 +13,7 @@ export const Login = () => {
         phoneOrusernameOremail: '',
         password: ''
     })
-    const { VITE_USER_SERVICE_URL } = import.meta.env
+    const { VITE_GOOGLE_AUTH_URL } = import.meta.env
     const [errors, setErrors] = useState({ phoneOrusernameOremail: '', password: '' });
     const location = useLocation()
     const queryParams = new URLSearchParams(location.search)
@@ -27,7 +27,7 @@ export const Login = () => {
             })
             setIsLoading(true)
             api.getGoogleUser(username).then((response) => {
-                console.log(response, '///////userpro');
+          
                 setIsLoading(false)
                 if (response.data.success) {
                     dispatch(addUserData(response.data.data))
@@ -118,7 +118,7 @@ export const Login = () => {
         if (isValid) {
             setIsLoading(true)
             api.loginUser(formData).then((response) => {
-                console.log(response);
+            
                 setIsLoading(false)
                 if (response.data.success) {
                     dispatch(addUserData(response.data.data))
@@ -186,15 +186,15 @@ export const Login = () => {
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
                         className="mx-auto h-10 w-auto"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                        alt="Your Company"
+                        src="https://cdn-icons-png.flaticon.com/512/309/309666.png"
+                        alt="GetChat"
                     />
                     <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
                         Log in to your account
                     </h2>
                 </div>
                 <div className=" max-w-full w-fit ml-auto mt-2  px-1 mr-auto flex-0">
-                    <a href={`${VITE_USER_SERVICE_URL}/auth/google`} className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
+                    <a href={`${VITE_GOOGLE_AUTH_URL}/auth/google`} className="inline-block w-full px-6 py-3 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" >
                         <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                 <g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">

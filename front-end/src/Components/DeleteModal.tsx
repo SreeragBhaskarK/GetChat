@@ -8,12 +8,12 @@ export const DeleteModal = ({ setItems, items, deleteItem, deleteModal, setDelet
     const handleDelete = () => {
         if (type == 'post') {
 
-            
+
             api.deletePostsAdmin(deleteItem.id).then((response) => {
                 if (response.data.success) {
 
-                   
-                  /*   setItems((prevsItem)=>prevsItem[items].status='solved'); */
+
+                    /*   setItems((prevsItem)=>prevsItem[items].status='solved'); */
 
 
                     setDeleteModal(false)
@@ -23,14 +23,14 @@ export const DeleteModal = ({ setItems, items, deleteItem, deleteModal, setDelet
 
             })
         } else if (type == 'user') {
-            console.log(deleteItem, '//////////');
+
 
             api.deleteAudienceAdmin(deleteItem.user_id).then((response) => {
-                console.log(response);
+        
 
                 if (response.data.success) {
-                    console.log(items);
-                    
+                  
+
                     const updatedItems = items.filter(item => item.id !== deleteItem.user_id);
                     setItems(updatedItems);
 
@@ -41,17 +41,53 @@ export const DeleteModal = ({ setItems, items, deleteItem, deleteModal, setDelet
                 console.log(err);
 
             })
-        }else if(type=='advertising'){
-            api.deleteAdvertising(deleteItem).then((response)=>{
-                console.log(response,'////');
-                
-                if(response.data.success){
+        } else if (type == 'advertising') {
+            api.deleteAdvertising(deleteItem).then((response) => {
+              
+
+                if (response.data.success) {
                     setDeleteModal(false)
                 }
-            }).catch((err)=>{
+            }).catch((err) => {
                 console.log(err);
-                
+
             })
+        } else if (type == 'messageDelete') {
+            const { deleteContent, senderId } = deleteItem
+           
+            
+            if (deleteContent?.audio) {
+                api.deleteMessage(deleteContent._id, senderId).then((response) => {
+                
+
+                    if (response.data.success) {
+                        api.deleteAudio(deleteContent.audio).then((response) => {
+                            if (response.data.success) {
+                                setItems(items.filter((message) => message._id != deleteContent._id))
+                                setDeleteModal(false)
+                            }
+                        })
+                    }
+                }).catch((err) => {
+                    console.log(err);
+
+                })
+            } else {
+
+                api.deleteMessage(deleteContent._id, senderId).then((response) => {
+              
+
+                    if (response.data.success) {
+                        setItems(items.filter((message) => message._id != deleteContent._id))
+                        setDeleteModal(false)
+                    }
+                }).catch((err) => {
+                    console.log(err);
+
+                })
+
+            }
+
         }
     }
     return (

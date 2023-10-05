@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addPost } from '../../redux/userSlice';
 import { Dialog, Transition } from '@headlessui/react';
 import { toast } from 'react-toastify'
+import { Processing } from '../../widgets/shimmerEffects';
 
 export const UploadPost = ({ upload, setUpload }) => {
 
@@ -20,66 +21,63 @@ export const UploadPost = ({ upload, setUpload }) => {
         setStep(step + 1);
     };
 
+    const [isLoading, setIsLoading] = useState(false)
+
     const prevStep = () => {
         setStep(step - 1);
     };
 
     const handleFileSelect = useCallback((file: File) => {
-        console.log(file, 'files');
+
 
         setSelectedFile(file);
         nextStep();
     }, []);
 
     const handleCropComplete = useCallback(async (croppedImage: Blob | any) => {
-        console.log(croppedImage, 'clickedsuccess');
 
-        if (croppedImage == 'test') {
-            console.log(croppedImage, 'clickedsuccess', step);
+
+        if (croppedImage) {
+
             setStep((prevStep) => prevStep + 1)
-        } else {
-
             setCroppedImage(croppedImage);
-            nextStep();
         }
     }, []);
 
     const handlePostSubmit = () => {
         // Handle the submission of the cropped image, caption, and tags here
         // You can use a backend API to upload the image and save the data
-        console.log('Image:', croppedImage);
-        console.log('Caption:', caption);
-        console.log('Tags:', tags);
-        if (selectedFile.type.startsWith('image/') || selectedFile.type.startsWith('video/')) {
+        setIsLoading(true)
+        if (croppedImage.type.startsWith('image/') && selectedFile) {
 
 
             let postName = selectedFile.name.replace(/[^a-zA-Z0-9\s]/g, '')
             const formData = {
                 originalname: postName.replace(/\s/g, ''),
-                mimetype: selectedFile.type,
+                mimetype: croppedImage.type,
                 type: 'post'
             }
-            console.log('////////uploader', formData);
+
             api.postUpload(formData).then(async (response) => {
-                console.log(response, '/////image');
+           
                 if (response.data.success) {
                     const preSignedUrl = response.data.data;
 
                     const result = await fetch(preSignedUrl, {
                         method: 'PUT',
-                        body: selectedFile,
+                        body: croppedImage,
                         headers: {
-                            'Content-Type': selectedFile.type, // Adjust the content type as needed
+                            'Content-Type': croppedImage.type, // Adjust the content type as needed
                         },
                     });
                     console.log(result);
 
                     if (result.status == 200) {
-                        console.log('//////cors');
+
                         const parsedUrl = new URL(result.url);
-                        console.log(parsedUrl, 'parsedUrl');
+
                         const postUrl = parsedUrl.origin + parsedUrl.pathname
-                        console.log(postUrl, 'posturl');
+
 
                         const formData = {
                             url: postUrl,
@@ -89,7 +87,7 @@ export const UploadPost = ({ upload, setUpload }) => {
 
                         api.postUrl(formData).then((response) => {
                             console.log(response);
-
+                            setIsLoading(false)
                             if (response.data.success) {
 
                                 setUpload(false)
@@ -104,6 +102,13 @@ export const UploadPost = ({ upload, setUpload }) => {
                                     progress: undefined,
                                     theme: "light",
                                 });
+
+                                setUpload(false)
+                                setStep(1)
+                                setTags('')
+                                setCaption('')
+                                setCroppedImage(null)
+                                setSelectedFile(null)
 
                             }
                         }).catch((err) => {
@@ -121,6 +126,14 @@ export const UploadPost = ({ upload, setUpload }) => {
                                     theme: "light",
                                 });
                             } else {
+                                setIsLoading(false)
+                                setUpload(false)
+                                setStep(1)
+                                setTags('')
+                                setCaption('')
+                                setCroppedImage(null)
+                                setSelectedFile(null)
+
                                 toast.error('server error', {
                                     position: "top-center",
                                     autoClose: 5000,
@@ -139,10 +152,11 @@ export const UploadPost = ({ upload, setUpload }) => {
                         })
                     }
 
-                    console.log('Image uploaded successfully', result);
+
                 }
 
             }).catch((err) => {
+                setIsLoading(false)
                 if (err.response.data.message) {
 
                     toast.error(err.response.data.message, {
@@ -209,8 +223,9 @@ export const UploadPost = ({ upload, setUpload }) => {
                                     leaveFrom="translate-y-0"
                                     leaveTo="translate-y-full"
                                 >
-                                    <Dialog.Panel className="pointer-events-auto relative w-full items-center flex  h-full max-w-md">
+                                    <Dialog.Panel className="pointer-events-auto relative w-full items-center flex overflow-auto no-scrollbar h-full max-w-md">
                                         <div className="bg-gray-100 rounded-2xl flex items-center justify-center">
+                                            {isLoading && <Processing />}
                                             <div className="bg-white p-6 rounded shadow-md w-96">
                                                 <h1 className="text-2xl font-semibold mb-4">Create Post</h1>
                                                 {step === 1 && (

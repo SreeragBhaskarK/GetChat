@@ -20,7 +20,7 @@ export const CallScreen = ({ localStream, remoteStream, peerConnections }) => {
   const [isMuted, setIsMuted] = useState(true)
   const [videoScreen, setVideoScreen] = useState(true)
   const handleEndCall = () => {
-    console.log(videoCall.senderId);
+
 
     socket.emit('video_call_end', { recipientId: videoCall.senderId })
     // Assuming localStream is a reference to the local media stream

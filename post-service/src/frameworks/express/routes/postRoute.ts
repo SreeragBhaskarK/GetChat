@@ -4,17 +4,17 @@ import { upload } from '../../../interfaces/middelwares/multer'
 import { auth } from '../../../interfaces/middelwares/auth'
 const router = Router()
 
-router.post('/post',PostController.getPosts)
-router.post('/posts',PostController.postPosts)
-router.post('/post-url',PostController.postUrl)
-router.post('/like',PostController.postLike)
-router.post('/unlike',PostController.postUnLike)
-router.post('/report',PostController.postReport)
-router.get('/post',PostController.getProfilePost)
-router.post('/comment',PostController.addComment)
-router.patch('/edit-post',PostController.editPost)
-router.delete('/delete-post',PostController.deletePost),
-router.delete('/delete-comment/:commentId',PostController.deleteComment)
-router.get('/comment',PostController.getComment)
-router.delete('/audio',PostController.deleteAudio)
+router.post('/post',auth,PostController.getPosts)
+router.post('/posts',auth,PostController.postPosts)
+router.post('/post-url',auth,PostController.postUrl)
+router.post('/like',auth,PostController.postLike)
+router.post('/unlike',auth,PostController.postUnLike)
+router.post('/report',auth,PostController.postReport)
+router.get('/post',auth,PostController.getProfilePost)
+router.post('/comment',auth,PostController.addComment)
+router.patch('/edit-post',auth,PostController.editPost)
+router.delete('/delete-post',auth,PostController.deletePost),
+router.delete('/delete-comment/:commentId',auth,PostController.deleteComment)
+router.get('/comment',auth,PostController.getComment)
+router.delete('/audio',auth,PostController.deleteAudio)
 export default router

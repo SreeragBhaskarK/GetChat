@@ -22,7 +22,7 @@ export const Messages = () => {
     const searchParams = new URLSearchParams(location.search);
 
     const paramValue = searchParams.get('userId');
-    console.log(paramValue, '////////////jshjdhf');
+   
 
 
 
@@ -30,9 +30,9 @@ export const Messages = () => {
     const [messageInd, setMessageInd] = useState(useSelector((state: any) => state.message.messages_count))
     const [searchKey, setSearchKey] = useState('')
     const [suggestions, setSuggestions] = useState([])
-    const videoCall = useSelector((state:any)=>state.video_call.videoCall)
+    const videoCall = useSelector((state: any) => state.video_call.videoCall)
     const handleClick = (index, user) => {
-        console.log(user, 'userrrrrrrrrr🔥🔥🔥🔥');
+    
 
         setUserData(user)
         setindexUser(index)
@@ -42,7 +42,7 @@ export const Messages = () => {
         if (searchKey && userDetail) {
             setisLoadingSearch(true)
             api.userSearch(searchKey, userDetail.username).then((response) => {
-                console.log(response, 'search');
+             
                 if (response.data.success) {
                     setisLoadingSearch(false)
                     setSuggestions(response.data.data)
@@ -68,19 +68,19 @@ export const Messages = () => {
     useEffect(() => {
         setIsLoading(true)
         if (paramValue) {
-            console.log(paramValue, 'params🚀🚀🚀🚀');
+         
             navigate({
                 pathname: location.pathname
             })
             searchParams.delete('userId');
             api.chatCreate({ firstId: paramValue, secondId: userDetail._id }).then((response) => {
-                console.log(response, '////skjdsdh');
+               
 
 
 
                 api.getChats(userDetail._id).then((response) => {
 
-                    console.log(response, '/////////messages');
+              
                     if (response.data.success) {
                         setChatUser(response.data.data)
                         setIsLoading(false)
@@ -110,7 +110,7 @@ export const Messages = () => {
             }).catch((err) => {
                 api.getChats(userDetail._id).then((response) => {
 
-                    console.log(response, '/////////messages');
+                  
                     if (response.data.success) {
                         setChatUser(response.data.data)
                         setIsLoading(false)
@@ -162,7 +162,7 @@ export const Messages = () => {
                 }
 
             }).catch((err) => {
-                console.log(err);
+                console.log(err,'check');
 
             })
         }
@@ -174,7 +174,7 @@ export const Messages = () => {
     }, [userDetail, paramValue])
 
     const handleUserOnlineStatus = useCallback((data) => {
-        console.log(data, 'online status');
+     
         setChatUser((prevChat) =>
             prevChat.map((chat) => {
                 const recipientId =
@@ -221,12 +221,12 @@ export const Messages = () => {
     return (
         <>
 
-            <NavSideBar />
-            <main className="ease-soft-in-out xl:ml-68.5  relative h-screen  max-h-screen rounded-xl min-h-screen transition-all duration-200">
+           {/*  <NavSideBar /> */}
+            <main className="ease-soft-in-out ml-40  xl:ml-[17rem]   relative h-screen  max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className="container mx-auto h-full ">
-                    <div className="min-w-full border h-full rounded lg:grid lg:grid-cols-3">
+                    <div className="w-full border h-full flex  rounded lg:grid lg:grid-cols-3">
                         <div className="border-r h-screen overflow-y-auto no-scrollbar border-gray-300 lg:col-span-1">
-                            <div className="mx-3 my-3">
+                            <div className="mx-3 hidden lg:block my-3">
                                 <div className="relative text-gray-600">
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                         <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -274,21 +274,21 @@ export const Messages = () => {
                                 </> :
 
                                     chatUser?.map((user, index) => {
-                                        console.log(user, 'uuuuuuuuuuser',);
-
-                                        const recipientId = user?.memberDetails[0]._id === userDetail._id ? user?.memberDetails[1]._id : user?.memberDetails[0]._id
-                                        console.log(messageInd, 'message');
+                                 
+                                    
+                                        const recipientId = user?.memberDetails[0]?._id === userDetail?._id ? user?.memberDetails[1]?._id : user?.memberDetails[0]?._id
+                                  
 
                                         const result = messageInd?.findIndex((message) => message?.recipientId == recipientId)
                                         let count = 0
                                         if (result != -1) {
                                             count = messageInd[result]?.count
                                         }
-                                        console.log(count, result, 'count');
+                                    
 
-                                        /*  setInterval(() => {
+                                         setInterval(() => {
                                                socket.emit('onlineStatusCheck', { userId: recipientId, socketId: socket.id })
-                                           }, 10 * 1000) */
+                                           }, 10 * 1000)
 
                                         let checkDeleteMessage = false
                                         if (user.delete_user_id) {
@@ -305,7 +305,7 @@ export const Messages = () => {
 
                                             if (messageInd) {
                                                 const findIndex = messageInd.findIndex((message) => message.recipientId == recipientId)
-                                                console.log(messageInd[findIndex], '/callback', findIndex);
+                                 
                                                 if (messageInd[findIndex]?.message?.updatedAt && messageInd[findIndex]?.message?.senderId != userDetail?._id) {
                                                     if (messageInd[findIndex]?.message?.updatedAt > user.last_message.updatedAt) {
 
@@ -350,7 +350,7 @@ export const Messages = () => {
 
 
                                                     </div>
-                                                    <div className="w-full pb-2">
+                                                    <div className="w-full pb-2 hidden lg:block">
                                                         <div className="flex justify-between">
                                                             <span className="block ml-2 font-semibold text-gray-600">
                                                                 {user.memberDetails[0].username === userDetail.username
@@ -367,7 +367,7 @@ export const Messages = () => {
                                                         </div>
                                                     </div>
                                                     <div>
-                                                  {videoCall.senderId ==recipientId && <FcVideoCall className='animate-pulse'/>}
+                                                        {videoCall.senderId == recipientId && <FcVideoCall className='animate-pulse' />}
                                                     </div>
                                                 </a>
                                             </li>
@@ -377,7 +377,7 @@ export const Messages = () => {
 
                             </ul>
                         </div>
-                        {chatUser.length > 0 && <ChatBox userData={userData} senderId={userDetail._id} setChat={setChatUser} />}
+                        {chatUser.length > 0 && <ChatBox userData={userData} senderId={userDetail._id} setIndexUser={setindexUser} setChat={setChatUser} />}
                     </div>
                     {/*  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
                     <button onClick={sendMessage}>Send</button> */}

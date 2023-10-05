@@ -38,9 +38,11 @@ class CommentRepository {
         }
     }
 
-    async getComment(postId: string) {
+    async getComment(postId: string,page:number) {
         try {
-            const result = await this.commentModel.findAll({ where: { post_id: postId }, order: [['createdAt', 'DESC']] })
+            const limit = 10
+            const skip = (page-1)*limit
+            const result = await this.commentModel.findAll({ where: { post_id: postId },offset:skip,limit, order: [['createdAt', 'DESC']] })
             return result
 
         } catch (err) {

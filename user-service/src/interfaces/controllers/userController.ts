@@ -160,12 +160,13 @@ class UserController {
     static async getMessages(req: Request, res: Response) {
         try {
 
-            const { chatId } = await sanitize(req.body) 
-            if (!chatId) throw new Error("not found user id");
+            const { chatId,page } = await sanitize(req.body) 
 
+            if (!chatId||!page) throw new Error("not found chat id");
+            const pageNumber = Number(page)
             const getMessages = new GetMessages(userRepository);
 
-            const result: any = await getMessages.execute(chatId);
+            const result: any = await getMessages.execute(chatId,pageNumber);
 
             console.log(result, '//////');
 

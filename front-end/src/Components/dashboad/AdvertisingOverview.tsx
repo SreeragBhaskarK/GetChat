@@ -41,9 +41,9 @@ export const AdvertisingOverview = () => {
             } else if (type == 'year') {
                 target = '6'
             }
-            console.log(type,target , 'post');
+         
             api.getAdvertisingDashboard(type, target).then(async(response)=>{
-                console.log(response,'adddddddddddd');
+             
                 
                 if(response.data.success){
 

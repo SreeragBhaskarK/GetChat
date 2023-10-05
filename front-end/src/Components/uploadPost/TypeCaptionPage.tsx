@@ -68,7 +68,7 @@ export const TypeCaptionPage = ({
 
                 </div>
 
-
+{/* 
                 <div className="mb-4">
                     <label htmlFor="tags" className="block text-gray-600 mb-2">
                         Tags (comma-separated)
@@ -80,7 +80,7 @@ export const TypeCaptionPage = ({
                         onChange={(e) => setTags(e.target.value)}
                         className="w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-500"
                     />
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                     <button
                         onClick={onBack}

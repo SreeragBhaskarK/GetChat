@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useDebugValue, useEffect, useRef, useState } from 'react'
 import api from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -7,19 +7,18 @@ import { AiFillInfoCircle } from 'react-icons/ai'
 import { DeleteChatBox } from '../widgets/cards';
 import { BsCameraVideo, BsFillPauseFill, BsFillPlayFill } from 'react-icons/bs'
 
-import { messagesIndication } from '../redux/userSlice';
 import { socket } from '../services/socketIo';
 import { decreamentMessageCount, increaseMessageCount } from '../redux/messageSlice';
-import { useNavigate } from 'react-router-dom';
-import {  addVideoCall } from '../redux/callSlice';
-import { CaptureAudio } from '.';
+import { Link, useNavigate } from 'react-router-dom';
+import { addVideoCall } from '../redux/callSlice';
+import { CaptureAudio, DeleteModal } from '.';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { IoIosClose } from 'react-icons/io';
 /* import 'emoji-mart/css/emoji-mart.css'; */
 
 
-export const ChatBox = ({ userData, senderId, setChat }) => {
+export const ChatBox = ({ userData, senderId, setChat, setIndexUser }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([])
     /*  const [listen, setListen] = useState(false) */
@@ -35,11 +34,23 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
     const [play, setPlay] = useState({ status: false, index: -1 })
     const audioRef = useRef(null);
     const [fileChat, setFileChat] = useState<File>()
+    const scrollContainerRef = useRef(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [deleteMessage, setDeleteMessage] = useState(false)
+    const [deleteContent, setDeleteContent] = useState('')
+    let page = 1
+    useEffect(() => {
+        // Scroll to the end whenever messages change
+        if (page == 1) {
+
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
     const sendMessage = (e) => {
         e.preventDefault()
         if (message.trim() !== '' || fileChat) {
             if (fileChat) {
-                console.log('1',fileChat);
+          
 
                 let postName = fileChat.name.replace(/[^a-zA-Z0-9\s]/g, '')
                 const formData = {
@@ -47,9 +58,9 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                     mimetype: fileChat.type,
                     type: 'chatImage'
                 }
-                console.log('////////uploader', formData);
+        
                 api.postUpload(formData).then(async (response) => {
-                    console.log(response, '/////image');
+                  
                     if (response.data.success) {
                         const preSignedUrl = response.data.data;
 
@@ -60,14 +71,14 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                                 'Content-Type': fileChat.type, // Adjust the content type as needed
                             },
                         });
-                        console.log(result);
+                      
 
                         if (result.status == 200) {
-                            console.log('//////cors');
+                      
                             const parsedUrl = new URL(result.url);
-                            console.log(parsedUrl, 'parsedUrl');
+                         
                             const postUrl = parsedUrl.origin + parsedUrl.pathname
-                            console.log(postUrl, 'posturl');
+                    
 
                             socket.emit('private_message', {
                                 recipientId: userData?.memberDetails[0]?._id === senderId
@@ -79,6 +90,7 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                                 image: postUrl
                             });
 
+
                             setMessages((prevMessage) => [...prevMessage, {
                                 chatId: userData._id, content: message, recipientId: userData.memberDetails[0]._id === senderId
                                     ? userData.memberDetails[1]._id
@@ -88,9 +100,9 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                             setSelectedImage(null)
                         }
                     }
-                }).catch((err)=>{
+                }).catch((err) => {
                     console.log(err);
-                    
+
                 })
 
 
@@ -104,6 +116,23 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                     content: message,
                     chatId: userData._id,
                 });
+
+        
+
+
+                setChat((prevChat) => {
+                    const chatIndex = prevChat.findIndex((chat) => chat._id === userData._id);
+
+                    if (chatIndex !== -1 && chatIndex !== 0) {
+                        const movedChat = prevChat.splice(chatIndex, 1)[0];
+                        prevChat.unshift(movedChat);
+                        return [...prevChat];
+                    }
+
+                    return prevChat;
+                });
+                setIndexUser(0)
+       
 
                 setMessages((prevMessage) => [...prevMessage, {
                     chatId: userData._id, content: message, recipientId: userData.memberDetails[0]._id === senderId
@@ -119,12 +148,14 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
         }
     }
 
+
+
     useEffect(() => {
         socket.emit('messageSeen', handleSeenMessage)
     }, [socket])
 
     const handleSeenMessage = useCallback((data) => {
-        console.log(data, 'seen true');
+  
 
         setMessages((prevMessage) => prevMessage.filter((message) => message._id == data._id))
     }, [])
@@ -132,15 +163,53 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
     useEffect(() => {
         setIncommingCall(videoCall)
     }, [videoCall])
-
+    /*    useEffect(() => {
+   
+   
+           api.getMessage({ chatId: userData?._id,page:1 }).then((response) => {
+               console.log(response);
+               if (response.data.success) {
+                   setMessages(response.data.data)
+   
+               }
+   
+           }).catch((err) => {
+               console.log(err);
+   
+           })
+   
+   
+   
+       }, [userData]) */
 
     useEffect(() => {
 
+        loadPost(userData, 'first')
+    }, [userData])
+    const loadPost = useCallback(async (userData, type) => {
 
-        api.getMessage({ chatId: userData?._id }).then((response) => {
-            console.log(response);
+        if (type == 'first' && page != 1) page = 1
+        if (!hasMore) return;
+   
+
+        api.getMessage({ chatId: userData?._id, page }).then((response) => {
+         
             if (response.data.success) {
-                setMessages(response.data.data)
+
+                if (response.data.data.length === 0) {
+                    setHasMore(false);
+                } else {
+                
+                    if (page == 1) {
+                        setMessages(response.data.data)
+                        page += 1
+                    } else {
+
+                        setMessages((prevMessages) => [...response.data.data, ...prevMessages])
+                        page += 1
+                    }
+
+                }
 
             }
 
@@ -151,7 +220,32 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
 
 
 
-    }, [userData])
+    }, [])
+
+    const handleScroll = () => {
+
+
+        const { scrollTop, clientHeight, scrollHeight } = document.getElementById('messageScroll');
+    
+
+        /* if (scrollTop + clientHeight >= scrollHeight - 20) {
+            loadPost();
+        } */
+
+        if (scrollTop <= 20) {
+            loadPost(userData, '')
+        }
+    };
+
+
+    useEffect(() => {
+
+        const MessageScroll = document.getElementById('messageScroll')
+        MessageScroll.addEventListener('scroll', handleScroll);
+        return () => {
+            MessageScroll.removeEventListener('scroll', handleScroll);
+        };
+    }, [hasMore]);
 
 
     useEffect(() => {
@@ -167,7 +261,7 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
         dispatch(decreamentMessageCount(recipientId))
 
         socket.on('incommingCall', (data) => {
-            console.log(data, '////message');
+      
             dispatch(addVideoCall({ senderId: data.userData.senderId, recipientId: data.userData.recipient._id }))
 
 
@@ -179,42 +273,12 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
 
         };
     }, [userData])
-    const messageDelete = (messageContent, senderId) => {
-        if (messageContent.audio) {
-            api.deleteMessage(messageContent._id, senderId).then((response) => {
-                console.log(response);
 
-                if (response.data.success) {
-                    api.deleteAudio(messageContent.audio).then((response) => {
-                        if (response.data.success) {
-                            setMessages(messages.filter((message) => message._id != messageContent._id))
-                        }
-                    })
-                }
-            }).catch((err) => {
-                console.log(err);
-
-            })
-        } else {
-
-            api.deleteMessage(messageContent._id, senderId).then((response) => {
-                console.log(response);
-
-                if (response.data.success) {
-                    setMessages(messages.filter((message) => message._id != messageContent._id))
-                }
-            }).catch((err) => {
-                console.log(err);
-
-            })
-
-        }
-    }
 
     const handleVideoCall = () => {
         const recipient = userData?.memberDetails[0]._id === senderId ? userData?.memberDetails[1] : userData?.memberDetails[0]
         /* dispatch(addCallUser({ senderId, recipient })) */
-        navigate('/video_call',{state:{senderId,recipient}})
+        navigate('/video_call', { state: { senderId, recipient } })
     }
 
     const handleChatTime = useCallback((inputTime) => {
@@ -272,8 +336,8 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
     };
 
     const handleFileChange = (e) => {
-        console.log(e,'e');
-        
+   
+
         const selectedFile = e.target.files[0];
         setFileChat(selectedFile)
         if (selectedFile) {
@@ -289,10 +353,10 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
     const playAudio = (index, audio) => {
         setPlay({ index, status: true })
         audioRef.current.src = audio
-        console.log(audioRef, 'time');
+
 
         audioRef.current.addEventListener('loadedmetadata', () => {
-            console.log(audioRef.current.duration, 'durations');
+        
         });
         audioRef.current.play()
     }
@@ -305,35 +369,44 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
         setSelectedImage(null)
     }
 
+    const messageDelete = (messageContent) => {
+        setDeleteContent(messageContent)
+        setDeleteMessage(!deleteMessage)
+    }
+
     return (
         <>
-            <div className="hidden lg:col-span-2 lg:block h-screen">
+            <div className=" lg:col-span-2 lg:block w-full  h-screen">
                 <div className="w-full h-full flex flex-col">
-                    <div className="relative flex h-16  items-center p-3 border-b border-gray-300">
-                        <img className="object-cover w-10 h-10 rounded-full"
-                            src={userData?.memberDetails[0]._id === senderId
-                                ? userData?.memberDetails[1].profile_pic
-                                : userData?.memberDetails[0].profile_pic} alt="username" />
-                        <span className="block ml-2 font-bold text-gray-600">{userData?.memberDetails[0]._id === senderId
-                            ? userData?.memberDetails[1].username
-                            : userData?.memberDetails[0].username}</span>
+                    <div className="relative flex h-16  p-3 border-b border-gray-300">
+                        <Link className='flex  items-center' to={`/${userData?.memberDetails[0]._id === senderId
+                                ? userData?.memberDetails[1].username
+                                : userData?.memberDetails[0].username}`}>
 
+                            <img className="object-cover w-10 h-10 rounded-full"
+                                src={userData?.memberDetails[0]._id === senderId
+                                    ? userData?.memberDetails[1].profile_pic
+                                    : userData?.memberDetails[0].profile_pic} alt="username" />
+                            <span className="block ml-2 font-bold text-gray-600">{userData?.memberDetails[0]._id === senderId
+                                ? userData?.memberDetails[1].username
+                                : userData?.memberDetails[0].username}</span>
+                        </Link>
                         {incommingCall?.senderId == recipientId ? <div className='bg-green-400 flex rounded-2xl ml-auto ' onClick={() => handleVideoCall()}> <BsCameraVideo className='ml-auto mr-3 cursor-pointer' onClick={() => handleVideoCall()} /> <span className='text-white font-black'>JOIN</span> </div> : <BsCameraVideo className='ml-auto cursor-pointer' onClick={() => handleVideoCall()} />}
                         <AiFillInfoCircle onClick={() => setDeleteChat(!deleteChat)} className='ml-auto w-fit' />
                     </div>
                     {deleteChat && <DeleteChatBox setDeleteChat={setDeleteChat} userId={senderId} chatId={userData._id} deleteChat={deleteChat} setChat={setChat} />}
-                    <div className="relative w-full flex-grow  p-6 no-scrollbar overflow-y-auto">
+                    <div ref={scrollContainerRef} id='messageScroll' className="relative w-full flex-grow  p-6 no-scrollbar  overflow-y-auto">
                         <ul className="space-y-2">
                             {messages.map((messageContent, index) => {
 
 
                                 if (messageContent?.senderId !== senderId && messageContent.seen == false) {
                                     api.changeSeen({ messageId: messageContent._id }).then((response) => {
-                                        console.log(response);
+                                    
                                         if (response.data.success) {
                                             let prevMessage = messages
                                             prevMessage[index] = response.data.data
-                                            //  socket.emit('message_seen', response.data.data)
+                                            /* socket.emit('message_seen', response.data.data) */
                                             setMessages(prevMessage)
                                         }
 
@@ -369,7 +442,7 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                                         <li className={messageContent?.senderId === senderId ? "flex justify-end " : "flex justify-start"}>
                                             <div className='group flex'>
 
-                                                {messageContent?.senderId === senderId && < div onClick={() => messageDelete(messageContent, senderId)} className='cursor-pointer opacity-0 flex items-center mr-2 group-hover:opacity-100'> <MdDelete /></div>}
+                                                {messageContent?.senderId === senderId && < div onClick={() => messageDelete(messageContent)} className='cursor-pointer opacity-0 flex items-center mr-2 group-hover:opacity-100'> <MdDelete /></div>}
 
                                                 {messageContent.audio ? <div className="relative cursor-pointer w-64 h-16 max-w-xl px-4 py-2 bg-[#ECF3FF]  text-gray-700 rounded-2xl shadow ">
                                                     <div className={`flex items-center h-full ${play.index == index && 'animate-pulse'}`}>
@@ -434,7 +507,7 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
 
                                     <input type="text" placeholder="Message"
                                         className="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
-                                        name="message" value={message} onChange={(e) => setMessage(e.target.value)}  />
+                                        name="message" value={message} onChange={(e) => setMessage(e.target.value)} />
                                     {!selectedImage && <div onClick={() => setRecordAudio(!recordAudio)} className='cursor-pointer flex items-center'>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor">
@@ -453,6 +526,7 @@ export const ChatBox = ({ userData, senderId, setChat }) => {
                             </div>
                         </form>
                             : <CaptureAudio userData={userData} senderId={senderId} setMessages={setMessages} recordAudio={recordAudio} setRecordAudio={setRecordAudio} />}
+                        {deleteMessage && <DeleteModal setItems={setMessages} items={messages} deleteItem={{ deleteContent, senderId }} deleteModal={deleteMessage} setDeleteModal={setDeleteMessage} type={'messageDelete'} />}
                     </div>
                 </div >
             </div >

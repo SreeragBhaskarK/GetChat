@@ -238,11 +238,11 @@ class PostController {
 
     static async getComment(req: Request, res: Response) {
         try {
-            const { post_id } = await sanitize(req.query) as { post_id: string }
+            const { post_id,page } = await sanitize(req.query) as { post_id: string,page:string }
             console.log(post_id, '//////');
-
+            const pageNumber = Number(page)
             const getComment = new GetComment(commentRepository)
-            const result = await getComment.execute(post_id)
+            const result = await getComment.execute(post_id,pageNumber)
             if (result) {
                 res.status(200).json({ success: true, message: 'successfully', data: result })
             } else {

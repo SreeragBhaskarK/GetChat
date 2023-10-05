@@ -47,9 +47,9 @@ export const Audience = () => {
 
   const handleStatusChange = (e, userId) => {
     const { value } = e.target
-    console.log(value, userId, '///////');
+
     api.updateUserStatus({ userId: userId, status: value }).then((response) => {
-      console.log(response);
+    
 
       if (response.data.success) {
         setAudiences((prevAudience) => prevAudience.map((user:any) => {
@@ -72,7 +72,7 @@ export const Audience = () => {
   return (
     <>
       <NavSideBar />
-      <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
+      <main className="ease-soft-in-out ml-40  xl:ml-[17rem] relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
         <NavTopBar navLocation='Audience' />
         <div className="w-full px-6 py-6 mx-auto">
           <div className="flex flex-wrap -mx-3">

@@ -1,0 +1,26 @@
+sudo apt-get update
+sudo apt-get install certbot
+
+
+sudo certbot certonly --standalone -d yourdomain1.com -d www.yourdomain1.com
+sudo certbot certonly --standalone -d yourdomain2.com -d www.yourdomain2.com
+sudo certbot certonly --standalone -d yourdomain3.com -d www.yourdomain3.com
+
+domain 1
+sudo cp /etc/letsencrypt/live/getchatuser.getmyshoe.live/privkey.pem /home/ubuntu/GetChat/proxy/ssl/cert1.key
+sudo cp /etc/letsencrypt/live/getchatuser.getmyshoe.live/fullchain.pem /home/ubuntu/GetChat/proxy/ssl/cert1.crt
+
+
+domain 2
+sudo cp /etc/letsencrypt/live/getchatuser.getmyshoe.live/privkey.pem /home/ubuntu/GetChat/proxy/ssl/cert2.key
+sudo cp /etc/letsencrypt/live/getchatuser.getmyshoe.live/fullchain.pem /home/ubuntu/GetChat/proxy/ssl/cert2.crt
+
+
+domain 3
+sudo cp /etc/letsencrypt/live/getchatuser.getmyshoe.live/privkey.pem /home/ubuntu/GetChat/proxy/ssl/cert3.key
+sudo cp /etc/letsencrypt/live/getchatuser.getmyshoe.live/fullchain.pem /home/ubuntu/GetChat/proxy/ssl/cert3.crt
+
+
+
+
+sudo certbot renew

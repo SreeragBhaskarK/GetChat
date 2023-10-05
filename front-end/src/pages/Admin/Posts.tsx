@@ -27,7 +27,7 @@ const Posts = () => {
     return (
         <>
            <NavSideBar/>
-            <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
+            <main className="ease-soft-in-out ml-40  xl:ml-[17rem] relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <NavTopBar navLocation='Posts' />
                 <div className="w-full px-6 py-6 mx-auto">
                     <div className="flex flex-wrap -mx-3">

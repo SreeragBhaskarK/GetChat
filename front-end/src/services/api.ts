@@ -3,27 +3,32 @@ import { useNavigate } from 'react-router-dom';
 
 
 // Create an instance of Axios with custom configuration
-const {VITE_BASE_URL}=import.meta.env
+const { VITE_BASE_URL } = import.meta.env
 const api = axios.create({
-    baseURL:VITE_BASE_URL, // Replace with your API base URL
+    baseURL: VITE_BASE_URL, // Replace with your API base URL
     /* timeout: 5000, */
     withCredentials: true
 });
-// api.interceptors.response.use(
-//     response => response,
-//     error => {
-//         console.log(error, 'errrhandle');
-//         if (error.response) {
-//             // Handle error responses
-//             return error
-//         } else {
-//             return error
-//             // Handle network errors
-//             window.location.href ='/500'
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.log(error, 'errrhandle');
+        if (error.response) {
+            if (error.response.data.message == "user account are blocked!") {
+                // Clear local storage
+                localStorage.clear();
 
-//         }
-//     }
-// )
+            }
+            // Handle error responses
+            return Promise.reject(error);
+        } else {
+            // Handle network errors
+            window.location.href = '/500'
+            return Promise.reject(error);
+
+        }
+    }
+)
 
 // Define your API methods
 const apiMethods = {
@@ -31,7 +36,7 @@ const apiMethods = {
     loginUser: (formData: object) => api.post('/user/login', formData),
     signupUser: (formData: object) => api.post('/user/signup', formData),
     forgotPasswordUser: (formData: object) => api.post('/user/forgot-password', formData),
-    setNewPassword:(formData:object)=>api.patch('/user/new-password',formData),
+    setNewPassword: (formData: object) => api.patch('/user/new-password', formData),
     logoutUser: () => api.delete('/user/logout'),
     verification: (formData) => api.post('/user/email-verification', formData),
     otpVerification: (formData) => api.post('/user/otp-verification', formData),
@@ -49,13 +54,13 @@ const apiMethods = {
     getChats: (userId) => api.get(`/user/find-user-chat/${userId}`),
     changeSeen: (messageId) => api.post('/user/change-seen', messageId),
     getFollowData: (formData) => api.post('/user/get-follows', formData),
-    deleteMessage: (id,userId) => api.delete(`/user/delete-message/${id}/${userId}`),
-    deleteChat: (id,userId) => api.delete(`/user/delete-chat/${id}/${userId}`),
+    deleteMessage: (id, userId) => api.delete(`/user/delete-message/${id}/${userId}`),
+    deleteChat: (id, userId) => api.delete(`/user/delete-chat/${id}/${userId}`),
     getNotifications: (username) => api.get(`/user/notifications?username=${username}`),
-    getAdvertisingUser:(type,page) => api.get(`/user/advertising?type=${type}&&page=${page}`),
-    getGoogleUser:(username) => api.get(`/user/auth/google-get-user?username=${username}`),
-    deleteNotification:(id,username)=>api.delete(`/user/notifications?id=${id}&&username=${username}`),
-    getSuggestion:(username)=>api.get(`/user/suggestion?username=${username}`),
+    getAdvertisingUser: (type, page) => api.get(`/user/advertising?type=${type}&&page=${page}`),
+    getGoogleUser: (username) => api.get(`/user/auth/google-get-user?username=${username}`),
+    deleteNotification: (id, username) => api.delete(`/user/notifications?id=${id}&&username=${username}`),
+    getSuggestion: (username) => api.get(`/user/suggestion?username=${username}`),
 
     /* admin */
     logoutAdmin: () => api.delete('/admin/logout'),
@@ -76,7 +81,7 @@ const apiMethods = {
     deleteAdvertising: (id) => api.delete(`/admin/advertising/'${id}`,),
     getAdvertisingDashboard: (type, target) => api.get(`/admin/advertising-overview?type=${type}&&target=${target}`),
     getNotificationWeek: () => api.get('/admin/notifications-week'),
-    updateUserStatus:(formData)=> api.patch('/admin/audience-status',formData),
+    updateUserStatus: (formData) => api.patch('/admin/audience-status', formData),
 
     /* posts */
 
@@ -91,8 +96,8 @@ const apiMethods = {
     addComment: (formData) => api.post('/post/comment', formData),
     deleteComment: (commentId) => api.delete(`/post/delete-comment/${commentId}`),
     editPost: (formData) => api.patch('/post/edit-post', formData),
-    getComment: (postId) => api.get(`/post/comment?post_id=${postId}`),
-    deleteAudio:(url)=>api.delete(`/post/audio?url=${url}`)
+    getComment: (postId, page) => api.get(`/post/comment?post_id=${postId}&&page=${page}`),
+    deleteAudio: (url) => api.delete(`/post/audio?url=${url}`)
 
 };
 

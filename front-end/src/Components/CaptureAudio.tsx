@@ -37,17 +37,17 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId,s
                     setSeconds((prevSeconds) => prevSeconds + 1);
                 }
             }, 1000);
-            console.log('not', audioLength);
+      
 
             if (audioLength?.seconds) {
-                console.log('in');
+             
 
                 let current = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
                 let prev = `${audioLength.minutes < 10 ? '0' : ''}${audioLength.minutes}:${audioLength.seconds < 10 ? '0' : ''}${audioLength.seconds}`
-                console.log(current, prev, 'check');
+               
 
                 if (current == prev) {
-                    console.log('over');
+            
                     setRecordingPlay(!recordingPlay)
                     setTimeStart(false)
                 }
@@ -76,7 +76,7 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId,s
 
                 recorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                    console.log(audioBlob, 'audiooooo.......');
+                
 
                     const url = URL.createObjectURL(audioBlob);
                     setAudioURL(url);
@@ -94,7 +94,7 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId,s
 
     const stopRecording = () => {
         if (mediaRecorder) {
-            console.log(mediaRecorder, 'stop');
+           
             mediaRecorder.stop();
             setAudioLength({ seconds, minutes })
 
@@ -104,27 +104,27 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId,s
     const playRecording = () => {
         if (audioRef.current) {
             const audioElement = audioRef.current;
-            console.log(audioElement, 'aud', audioElement.duration);
+    
 
             // Add an event listener to the audio element to get the duration
             audioElement.addEventListener('onloadedmetadata', () => {
                 const audioDuration = audioElement.duration; // Get the duration in seconds
                 const minutes = Math.floor(audioDuration / 60);
                 const seconds = Math.floor(audioDuration % 60);
-                console.log(audioDuration, minutes, seconds, 'noooooooo');
+ 
 
             });
             setMinutes(0);
             setSeconds(0);
             audioElement.play();
-            console.log(audioLength, 'end');
+
 
             setTimeStart(true);
         }
     };
 
     const handleSubmit = () => {
-        console.log(audioChunks, 'audio');
+
         ; // You can adjust the file extension as needed
         if (audioLength.seconds > 0) {
             api.postUpload({ originalname: 'audio', mimetype: 'audio/wav', type: 'audio' }).then(async(response) => {
@@ -138,15 +138,14 @@ export const CaptureAudio = ({ recordAudio, setRecordAudio, userData, senderId,s
                             'Content-Type': 'audio/wav', // Adjust the content type as needed
                         },
                     });
-                    console.log(result);
+               
 
                     if (result.status == 200) {
 
-                        console.log('//////cors');
                         const parsedUrl = new URL(result.url);
-                        console.log(parsedUrl, 'parsedUrl');
+                      
                         const postUrl = parsedUrl.origin + parsedUrl.pathname
-                        console.log(postUrl, 'posturl');
+               
 
                         socket.emit('private_message', {
                             recipientId: userData?.memberDetails[0]?._id === senderId

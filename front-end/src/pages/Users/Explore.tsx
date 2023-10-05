@@ -16,7 +16,7 @@ export const Explore = () => {
     const userData = useSelector((state: any) => state.user.userData)
     let page = 0
     useEffect(() => {
-        console.log(userData, '////////');
+
         setLoading(true);
         loadPost()
 
@@ -34,7 +34,7 @@ export const Explore = () => {
                 type: 'explore'
             }
             const response = await api.getPosts(formData)
-            console.log(response, '///post');
+         
 
             if (response?.data.success) {
                 const newPosts = response.data.data;
@@ -43,17 +43,17 @@ export const Explore = () => {
                     setHasMore(false);
                 } else {
                     const ads = await api.getAdvertisingUser('homePage', page)
-                    console.log(ads, 'aaaaaaadasddfdfdf');
+                   
 
                     if (ads.data.success && ads.data.data.length > 0) {
                         setPosts((prePost) => [...prePost, ...newPosts, ...ads.data.data]);
                         page += 1
-                        console.log(page, '//////////////');
+                      
 
                     } else {
                         setPosts((prePost) => [...prePost, ...newPosts]);
                         page += 1
-                        console.log(page, '//////////////');
+                   
 
                     }
                 }
@@ -90,8 +90,8 @@ export const Explore = () => {
 
     return (
         <>
-            <NavSideBar />
-            <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-full max-h-screen overflow-auto no-scrollbar rounded-xl min-h-screen transition-all duration-200">
+         
+            <main className="ease-soft-in-out ml-40  xl:ml-[17rem] xl:mr-[17rem] relative h-full max-h-screen overflow-auto no-scrollbar rounded-xl min-h-screen transition-all duration-200">
                 <div className="w-full px-6 py-6 mx-auto">
                     <div className="flex justify-around flex-wrap -mx-3">
 

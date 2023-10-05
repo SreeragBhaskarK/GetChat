@@ -1,11 +1,11 @@
 // chart 2
 import Chart from 'chart.js/auto'
 export const chart2 = (canvas, dataLabel, type) => {
-console.log(canvas,dataLabel,type,'///////chart2');
+
 
   const ctx2 = canvas.getContext('2d');
 
-  console.log(dataLabel, type, '////insideuser');
+
 
 
   var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
@@ -37,13 +37,13 @@ console.log(canvas,dataLabel,type,'///////chart2');
     labels = ['2018', '2019', '2020', '2021', '2022', '2023']
     dataLabel = [0, 0, 0, 0, 0, 0,]
   } else if (type == 'year') {
-    console.log(dataLabel[2023],'yeaaaaaaaaaaaaaaa');
+
     
     labels = ['2018', '2019', '2020', '2021', '2022', '2023']
     dataLabels = [dataLabel[2018], dataLabel[2019], dataLabel[2020], dataLabel[2021], dataLabel[2022], dataLabel[2023]]
   }
 
-  console.log(dataLabels, 'data');
+
 
   return new Chart(ctx2, {
     type: "line",

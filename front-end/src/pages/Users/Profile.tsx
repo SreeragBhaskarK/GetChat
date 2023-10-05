@@ -24,17 +24,17 @@ export const Profile = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const handlePostView = async (index, likedByUsername) => {
-    console.log(index, '/////index');
 
-    console.log(likedByUsername, '////////');
+
+
     await setLikedBy(likedByUsername.some((username) => username == userData.username))
 
 
-    console.log('///////', likedBy);
+
 
     setIndexPost(index)
     setPostClick(true)
-    console.log(indexPost);
+
 
 
   }
@@ -42,7 +42,7 @@ export const Profile = () => {
   useEffect(() => {
 
     api.getProfile({ username: userData.username }).then((response) => {
-      console.log(response, '///////userpro');
+  
 
       if (response.data.success) {
         dispatch(addUserData(response.data.data))
@@ -83,13 +83,13 @@ export const Profile = () => {
   useEffect(() => {
     setIsLoading(true)
     api.getPost(1, userData.username).then((response) => {
-      console.log(response);
+
       setIsLoading(false)
       if (response.data.success) {
         setPostData(response.data.data)
       }
     }).catch((err) => {
-      console.log(err, 'profile error');
+     
 
       if (err.response.data.message) {
 
@@ -131,7 +131,7 @@ export const Profile = () => {
   return (
 
     <>
-      <NavSideBar />
+    
       <main className="ease-soft-in-out xl:ml-68.5  relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
         <div className='w-full mt-7' >
 
@@ -212,14 +212,14 @@ export const Profile = () => {
                     <span className="hidden md:inline">post</span>
                   </a>
                 </li>
-
+{/* 
                 <li>
                   <a className="inline-block p-3" href="#">
                     <i className="fas fa-user border border-gray-500
                        px-1 pt-1 rounded text-xl md:text-xs"></i>
                     <span className="hidden md:inline">tagged</span>
                   </a>
-                </li>
+                </li> */}
               </ul>
 
               <div className="flex flex-wrap -mx-px md:-mx-3">

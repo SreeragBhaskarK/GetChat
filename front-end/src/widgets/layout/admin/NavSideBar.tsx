@@ -20,18 +20,18 @@ export const NavSideBar = () => {
     }
     return (
         <>
-            <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
+            <aside className="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block  -translate-x-full flex-wrap items-center justify-between no-scrollbar overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 translate-x-0 bg-transparent">
                 <div className="h-19.5">
-                    <i className="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden" sidenav-close></i>
-                    <a className="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700" href="javascript:;" target="_blank">
-                        <img src="../assets/img/logo-ct.png" className="inline h-full max-w-full transition-all duration-200 ease-nav-brand max-h-8" alt="main_logo" />
-                        <span className="ml-1 font-semibold transition-all duration-200 ease-nav-brand">Soft UI Dashboard</span>
+                    <i className="absolute top-0 right-0  p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 " sidenav-close></i>
+                    <a className="block px-8 py-6 m-0 text-sm whitespace-nowrap flex items-center text-slate-700" href="#" target="_blank">
+                        <img src="https://cdn-icons-png.flaticon.com/512/309/309666.png" className="inline h-full max-w-full transition-all duration-200 ease-nav-brand max-h-8" alt="main_logo" />
+                        <span className="ml-1 font-semibold transition-all duration-200 hidden xl:block ease-nav-brand">Get Chat Admin</span>
                     </a>
                 </div>
 
                 <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
 
-                <div className="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
+                <div className="items-center block w-auto max-h-screen  h-sidenav grow basis-full">
                     <ul className="flex flex-col pl-0 mb-0">
                         <li className="mt-0.5 w-full">
                             <Link className={ ` ${selectedItem=='admin' &&'shadow-soft-xl'} py-2.7  text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors`} to="/admin">
@@ -39,7 +39,7 @@ export const NavSideBar = () => {
                                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                                         <title>Dashboard</title>
                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g transform="translate(-1716.000000, -439.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                                            <g transform="translate(-1716.000000, -439.000000)" className={`${selectedItem=='admin' ? 'fill-white':'fill-black'}`} fill-rule="nonzero">
                                                 <g transform="translate(1716.000000, 291.000000)">
                                                     <g transform="translate(0.000000, 148.000000)">
                                                         <path
@@ -56,7 +56,7 @@ export const NavSideBar = () => {
                                         </g>
                                     </svg>
                                 </div>
-                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Dashboard</span>
+                                <span className="ml-1 duration-300  opacity-100 pointer-events-none hidden xl:block ease-soft">Dashboard</span>
                             </Link>
                         </li>
 
@@ -77,7 +77,7 @@ export const NavSideBar = () => {
                                         </g>
                                     </svg>
                                 </div>
-                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Posts</span>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none hidden xl:block ease-soft">Posts</span>
                             </Link>
                         </li>
                       {/*   <li className="mt-0.5 w-full">
@@ -117,7 +117,7 @@ export const NavSideBar = () => {
                                         </g>
                                     </svg>
                                 </div>
-                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Audience</span>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none hidden xl:block ease-soft">Audience</span>
                             </Link>
                         </li>
                        {/*  <li className="mt-0.5 w-full">
@@ -157,7 +157,7 @@ export const NavSideBar = () => {
                                         </g>
                                     </svg>
                                 </div>
-                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Notifications</span>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none hidden xl:block ease-soft">Notifications</span>
                             </Link>
                         </li>
                         <li className="mt-0.5 w-full">
@@ -177,7 +177,7 @@ export const NavSideBar = () => {
                                         </g>
                                     </svg>
                                 </div>
-                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Advertising</span>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none hidden xl:block ease-soft">Advertising</span>
                             </Link>
                         </li>
 
@@ -199,7 +199,7 @@ export const NavSideBar = () => {
 
                                     </CgDetailsMore>
                                 </div>
-                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">More</span>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none hidden xl:block ease-soft">More</span>
                             </a>
                         </li>
 

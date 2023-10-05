@@ -19,16 +19,16 @@ export const Notifications = ({ open, setOpen }) => {
     useEffect(() => {
         dispatch(watchNotification(false))
         if (open) {
-            console.log(open, 'open,;');
+     
 
             setIsLoading(true)
             socket.on('notification', (data) => {
-                console.log(data, '//////data');
+      
                 setNotifications((prevNotification) => [...prevNotification, data])
 
             })
             api.getNotifications(userData.username).then((response) => {
-                console.log(response);
+                
                 setIsLoading(false)
 
                 if (response.data.success) {
@@ -46,9 +46,9 @@ export const Notifications = ({ open, setOpen }) => {
 
     const follow = (username, userId) => {
 
-        console.log(username);
+
         api.putFollow({ followUserName: username, user: userData.username }).then((response) => {
-            console.log(response);
+       
 
             if (response.data.success) {
                 dispatch(addUserData(response.data.data))
@@ -62,10 +62,10 @@ export const Notifications = ({ open, setOpen }) => {
     }
 
     const unfollow = (username) => {
-        console.log(username);
+      
 
         api.deleteFollow({ followUserName: username, user: userData.username }).then((response) => {
-            console.log(response);
+       
 
             if (response.data.success) {
                 dispatch(addUserData(response.data.data))
@@ -78,10 +78,10 @@ export const Notifications = ({ open, setOpen }) => {
     }
 
     const deleteNotification = (id) => {
-        console.log(id, 'deleted');
+   
 
         api.deleteNotification(id, userData.username).then((response) => {
-            console.log(response);
+   
 
             if (response.data.success) {
                 setNotifications((prevNotification) => prevNotification.filter((noti) => noti.notification_id != id))
@@ -174,7 +174,7 @@ export const Notifications = ({ open, setOpen }) => {
                                                 } else if (isThisMonth(dateToCheck)) {
                                                     day = 'This month'
                                                 } else {
-                                                    console.log("Other")
+                                                    
                                                 }
                                                 let preDay = ''
 
@@ -190,8 +190,8 @@ export const Notifications = ({ open, setOpen }) => {
                                                         preDay = 'This week'
                                                     } else if (isThisMonth(dateToCheck)) {
                                                         preDay = 'This month'
-                                                    } else {
-                                                        console.log("Other")
+                                                    } else{
+                                                        preDay = "Other month"
                                                     }
 
                                                 }

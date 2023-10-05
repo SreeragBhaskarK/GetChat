@@ -40,7 +40,7 @@ export const PostReportOverview = () => {
             target = '6'
         }
         api.getPostReportsDashboard(type, target).then(async (response) => {
-            console.log(response, 'reppppppport');
+ 
 
             if (response.data.success) {
                 if (chartRef.current) {

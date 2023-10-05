@@ -31,6 +31,7 @@ class UserAuthController {
             let userData: User | undefined = await checkUserUseCase.execute(phoneOrusernameOremail)
             let result = await bcryptCheck(userData?.password, password)
             if (userData?.google_auth) throw new Error('already login in google auth')
+            if(userData?.status=='block')throw new Error("user account are blocked!")
             if (result && userData) {
                 userData.password = undefined
 
@@ -226,6 +227,7 @@ class UserAuthController {
             const { FRONTEND_URL } = process.env
             const userData: any = req.user
             if (userData) {
+                if(userData?.status=='block')throw new Error("user account are blocked!")
                 res.redirect(`${FRONTEND_URL}/login?username=${userData.username}`)
 
             } else {

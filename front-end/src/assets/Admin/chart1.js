@@ -1,7 +1,7 @@
 // chart 1
 import Chart from 'chart.js/auto'
 export const chart1 = (canvas, dataLabel, type) => {
-  console.log(canvas, dataLabel, type,'test');
+
 
   const ctx = canvas.getContext('2d');
   let labels = []
@@ -10,7 +10,7 @@ export const chart1 = (canvas, dataLabel, type) => {
     dataLabels = [dataLabel[0]?.users, dataLabel[1]?.users, dataLabel[2]?.users, dataLabel[3]?.users, dataLabel[4]?.users, dataLabel[5]?.users, dataLabel[6]?.users, dataLabel[7]?.users, dataLabel[8]?.users, dataLabel[9]?.users, dataLabel[10]?.users, dataLabel[11]?.users,]
     labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   } else if (type == 'testMonth') {
-    console.log('aaaaaaaaaaaaaaaaad');
+
     
     labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     dataLabels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -24,12 +24,12 @@ export const chart1 = (canvas, dataLabel, type) => {
     labels = ['2018', '2019', '2020', '2021', '2022', '2023']
     dataLabels = [0, 0, 0, 0, 0, 0,]
   } else if (type == 'year') {
-    console.log(dataLabel[2023], 'yeaaaaaaaaaaaaaaa');
+
 
     labels = ['2018', '2019', '2020', '2021', '2022', '2023']
     dataLabels = [dataLabel[2018], dataLabel[2019], dataLabel[2020], dataLabel[2021], dataLabel[2022], dataLabel[2023]]
   }
-  console.log(labels,'adsss',dataLabels,type);
+
   
   return new Chart(ctx, {
     type: "bar",

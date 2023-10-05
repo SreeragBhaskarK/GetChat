@@ -7,7 +7,7 @@ export const WeekNotifications = () => {
     useEffect(() => {
 
         api.getNotificationWeek().then((response) => {
-            console.log(response,'notifications');
+      
             if (response.data.success) {
                 setWeekNotification(response.data.data)
             }

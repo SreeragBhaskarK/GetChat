@@ -53,7 +53,7 @@ export const routes = [
     name: "500",
     path: '/500',
     element: <ServerError />,
-    type:'private'
+    type:'public'
   },{
     name:'explore',
     path:'/explore',

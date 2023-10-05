@@ -52,7 +52,7 @@ export const OtpVerification = () => {
             const otp = formData.otp1 + formData.otp2 + formData.otp3 + formData.otp4
             api.otpVerification({ otp: otp, phone: phone }).then((response) => {
                 setIsLoading(false)
-                console.log(response, '////////////');
+           
                 if (response.data.success) {
                     dispatch(loginCheck(true))
                     dispatch((addUserData(response.data.data)))
@@ -106,7 +106,7 @@ export const OtpVerification = () => {
     }
 
     const handleChange = (e) => {
-        console.log('/////////', e);
+
 
         const { name, value } = e.target
         setFormData((prevFormData) => ({

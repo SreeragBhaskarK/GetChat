@@ -32,10 +32,10 @@ export const Uploader = ({ upload, setUpload }) => {
 
     const handleImageUpload = async () => {
         /*  if (!selectedFile || !crop) return; */
-        console.log('////////');
+     
 
 
-        console.log(selectedFile);
+      
 
         /*    const userId = useSelector((state: any) => state.user.userData._id) */
 
@@ -49,9 +49,9 @@ export const Uploader = ({ upload, setUpload }) => {
                 mimetype: selectedFile.type,
                 type: 'post'
             }
-            console.log('////////uploader', formData);
+  
             api.postUpload(formData).then(async (response) => {
-                console.log(response, '/////image', userData);
+            
                 if (response.data.success) {
                     const preSignedUrl = response.data.data;
 
@@ -65,11 +65,11 @@ export const Uploader = ({ upload, setUpload }) => {
                     console.log(result);
 
                     if (result.status == 200) {
-                        console.log('//////cors');
+                  
                         const parsedUrl = new URL(result.url);
-                        console.log(parsedUrl, 'parsedUrl');
+         
                         const postUrl = parsedUrl.origin + parsedUrl.pathname
-                        console.log(postUrl, 'posturl');
+                     
 
                         const formData = {
                             url: postUrl,
@@ -78,7 +78,7 @@ export const Uploader = ({ upload, setUpload }) => {
                         }
 
                         api.postUrl(formData).then((response) => {
-                            console.log(response);
+                           
 
                             if (response.data.success) {
 
@@ -93,7 +93,7 @@ export const Uploader = ({ upload, setUpload }) => {
                         })
                     }
 
-                    console.log('Image uploaded successfully', result);
+                  
                 }
 
             }).catch((err) => {

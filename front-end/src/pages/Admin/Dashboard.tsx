@@ -127,7 +127,7 @@ export const Dashboard = () => {
     return (
         <>
             <NavSideBar />
-            <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
+            <main className="ease-soft-in-out ml-40  xl:ml-[17rem] relative h-full max-h-screen rounded-xl transition-all duration-200">
                 <NavTopBar navLocation='Dashboard' />
                 <div className="w-full px-6 py-6 mx-auto">
                     <div className="flex flex-wrap -mx-3">
@@ -252,7 +252,7 @@ export const Dashboard = () => {
 
 
 
-                    <div className="flex flex-wrap my-6 -mx-3">
+                    {/* <div className="flex flex-wrap my-6 -mx-3">
 
 
                         <div className="w-full max-w-full px-3 mt-0 mb-6 md:mb-0 md:w-1/2 md:flex-none lg:w-2/3 lg:flex-none">
@@ -261,11 +261,11 @@ export const Dashboard = () => {
                                     <div className="flex flex-wrap mt-0 -mx-3">
                                         <div className="flex-none w-7/12 max-w-full px-3 mt-0 lg:w-1/2 lg:flex-none">
                                             <h6>Popular Users</h6>
-                                           {/*  <p className="mb-0 leading-normal text-sm">
+                                            <p className="mb-0 leading-normal text-sm">
                                                 <i className="fa fa-check text-cyan-500"></i>
                                                 <span className="ml-1 font-semibold">30 done</span>
                                                 this month
-                                            </p> */}
+                                            </p>
                                            
                                         </div>
                                         <div className="flex-none w-5/12 max-w-full px-3 my-auto text-right lg:w-1/2 lg:flex-none">
@@ -341,7 +341,7 @@ export const Dashboard = () => {
                      
 
 
-                    </div>
+                    </div> */}
 
 
                 </div>

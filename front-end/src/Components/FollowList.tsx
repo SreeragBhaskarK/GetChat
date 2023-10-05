@@ -9,12 +9,12 @@ import { socket } from "../services/socketIo";
 
 export const FollowList = ({ setFollow, follow, userId, type, user }) => {
     const [followData, setFollowData] = useState([])
-    console.log(type, '///////tyep', userId);
+  
     const dispatch = useDispatch()
     const userData = useSelector((state: any) => state.user.userData)
     useEffect(() => {
         api.getFollowData({ userId, type }).then((response) => {
-            console.log(response, '/////folllow');
+           
 
             if (response.data.success) {
                 setFollowData(response.data.data)
@@ -27,7 +27,7 @@ export const FollowList = ({ setFollow, follow, userId, type, user }) => {
     const following = (username, userId) => {
 
         api.putFollow({ followUserName: username, user: userData.username }).then((response) => {
-            console.log(response, 'follow');
+
 
             if (response.data.success) {
                 dispatch(addUserData(response.data.data))
@@ -41,10 +41,9 @@ export const FollowList = ({ setFollow, follow, userId, type, user }) => {
     }
 
     const unfollow = (username) => {
-        console.log(username);
-
+  
         api.deleteFollow({ followUserName: username, user: userData.username }).then((response) => {
-            console.log(response, 'uno');
+  
 
             if (response.data.success) {
                 setFollowData((prevFollow)=>prevFollow.filter((user)=>user.username!=username))
@@ -60,7 +59,7 @@ export const FollowList = ({ setFollow, follow, userId, type, user }) => {
 
     const removeFollow = (followerUser) => {
         api.removeFollow({ followersUsername: followerUser, followingUsername: userData.username }).then((response) => {
-            console.log(response);
+  
             if (response.data.success) {
                 setFollowData((prevFollow)=>prevFollow.filter((user)=>user.username!=followerUser))
                 dispatch(addUserData(response.data.data))

@@ -58,9 +58,9 @@ export const NavTopSide = ({userData}) => {
                             {chatUser.map((user) => {
                                 const userDetails = user?.memberDetails[0]._id === userData._id ? user?.memberDetails[1] : user?.memberDetails[0]
                                 console.log(userDetails, 'user story');
-                            /*     setInterval(() => {
+                                setInterval(() => {
                                     socket.emit('onlineStatusCheck', { userId: userDetails._id, socketId: socket.id })
-                                }, 10 * 1000) */
+                                }, 10 * 1000)
                                 return (
                                     <Link to={`/messages?userId=${userDetails._id}`} className="px-3  ">
                                         <div className="relative flex items-center p-3  border-gray-300">

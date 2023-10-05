@@ -36,14 +36,13 @@ export const EditProfile = () => {
       let proPicName = profilePic.name.replace(/[^a-zA-Z0-9\s]/g, '')
 
 
-      console.log(profilePic, '/////////');
       const proPic = {
         originalname: proPicName.replace(/\s/g, ''),
         mimetype: profilePic.type,
         type: 'profile'
       }
       api.postUpload(proPic).then(async (response) => {
-        console.log(response, '//////////');
+   
 
         if (response.data.success) {
           const preSignedUrl = response.data.data;
@@ -55,12 +54,12 @@ export const EditProfile = () => {
               'Content-Type': profilePic.type, // Adjust the content type as needed
             },
           });
-          console.log(result);
+
 
           if (result.status == 200) {
             const parsedUrl = new URL(result.url);
             const postUrl = parsedUrl.origin + parsedUrl.pathname
-            console.log(postUrl, 'posturl');
+         
             formData.profilePic = postUrl
             api.updateProfile(formData).then((response) => {
               if (response.data.success) {
@@ -76,7 +75,7 @@ export const EditProfile = () => {
       })
     } else {
       api.updateProfile(formData).then((response) => {
-        console.log(response,'/up');
+       
         
         if (response.data.success) {
           dispatch(addUserData(response.data.data))
@@ -93,7 +92,7 @@ export const EditProfile = () => {
   }
   return (
     <>
-      <NavSideBar/>
+     
       <main className="ease-soft-in-out xl:ml-68.5 xl:mr-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
         <div className='w-full mt-7' >
           <div className='container'>

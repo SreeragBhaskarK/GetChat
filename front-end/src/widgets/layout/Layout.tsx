@@ -10,23 +10,7 @@ export const Layout = () => {
     const isLoggedInAdmin = useSelector((state: any) => state.admin.isLoggedInAdmin)
     const username = useSelector((state: any) => state.user.userData.username)
     const isLoggedIn = useSelector((state: any) => state.user.isLoggedIn)
-    const location = useLocation()
-    const [admin, setAdmin] = useState(false)
-    console.log(location.pathname);
-    useEffect(() => {
-
-        if (location.pathname.includes("/admin")) {
-            setAdmin(true)
-        } else {
-            setAdmin(false)
-            // The string does not contain "/admin"
-            console.log("Path does not contain /admin");
-        }
-
-        return () => {
-
-        }
-    }, [])
+    
 
 
     return (
@@ -34,6 +18,7 @@ export const Layout = () => {
             
 
             <Routes>
+               
 
                 <Route path='*' element='error' />
                 {/* User Route */}

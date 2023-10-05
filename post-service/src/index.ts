@@ -19,7 +19,7 @@ import { socketIoConnect } from './config/socketIo'
         const server = http.createServer(app)
         if (SERVER_CORS_URL) {
             app.use(cors({
-                origin: [SERVER_CORS_URL],
+                origin: [SERVER_CORS_URL,'http://localhost:5173'],
                 credentials: true,
             }))
         }

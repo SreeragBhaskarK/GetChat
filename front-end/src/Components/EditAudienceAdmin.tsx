@@ -14,7 +14,7 @@ export const EditAudienceAdmin = ({ editProfile, setEditProfile,userData }) => {
     formData.fullName =userData.full_name
    }
     const handleChange=(e)=>{
-        console.log(e);
+      
         setOnChange(true)
         const {name,value}=e.target
         setFormData((prevFormData)=>({

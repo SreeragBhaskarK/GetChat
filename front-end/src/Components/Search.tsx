@@ -17,7 +17,7 @@ export const Search = ({ open, setOpen, username }) => {
             
             api.userSearch(searchKey, username).then((response) => {
                 setIsLoading(false)
-                console.log(response, 'search');
+      
                 if (response.data.success) {
                     setSuggestions(response.data.data)
                 }
@@ -35,7 +35,7 @@ export const Search = ({ open, setOpen, username }) => {
 
             api.userSearch(searchKey, username).then((response) => {
                 setIsLoading(false)
-                console.log(response, 'search');
+           
                 if (response.data.success) {
                     setSuggestions(response.data.data)
                 }

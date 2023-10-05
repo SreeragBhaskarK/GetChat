@@ -37,7 +37,7 @@ export const ViewPost = ({ post, postClick, setPostClick,username,likedBy}) => {
                         </div>
                         <div className="p-6 flex justify-center   dark:bg-gray-700  ">
                             <div className='w-fit border border-slate-200 '>
-                                <img className='max-w-lg h-[80vh] ' src={post.post_url} alt="" />
+                                <img className=' h-[80vh] ' src={post.post_url} alt="" />
                             </div>
                             <div className='max-w-lg  min-w-[480px] h-[80vh]  '>
                                 <PostDetail post={post} username={username}  likedBy={likedBy} />

@@ -75,12 +75,12 @@ export const EditAdvertising = ({ open, setOpen, data }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log(formData, 'for');
+
 
         const isValid = await validateForm()
         if (isValid) {
             api.updateAdvertising(formData).then((response) => {
-                console.log(response);
+               
                 if (response.data.success) {
                     setOpen(false)
                 }

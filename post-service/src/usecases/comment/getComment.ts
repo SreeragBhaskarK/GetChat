@@ -7,8 +7,8 @@ class GetComment {
         this.commentRepository = commentRepository
     }
 
-    async execute(postId:string){
-        return await this.commentRepository.getComment(postId)
+    async execute(postId:string,page:number){
+        return await this.commentRepository.getComment(postId,page)
     }
 }
 export default GetComment

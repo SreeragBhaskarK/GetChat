@@ -16,7 +16,7 @@ const Advertising = () => {
     const [deleteItem, setDeleteItem] = useState(false)
     useEffect(() => {
         api.getAdvertising().then((response) => {
-            console.log(response);
+         
             if (response.data.success) {
                 setAdvertises(response.data.data)
             }
@@ -34,7 +34,7 @@ const Advertising = () => {
     return (
         <>
             <NavSideBar />
-            <main className="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
+            <main className="ease-soft-in-out ml-40  xl:ml-[17rem] relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <NavTopBar navLocation='Advertising' />
                 <div className='w-full flex justify-end '>
 
@@ -97,7 +97,7 @@ const Advertising = () => {
 
                                                             </td>
                                                             <td className="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                                                {ad.published_data >= currentDate ? (<span className='bg-gradient-to-tl  from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white'>active</span>) : (<span className='bg-gradient-to-tl  from-yellow-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white'>processing </span>)}
+                                                                {ad.published_data >= currentDate ? (<span className='bg-gradient-to-tl  from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white'>active</span>) : (<span className='bg-gradient-to-tl  from-yellow-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white'>active </span>)}
                                                             </td>
                                                             <td className="px-6 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                                                 <div className='flex justify-center'>

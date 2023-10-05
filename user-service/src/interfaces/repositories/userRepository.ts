@@ -88,7 +88,7 @@ class UserRepository {
         }
     }
 
-    async getMessages(chatId: string) {
+    async getMessages(chatId: string,page:number) {
         try {
             /*  const result = await this.messageModel.aggregate([{
                  $match: {
@@ -113,7 +113,13 @@ class UserRepository {
              }, {
                  $limit: 10
              }]) */
-            let result = await this.messageModel.find({ chatId }).sort({ createdAt: -1 }).limit(50)
+            console.log(page,'paaaaaaaaaaaaaage');
+            
+             let limit =20
+             let skip = (page - 1)*limit 
+
+
+            let result = await this.messageModel.find({ chatId }).skip(skip).limit(limit).sort({ createdAt: -1 })
             result = result.slice().reverse()
 
             return result

@@ -1,12 +1,13 @@
 import { Router } from "express";
 import AdvertisingController from "../../../interfaces/controllers/advertisingController";
 import updatingAdvertising from '../../../interfaces/controllers/advertisingController'
+import { auth } from "../../../interfaces/middelwares/auth";
 
 
 const router = Router()
-router.post('/advertising',AdvertisingController.addAdvertising)
-router.get('/advertising',AdvertisingController.getAdvertising)
-router.patch('/advertising',AdvertisingController.updatingAdvertising)
-router.delete('/advertising/:id',AdvertisingController.deleteAdvertising)
+router.post('/advertising',auth,AdvertisingController.addAdvertising)
+router.get('/advertising',auth,AdvertisingController.getAdvertising)
+router.patch('/advertising',auth,AdvertisingController.updatingAdvertising)
+router.delete('/advertising/:id',auth,AdvertisingController.deleteAdvertising)
 
 export default router

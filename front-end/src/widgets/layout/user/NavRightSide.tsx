@@ -61,7 +61,7 @@ export const NavRightSide = () => {
 
     return (
         <>
-            <aside className="max-w-62.5 ease-nav-brand  mr-8 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto no-scrollbar rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:right-0 xl:translate-x-0 xl:bg-transparent">
+            <aside className="max-w-62.5 hidden xl:block ease-nav-brand  mr-8 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto no-scrollbar rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:right-0 xl:translate-x-0 xl:bg-transparent">
                 <div className=" mt-20 mb-5">
                     <span className="ml-1 bottom-0 font-semibold transition-all duration-200 ease-nav-brand">Suggested for you </span>
                 </div>
@@ -102,6 +102,8 @@ export const NavRightSide = () => {
 
 
             </aside>
+
+           
 
 
         </>

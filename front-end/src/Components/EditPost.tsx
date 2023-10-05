@@ -11,7 +11,7 @@ export const EditPost = ({postId,setEdit,edit}) => {
         if(formDataPost){
 
             api.editPost({id:postId,caption:formDataPost}).then((response)=>{
-                console.log(response,'rc');
+               
                 if(response.data.success){
                     navigate(`/${response.data.data[0].username}`)
                     setEdit(!edit)

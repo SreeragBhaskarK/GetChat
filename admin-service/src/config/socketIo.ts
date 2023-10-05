@@ -10,7 +10,7 @@ export const socketIoConnect = (server: any) => {
 
         const io = new socketIo.Server(server, {
             cors: {
-                origin: WEB_SOCKET_CORS_URL,
+                origin: [WEB_SOCKET_CORS_URL,'http://localhost:5173'],
                 methods: ['GET', 'POST'],
                 credentials: true,
             },

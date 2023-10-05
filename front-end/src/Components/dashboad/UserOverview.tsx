@@ -28,7 +28,7 @@ export const UserOverview = () => {
     }, [])
 
     const userOverView = useCallback((type) => {
-        console.log(type);
+
 
         let target = ''
         if (type == 'month') {

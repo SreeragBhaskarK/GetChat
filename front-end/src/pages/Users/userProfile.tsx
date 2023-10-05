@@ -7,6 +7,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FollowList, ViewPost } from '../../Components'
 import { addUserData } from '../../redux/userSlice'
 import { socket } from '../../services/socketIo'
+import { LuLayoutDashboard } from 'react-icons/lu'
+import ShimmerProfilePost from '../../widgets/shimmerEffects/ShimmerProfilePost'
 
 
 
@@ -22,13 +24,13 @@ const userProfile = () => {
     const [following, setFollowing] = useState(false)
     const dispatch = useDispatch()
     const [follows, setFollows] = useState(false)
-
+    const [isLoading, setIsLoading] = useState(false)
     const [type, setType] = useState('')
 
     useEffect(() => {
         if (userData.username == username) navigate('/' + username)
         api.getProfile({ username }).then((response) => {
-            console.log(response, '///////userpro');
+
             if (response.data.success) {
                 setUserDetail(response.data.data)
             }
@@ -40,9 +42,10 @@ const userProfile = () => {
 
     }, [userData, username])
     useEffect(() => {
+        setIsLoading(true)
         api.getPost(1, userDetail.username).then((response) => {
-            console.log(response);
 
+            setIsLoading(false)
             if (response.data.success) {
                 setPostData(response.data.data)
             }
@@ -55,18 +58,17 @@ const userProfile = () => {
 
     }, [userDetail])
     const handlePostView = async (index, likedByUsername) => {
-        console.log(index, '/////index');
+      
 
-        console.log(likedByUsername, '////////');
+      
         await setLikedBy(likedByUsername.some((username) => username == userData.username))
 
 
-        console.log('///////', likedBy);
+
 
         setIndexPost(index)
         setPostClick(true)
-        console.log(indexPost);
-
+ 
     }
 
 
@@ -116,8 +118,8 @@ const userProfile = () => {
     }
     return (
         <>
-          
-          <NavSideBar/>
+
+
             <main className="ease-soft-in-out xl:ml-68.5  relative h-full max-h-screen rounded-xl min-h-screen transition-all duration-200">
                 <div className='w-full mt-7' >
                     {userDetail ? (<div className='container'>
@@ -217,12 +219,12 @@ const userProfile = () => {
             border-t">
 
                                 <li className="md:border-t md:border-gray-700 md:-mt-px md:text-gray-700">
-                                    <a className="inline-block p-3" href="#">
-                                        <HiSquares2X2 className='text-xl w-fit md:text-xs' />
+                                    <a className=" p-3 flex " >
+                                        <LuLayoutDashboard className='text-xl mr-2 h-full w-fit md:text-xs' />
                                         <span className="hidden md:inline">post</span>
                                     </a>
                                 </li>
-                                <li>
+                                {/*   <li>
                                     <a className="inline-block p-3" href="#">
                                         <i className="far fa-square text-xl md:text-xs"></i>
                                         <span className="hidden md:inline">videos</span>
@@ -234,12 +236,18 @@ const userProfile = () => {
                      px-1 pt-1 rounded text-xl md:text-xs"></i>
                                         <span className="hidden md:inline">tagged</span>
                                     </a>
-                                </li>
+                                </li> */}
                             </ul>
 
                             <div className="flex flex-wrap -mx-px md:-mx-3">
 
-                                {postData?.map((post, index) => {
+                                {isLoading ? (<>
+                                    {Array.from({ length: 6 }).map((_, index) => (
+
+                                        <ShimmerProfilePost />
+
+                                    ))}
+                                </>) : postData?.map((post, index) => {
                                     return (
                                         <div key={index} className="w-1/3 p-px md:px-3">
 
