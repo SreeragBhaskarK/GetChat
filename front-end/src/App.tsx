@@ -31,7 +31,7 @@ function App() {
   }, [location.pathname])
 
 
-  const excludeNavBarRoutes = ['/login', '/signup', '/forgot-password','/500','/verification','/otp-verification','/video_call'];
+  const excludeNavBarRoutes = ['/login', '/signup', '/forgot-password','/500','/verification','/otp-verification','/video_call','/admin/login'];
   const shouldRenderNavBar = !excludeNavBarRoutes.includes(location.pathname);
   return (
     <>

@@ -312,7 +312,7 @@ export const NavSideBar = () => {
             <aside className="max-w-62.5 block xl:hidden ease-nav-brand z-990 fixed overflow-auto no-scrollbar inset-y-0 my-4 ml-4  -translate-x-0 flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-soft-xl transition-transform duration-200 left-0  bg-transparent">
                 <div className="h-19.5">
                     <i className="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden" sidenav-close></i>
-                    <Link to='/' className="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700" href="javascript:;" target="_blank">
+                    <Link to='/' className="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700"  target="_blank">
                         <img src="https://cdn-icons-png.flaticon.com/512/309/309666.png" className="inline h-full max-w-full transition-all duration-200 ease-nav-brand max-h-8" alt="main_logo" />
             
                     </Link>
