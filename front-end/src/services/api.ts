@@ -23,7 +23,7 @@ api.interceptors.response.use(
             return Promise.reject(error);
         } else {
             // Handle network errors
-            window.location.href = '/500'
+/*             window.location.href = '/500' */
             return Promise.reject(error);
 
         }

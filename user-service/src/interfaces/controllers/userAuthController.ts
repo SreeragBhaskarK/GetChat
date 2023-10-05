@@ -40,6 +40,7 @@ class UserAuthController {
                 const maxAge = 7 * 24 * 60 * 60 * 1000
                 res.cookie('user', token, {
                     httpOnly: true,
+                    secure:true,
                     maxAge: maxAge
                 })
                 res.status(200).json({ message: 'success', success: true, data: userData, token: token })
